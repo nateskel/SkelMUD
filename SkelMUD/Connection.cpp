@@ -16,9 +16,7 @@ Connection::Connection()
 Connection::~Connection()
 {
 	delete m_socket;
-	delete m_callback;
 	m_socket = NULL;
-	m_callback = NULL;
 	m_running = false;
 }
 
@@ -115,7 +113,6 @@ THREAD Connection::ConnectionThread(LPVOID lpParam)
 		connection->Receive(output);
 		if (std::string(output) != "\r\n")
 			connection->AddReceivedData(std::string(output));
-		//connection->m_callback->recv_callback(output, connection->GetSocket());
 	}
 	connection->Close();
 	return 0;

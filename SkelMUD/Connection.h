@@ -11,7 +11,6 @@
 #endif
 
 #include "Network.h"
-#include "Callbacks.h"
 #include <string>
 #include <list>
 
@@ -41,7 +40,6 @@ private:
 	DataSocket* m_socket;
 	bool m_running;
 	State m_state;
-	CallBacks* m_callback;
 	HANDLE m_mutex;
 	std::list<std::string> m_receive_list;
 	std::list<std::string> m_send_list;
