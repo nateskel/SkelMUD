@@ -237,7 +237,7 @@ THREAD Game::ListenThread(LPVOID lpParam)
 	while (game->m_running)
 	{
 		DataSocket* datasocket = myListener.Accept();
-		Connection* connection = new Connection(datasocket, game);
+		Connection* connection = new Connection(datasocket);
 		connection->Run();
 		WaitForSingleObject(game->m_mutex, INFINITE);
 		game->m_connection_map[datasocket->GetSocket()] = connection;

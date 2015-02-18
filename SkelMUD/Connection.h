@@ -18,7 +18,7 @@
 class Connection
 {
 public:
-	Connection(DataSocket* socket, CallBacks* callback);
+	Connection(DataSocket* socket);
 	Connection();
 	~Connection();
 	void Run();

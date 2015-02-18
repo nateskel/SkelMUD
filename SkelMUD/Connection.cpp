@@ -1,10 +1,9 @@
 #include "Connection.h"
 #include <iostream>
 
-Connection::Connection(DataSocket* socket, CallBacks* callback)
+Connection::Connection(DataSocket* socket)
 {
 	m_socket = socket;
-	m_callback = callback;
 	m_mutex = CreateMutex(NULL, false, NULL);
 	m_state = CONNECTED;
 }

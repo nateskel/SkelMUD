@@ -8,7 +8,7 @@
 #include "Planet.h"
 #include <map>
 
-class Game: public CallBacks
+class Game
 {
 public:
 	Game();
