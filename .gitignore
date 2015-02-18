@@ -1,0 +1,7 @@
+Debug
+*.sln
+*.suo
+SkelMUD/Debug
+SkelMUD/Debug
+*.vcxproj
+*.filters
