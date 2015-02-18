@@ -1,1 +1,7 @@
 SkelMUD begins
+Things to be done:
+- Get rid of unneccessary pointers
+- Comments!
+- General cleaning
+- Consider refactoring the architecture
+- CLEANUP POINTERS AND SOCKETS

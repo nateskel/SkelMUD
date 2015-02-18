@@ -14,9 +14,7 @@ public:
 	Game();
 	~Game();
 	void Start();
-
 	void RemoveEndline(std::string &data);
-
 	void AddOutput(int id, std::string output);
 	std::string GetOutput(int id);
 
@@ -28,8 +26,8 @@ private:
 	std::vector<Planet*> m_planets;
 	std::map<int, std::string> m_output_map;
 	static THREAD ListenThread(LPVOID lpParam);
-	Sender* m_sender;
-	OutputManager* m_output_manager;
+	Sender m_sender;
+	OutputManager m_output_manager;
 
 	void processCommand(std::string command, int id);
 	bool processDirectionCommand(std::string command, int id);

@@ -7,8 +7,8 @@ Game::Game()
 {
 	m_running = false;
 	m_mutex = CreateMutex(NULL, false, NULL);
-	m_sender = new Sender();
-	m_output_manager = new OutputManager();
+	m_sender = Sender();
+	m_output_manager = OutputManager();
 	m_planets.push_back(BuildPlanet());
 }
 
@@ -28,7 +28,7 @@ void Game::recv_callback(char* data, int socket)
 	{
 		if (it->first != socket)
 		{
-			it->second->Send(data);
+			it->second.Send(data);
 		}
 	}
 	ReleaseMutex(m_mutex);
@@ -79,7 +79,7 @@ void Game::Start()
 			int id = it->first;
 			if (connection->GetState() == Connection::CONNECTED)
 			{
-				m_sender->Send(m_output_manager->GetIntroText(), connection, YELLOW);
+				m_sender.Send(m_output_manager.GetIntroText(), connection, YELLOW);
 				connection->SetState(Connection::USERNAME);
 				continue;
 			}
@@ -94,11 +94,11 @@ void Game::Start()
 					// the name used here is the username, not the character name (TEMPORARY)
 						m_player_map[id] = new Player(id, data);
 						m_planets[m_player_map[id]->GetPlanet()]->GetRoom(m_player_map[id]->GetRoom())->AddPlayer(m_player_map[id]);
-						m_sender->Send("Password: ", connection, YELLOW);
+						m_sender.Send("Password: ", connection, YELLOW);
 						connection->SetState(Connection::PASSWORD);
 						break;
 					case Connection::PASSWORD:
-						m_sender->Send("Logged in!\r\n", connection);
+						m_sender.Send("Logged in!\r\n", connection);
 						connection->SetState(Connection::LOGGEDIN);
 						processLook(id);
 						break;
@@ -111,7 +111,7 @@ void Game::Start()
 						{
 							if (Tokenizer::UpperCase(allTokens[0]) == "OOC" && Tokenizer::UpperCase(allTokens[1]) == "OFF")
 							{
-								m_sender->Send("OOC Off\r\n", m_connection_map[id], MAGENTA);
+								m_sender.Send("OOC Off\r\n", m_connection_map[id], MAGENTA);
 								m_connection_map[id]->SetState(Connection::LOGGEDIN);
 								break;
 							}
@@ -134,7 +134,7 @@ void Game::processCommand(std::string data, int id)
 			return;
 		if (Tokenizer::UpperCase(commandlist[0]) == "ON")
 		{
-			m_sender->Send("OOC On\r\n", m_connection_map[id], MAGENTA);
+			m_sender.Send("OOC On\r\n", m_connection_map[id], MAGENTA);
 			m_connection_map[id]->SetState(Connection::OOC);
 			return;
 		}
@@ -142,11 +142,11 @@ void Game::processCommand(std::string data, int id)
 		output.append("(ooc): ");
 		output.append(data);
 		output.append("\r\n");
-		m_sender->SendAll(output, m_connection_map, id, YELLOW);
+		m_sender.SendAll(output, m_connection_map, id, YELLOW);
 	}
 	else if (command == "HELP")
 	{
-		m_sender->Send("Commands are not case sensitive\r\n\r\nOOC <message>: Out of character global chat\r\nOOC <ON/OFF>: Turn OOC permanently ON/OFF\r\n", m_connection_map[id]);
+		m_sender.Send("Commands are not case sensitive\r\n\r\nOOC <message>: Out of character global chat\r\nOOC <ON/OFF>: Turn OOC permanently ON/OFF\r\n", m_connection_map[id]);
 	}
 	else if (command == "QUIT1459")
 	{
@@ -163,7 +163,7 @@ void Game::processCommand(std::string data, int id)
 	}
 	else
 	{
-		m_sender->Send("Unrecognized Command. Type 'help' for a list of commands.\r\n", m_connection_map[id]);
+		m_sender.Send("Unrecognized Command. Type 'help' for a list of commands.\r\n", m_connection_map[id]);
 	}
 }
 
@@ -182,7 +182,7 @@ bool Game::processDirectionCommand(std::string command, int id)
 		result = m_planets[current_planet]->MoveWest(current_room, id);
 	if (!result)
 	{
-		m_sender->Send("Can't go that way!\r\n", m_connection_map[id]);
+		m_sender.Send("Can't go that way!\r\n", m_connection_map[id]);
 	}
 	else
 	{
@@ -192,8 +192,8 @@ bool Game::processDirectionCommand(std::string command, int id)
 		arrive_message.append(" entered the room\r\n");
 		std::string leave_message = m_player_map[id]->GetName();
 		leave_message.append(" left the room\r\n");
-		m_sender->SendToMultiple(arrive_message, m_connection_map, arriving_players);
-		m_sender->SendToMultiple(leave_message, m_connection_map, leaving_players);
+		m_sender.SendToMultiple(arrive_message, m_connection_map, arriving_players);
+		m_sender.SendToMultiple(leave_message, m_connection_map, leaving_players);
 		processLook(id);
 	}
 	return result;
@@ -224,7 +224,7 @@ void Game::processLook(int id)
 	if (room->GetWest() != -1)
 		output.append("West ");
 	output.append("\r\n");
-	m_sender->Send(output, m_connection_map[id]);
+	m_sender.Send(output, m_connection_map[id]);
 }
 
 THREAD Game::ListenThread(LPVOID lpParam)
