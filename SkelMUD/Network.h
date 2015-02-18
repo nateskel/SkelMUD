@@ -2,10 +2,8 @@
 #define NETWORK_H
 
 #ifdef _WIN32
-	//#include <Windows.h>
 	#include <ws2tcpip.h>
     #include <winsock2.h>
-    
 #else
     #include <sys/socket.h>
     #include <netinet/in.h>
@@ -13,7 +11,7 @@
     #include <arpa/inet.h>
     #include <netdb.h>
     #define SOCKET int
-	#define closesocket close
+	#define closesocket shutdown
 #endif
 
 class DataSocket

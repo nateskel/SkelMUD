@@ -6,7 +6,9 @@
 Game::Game()
 {
 	m_running = false;
+#ifdef _WIN_32
 	m_mutex = CreateMutex(NULL, false, NULL);
+#endif
 	m_sender = Sender();
 	m_output_manager = OutputManager();
 	m_planets.push_back(BuildPlanet());
@@ -16,25 +18,6 @@ Game::~Game()
 {
 
 }
-
-/*
-void Game::recv_callback(char* data, int socket)
-{
-	std::map<SOCKET, Connection*>::iterator it;
-	DWORD dwWaitResult;
-	// Begin critical section
-	dwWaitResult = WaitForSingleObject(m_mutex, INFINITE);
-	for (it = m_connection_map.begin(); it != m_connection_map.end() ; it++)
-	{
-		if (it->first != socket)
-		{
-			it->second.Send(data);
-		}
-	}
-	ReleaseMutex(m_mutex);
-	// End critical section
-}
-*/
 
 void Game::AddOutput(int id, std::string output)
 {
@@ -73,9 +56,9 @@ void Game::Start()
 		//loop
 		for (it = m_connection_map.begin(); it != m_connection_map.end(); it++)
 		{
-			WaitForSingleObject(m_mutex, INFINITE);
+			Thread::Lock(m_mutex);
 			Connection* connection = it->second;
-			ReleaseMutex(m_mutex);
+			Thread::Unlock(m_mutex);
 			int id = it->first;
 			if (connection->GetState() == Connection::CONNECTED)
 			{
@@ -239,9 +222,9 @@ THREAD Game::ListenThread(LPVOID lpParam)
 		DataSocket* datasocket = myListener.Accept();
 		Connection* connection = new Connection(datasocket);
 		connection->Run();
-		WaitForSingleObject(game->m_mutex, INFINITE);
+		Thread::Lock(game->m_mutex);
 		game->m_connection_map[datasocket->GetSocket()] = connection;
-		ReleaseMutex(game->m_mutex);
+		Thread::Unlock(game->m_mutex);
 	}
 	game->m_running = false;
 	myListener.Close();

@@ -4,7 +4,6 @@
 ServerSocket::ServerSocket(int port)
 {
 	m_listening = false;
-	m_listen_socket = NULL;
 	m_port = port;
 	#ifdef _WIN32
         WSADATA wsaData;
@@ -65,10 +64,11 @@ DataSocket* ServerSocket::Accept()
 	return dataSocket;
 }
 
-//Change this to a cleanup method
 int ServerSocket::Close()
 {
+	#ifdef _WIN32
 	closesocket(m_listen_socket);
+	#endif
 	return 0;
 }
 
@@ -110,5 +110,7 @@ SOCKET DataSocket::GetSocket()
 
 void DataSocket::Close()
 {
+	#ifdef WIN32
     closesocket(m_data_socket);
+    #endif
 }

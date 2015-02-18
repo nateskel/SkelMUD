@@ -5,12 +5,11 @@
     //#include <windows.h>
     #define THREAD DWORD WINAPI
 #else
-    #include <pthread.h>
-    #define THREAD void*
     #define LPVOID void*
 #endif
 
 #include "Network.h"
+#include "Thread.h"
 #include <string>
 #include <list>
 
@@ -29,7 +28,7 @@ public:
 	HANDLE GetMutex();
 	SOCKET GetSocket();
 	void AddReceivedData(std::string data);
-	std::string Connection::GetNextData();
+	std::string GetNextData();
 	static THREAD ConnectionThread(LPVOID lpParam);
 	bool HasMoreData();
 	enum State { CONNECTED, USERNAME, PASSWORD, NEWUSER, LOGGEDIN , OOC};
@@ -42,6 +41,5 @@ private:
 	State m_state;
 	HANDLE m_mutex;
 	std::list<std::string> m_receive_list;
-	std::list<std::string> m_send_list;
 };
 #endif // CONNECTION_H

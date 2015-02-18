@@ -1,10 +1,13 @@
 #include "Connection.h"
 #include <iostream>
 
+
 Connection::Connection(DataSocket* socket)
 {
 	m_socket = socket;
+#ifdef _WIN_32
 	m_mutex = CreateMutex(NULL, false, NULL);
+#endif
 	m_state = CONNECTED;
 }
 
@@ -81,25 +84,25 @@ SOCKET Connection::GetSocket()
 
 void Connection::AddReceivedData(std::string data)
 {
-	WaitForSingleObject(m_mutex, INFINITE);
+	Thread::Lock(m_mutex);
 	m_receive_list.push_back(data);
-	ReleaseMutex(m_mutex);
+	Thread::Unlock(m_mutex);
 }
 
 std::string Connection::GetNextData()
 {
-	WaitForSingleObject(m_mutex, INFINITE);
+	Thread::Lock(m_mutex);
 	std::string output = m_receive_list.front();
 	m_receive_list.pop_front();
-	ReleaseMutex(m_mutex);
+	Thread::Unlock(m_mutex);
 	return output;
 }
 
 bool Connection::HasMoreData()
 {
-	WaitForSingleObject(m_mutex, INFINITE);
+	Thread::Lock(m_mutex);
 	bool result = m_receive_list.size() > 0;
-	ReleaseMutex(m_mutex);
+	Thread::Unlock(m_mutex);
 	return result;
 }
 

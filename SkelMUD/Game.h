@@ -6,6 +6,7 @@
 #include "Sender.h"
 #include "TextProcessor.h"
 #include "Planet.h"
+#include "Thread.h"
 #include <map>
 
 class Game

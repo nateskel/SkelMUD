@@ -15,6 +15,6 @@ public:
 	static std::string LowerCase(std::string data);
 protected:
 private:
-	static std::vector<std::string> Tokenizer::GetAllTokens(std::string data, std::vector<std::string> &output);
+	static std::vector<std::string> GetAllTokens(std::string data, std::vector<std::string> &output);
 };
 #endif // TOKENIZER_H
