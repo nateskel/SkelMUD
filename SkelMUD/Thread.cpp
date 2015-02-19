@@ -14,7 +14,7 @@ int Thread::Lock(HANDLE mutex)
 int Thread::Unlock(HANDLE mutex)
 {
 #ifdef _WIN32
-	ReleaseMutex(m_mutex);
+	ReleaseMutex(mutex);
 #else
     pthread_mutex_unlock(&mutex);
 #endif

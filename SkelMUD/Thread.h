@@ -1,7 +1,10 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <thread>
+#include <Windows.h>
+#else
 #include <pthread.h>
 #define THREAD void*
 #define HANDLE pthread_mutex_t
@@ -16,7 +19,6 @@ public:
 	static int Unlock(HANDLE mutex);
 
 private:
-
 
 };
 
