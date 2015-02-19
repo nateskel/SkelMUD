@@ -23,15 +23,15 @@ public:
 	bool IsRunning();
 	void Stop();
 	void Close();
-	void Send(char* data);
-	void Receive(char* data);
+	int Send(char* data);
+	int Receive(char* data);
 	HANDLE GetMutex();
 	SOCKET GetSocket();
 	void AddReceivedData(std::string data);
 	std::string GetNextData();
 	static THREAD ConnectionThread(LPVOID lpParam);
 	bool HasMoreData();
-	enum State { CONNECTED, USERNAME, PASSWORD, NEWUSER, LOGGEDIN , OOC};
+	enum State { CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEWUSER, LOGGEDIN , OOC};
 	void SetState(State state);
 	State GetState();
 protected:

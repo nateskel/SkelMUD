@@ -50,17 +50,38 @@ void Game::Start()
 	hThread = pthread_create(&ptThreadID, NULL, ListenThread, this);
 #endif
 	std::map<SOCKET, Connection*>::iterator it;
+	std::map<SOCKET, Connection*>::iterator it_end;
 	std::list<std::string>::iterator list_it;
 	while (m_running)
 	{
 		//loop
-		for (it = m_connection_map.begin(); it != m_connection_map.end(); it++)
+		Thread::Lock(m_mutex);
+		it = m_connection_map.begin();
+		it_end = m_connection_map.end();
+		Thread::Unlock(m_mutex);
+		for (it; it != it_end; it++)
 		{
 			Thread::Lock(m_mutex);
 			Connection* connection = it->second;
+			if (connection == NULL)
+				continue;
+			Connection::State state = connection->GetState();
 			Thread::Unlock(m_mutex);
+			if (state == Connection::DISCONNECTED)
+			{
+				m_connection_map.erase(it);
+				continue;
+			}
+			else
+			{
+				/*
+				it++;
+				if (it == it_end)
+					break;
+					*/
+			}
 			int id = it->first;
-			if (connection->GetState() == Connection::CONNECTED)
+			if (state == Connection::CONNECTED)
 			{
 				m_sender.Send(m_output_manager.GetIntroText(), connection, YELLOW);
 				connection->SetState(Connection::USERNAME);
@@ -70,7 +91,7 @@ void Game::Start()
 			{
 				std::string data = connection->GetNextData();
 				RemoveEndline(data);
-				switch(connection->GetState())
+				switch(state)
 				{
 					case Connection::USERNAME:
 					//TODO: this should be run through character creation

@@ -42,14 +42,14 @@ bool Connection::IsRunning()
 	return m_running;
 }
 
-void Connection::Send(char* data)
+int Connection::Send(char* data)
 {
-	m_socket->Send(data);
+	return m_socket->Send(data);
 }
 
-void Connection::Receive(char* data)
+int Connection::Receive(char* data)
 {
-    m_socket->Receive(data);
+    return m_socket->Receive(data);
 }
 
 void Connection::Stop()
@@ -69,12 +69,16 @@ HANDLE Connection::GetMutex()
 
 void Connection::SetState(State state)
 {
+	Thread::Lock(m_mutex);
 	m_state = state;
+	Thread::Unlock(m_mutex);
 }
 
 Connection::State Connection::GetState()
 {
+	Thread::Lock(m_mutex);
 	return m_state;
+	Thread::Lock(m_mutex);
 }
 
 SOCKET Connection::GetSocket()
@@ -113,8 +117,13 @@ THREAD Connection::ConnectionThread(LPVOID lpParam)
 	while (connection->IsRunning())
 	{
 		memset(output, 0, sizeof(output));
-		connection->Receive(output);
-		if (std::string(output) != "\r\n")
+		int result = connection->Receive(output);
+		if (result == -1)
+		{
+			connection->SetState(DISCONNECTED);
+			connection->Stop();
+		}
+		else if (std::string(output) != "\r\n")
 			connection->AddReceivedData(std::string(output));
 	}
 	connection->Close();

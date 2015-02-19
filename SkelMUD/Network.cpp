@@ -94,13 +94,12 @@ int DataSocket::Connect()
 
 int DataSocket::Send(char* data)
 {
-	send(m_data_socket, data, strlen(data) + 1, 0);
-	return 0;
+	return send(m_data_socket, data, strlen(data) + 1, 0);
 }
 
-void DataSocket::Receive(char* data)
+int DataSocket::Receive(char* data)
 {
-    recv(m_data_socket, data, 1000, 0);
+    return recv(m_data_socket, data, 1000, 0);
 }
 
 SOCKET DataSocket::GetSocket()

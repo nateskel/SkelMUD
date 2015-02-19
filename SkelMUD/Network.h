@@ -23,7 +23,7 @@ public:
 
 	int Connect();
 	int Send(char* data);
-	void Receive(char* data);
+	int Receive(char* data);
 	void Close();
 	SOCKET GetSocket();
 

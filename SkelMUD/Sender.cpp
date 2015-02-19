@@ -22,6 +22,8 @@ void Sender::SendAll(std::string data, std::map<SOCKET, Connection*> connection_
 	std::map<SOCKET, Connection*>::iterator it;
 	for (it = connection_map.begin(); it != connection_map.end(); it++)
 	{
+		if (it->second == NULL)
+			continue;
 		if (it->second->GetSocket() != exclude && (it->second->GetState() == Connection::LOGGEDIN || it->second->GetState() == Connection::OOC))
 		{
 			std::vector<char> output(data.begin(), data.end());
