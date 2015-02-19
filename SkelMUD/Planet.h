@@ -46,7 +46,7 @@ public:
 	void AddPlayer(Player* player);
 	Player* GetPlayer(int id);
 	std::vector<int> GetPlayers();
-	std::vector<int> GetPlayers(int exclude);
+	std::vector<int> GetPlayerIDs(int exclude);
 	std::string GetLongDescription();
 	std::string GetShortDescription();
 	int GetNorth();

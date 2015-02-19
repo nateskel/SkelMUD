@@ -44,7 +44,12 @@ bool Connection::IsRunning()
 
 int Connection::Send(char* data)
 {
-	return m_socket->Send(data);
+	int sent =  m_socket->Send(data);
+	if(sent == -1)
+	{
+		SetState(DISCONNECTED);
+		m_running = false;
+	}
 }
 
 int Connection::Receive(char* data)
@@ -120,6 +125,7 @@ THREAD Connection::ConnectionThread(LPVOID lpParam)
 		int result = connection->Receive(output);
 		if (result == -1)
 		{
+			std::cout << "DISCONNECTED" << std::endl;
 			connection->SetState(DISCONNECTED);
 			connection->Stop();
 		}

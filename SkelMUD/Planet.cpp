@@ -59,7 +59,7 @@ bool Planet::MoveWest(int room_id, int player_id)
 void Planet::ChangeRoom(int old_room, int new_room, int player_id)
 {
 	Player* player = m_rooms[old_room]->GetPlayer(player_id);
-	player->SetRoom(new_room);
+	player->SetRoomID(new_room);
 	m_rooms[old_room]->RemovePlayer(player_id);
 	m_rooms[new_room]->AddPlayer(player);
 }
@@ -126,7 +126,7 @@ std::vector<int> Room::GetPlayers()
 	return output;
 }
 
-std::vector<int> Room::GetPlayers(int exclude)
+std::vector<int> Room::GetPlayerIDs(int exclude)
 {
 	std::vector<int> output;
 	for (std::map<int, Player*>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++)

@@ -10,10 +10,10 @@ public:
 	~Entity();
 	void SetName(std::string name);
 	std::string GetName();
-	void SetPlanet(int planet_id);
-	int GetPlanet();
-	void SetRoom(int room_id);
-	int GetRoom();
+	void SetPlanetID(int planet_id);
+	int GetPlanetID();
+	void SetRoomID(int room_id);
+	int GetRoomID();
 protected:
 	int m_player_id;
 	std::string m_player_name;

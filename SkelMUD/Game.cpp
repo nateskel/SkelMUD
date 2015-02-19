@@ -51,7 +51,6 @@ void Game::Start()
 #endif
 	std::map<SOCKET, Connection*>::iterator it;
 	std::map<SOCKET, Connection*>::iterator it_end;
-	std::list<std::string>::iterator list_it;
 	while (m_running)
 	{
 		//loop
@@ -59,6 +58,7 @@ void Game::Start()
 		it = m_connection_map.begin();
 		it_end = m_connection_map.end();
 		Thread::Unlock(m_mutex);
+		int DEBUGINT = 0;
 		for (it; it != it_end; it++)
 		{
 			Thread::Lock(m_mutex);
@@ -70,6 +70,7 @@ void Game::Start()
 			if (state == Connection::DISCONNECTED)
 			{
 				m_connection_map.erase(it);
+				std::cout<< "ERASED" << std::endl;
 				continue;
 			}
 			else
@@ -83,6 +84,7 @@ void Game::Start()
 			int id = it->first;
 			if (state == Connection::CONNECTED)
 			{
+				std::cout << m_connection_map.size() << std::endl;
 				m_sender.Send(m_output_manager.GetIntroText(), connection, YELLOW);
 				connection->SetState(Connection::USERNAME);
 				continue;
@@ -97,7 +99,7 @@ void Game::Start()
 					//TODO: this should be run through character creation
 					// the name used here is the username, not the character name (TEMPORARY)
 						m_player_map[id] = new Player(id, data);
-						m_planets[m_player_map[id]->GetPlanet()]->GetRoom(m_player_map[id]->GetRoom())->AddPlayer(m_player_map[id]);
+						m_planets[m_player_map[id]->GetPlanetID()]->GetRoom(m_player_map[id]->GetRoomID())->AddPlayer(m_player_map[id]);
 						m_sender.Send("Password: ", connection, YELLOW);
 						connection->SetState(Connection::PASSWORD);
 						break;
@@ -109,12 +111,10 @@ void Game::Start()
 					case Connection::LOGGEDIN:
 						processCommand(data, id);
 						break;
-					case Connection::OOC:
+					case Connection::OOC: {
 						std::vector<std::string> allTokens = Tokenizer::GetAllTokens(data);
-						if (allTokens.size() == 2)
-						{
-							if (Tokenizer::UpperCase(allTokens[0]) == "OOC" && Tokenizer::UpperCase(allTokens[1]) == "OFF")
-							{
+						if (allTokens.size() == 2) {
+							if (Tokenizer::UpperCase(allTokens[0]) == "OOC" && Tokenizer::UpperCase(allTokens[1]) == "OFF") {
 								m_sender.Send("OOC Off\r\n", m_connection_map[id], MAGENTA);
 								m_connection_map[id]->SetState(Connection::LOGGEDIN);
 								break;
@@ -122,6 +122,10 @@ void Game::Start()
 						}
 						data.insert(0, "OOC ");
 						processCommand(data, id);
+					}
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -165,6 +169,10 @@ void Game::processCommand(std::string data, int id)
 	{
 		processDirectionCommand(command, id);
 	}
+	else if (command == "CON")
+	{
+		m_sender.Send(std::to_string(m_connection_map.size()), m_connection_map[id]);
+	}
 	else
 	{
 		m_sender.Send("Unrecognized Command. Type 'help' for a list of commands.\r\n", m_connection_map[id]);
@@ -174,8 +182,9 @@ void Game::processCommand(std::string data, int id)
 bool Game::processDirectionCommand(std::string command, int id)
 {
 	bool result = false;
-	int current_planet = m_player_map[id]->GetPlanet();
-	int current_room = m_player_map[id]->GetRoom();
+	Player* current_player = m_player_map[id];
+	int current_planet = current_player->GetPlanetID();
+	int current_room = current_player->GetRoomID();
 	if (command == "N" || command == "NORTH")
 		result = m_planets[current_planet]->MoveNorth(current_room, id);
 	else if (command == "S" || command == "SOUTH")
@@ -190,11 +199,11 @@ bool Game::processDirectionCommand(std::string command, int id)
 	}
 	else
 	{
-		std::vector<int> leaving_players = m_planets[current_planet]->GetRoom(current_room)->GetPlayers(id);
-		std::vector<int> arriving_players = m_planets[current_planet]->GetRoom(m_player_map[id]->GetRoom())->GetPlayers(id); // Refactor this crap
-		std::string arrive_message = m_player_map[id]->GetName();
+		std::vector<int> leaving_players = m_planets[current_planet]->GetRoom(current_room)->GetPlayerIDs(id);
+		std::vector<int> arriving_players = m_planets[current_planet]->GetRoom(current_player->GetRoomID())->GetPlayerIDs(id);
+		std::string arrive_message = current_player->GetName();
 		arrive_message.append(" entered the room\r\n");
-		std::string leave_message = m_player_map[id]->GetName();
+		std::string leave_message = current_player->GetName();
 		leave_message.append(" left the room\r\n");
 		m_sender.SendToMultiple(arrive_message, m_connection_map, arriving_players);
 		m_sender.SendToMultiple(leave_message, m_connection_map, leaving_players);
@@ -205,8 +214,9 @@ bool Game::processDirectionCommand(std::string command, int id)
 
 void Game::processLook(int id)
 {
-	Room* room = m_planets[m_player_map[id]->GetPlanet()]->GetRoom(m_player_map[id]->GetRoom()); // Again, refactor this crap. I mean look at this, wtf.
-	std::vector<int> visible_players = room->GetPlayers(id);
+	Player* current_player = m_player_map[id];
+	Room* room = m_planets[current_player->GetPlanetID()]->GetRoom(current_player->GetRoomID());
+	std::vector<int> visible_players = room->GetPlayerIDs(id);
 	std::string output = room->GetLongDescription();
 	output.append("\r\n");
 	output.append(room->GetShortDescription());
@@ -261,14 +271,9 @@ void Game::RemoveEndline(std::string &data)
 Planet* BuildPlanet()
 {
 	Planet* planet = new Planet();
-	Room* room = new Room("This is the first room", "First Room", 1, -1, 3, -1, -1, -1, -1, -1, -1, -1);
-	planet->AddRoom(room);
-	room = new Room("This is the second room", "Second Room", -1, 0, 2, -1, -1, -1, -1, -1, -1, -1);
-	planet->AddRoom(room);
-	room = new Room("This is the third room", "Third Room", -1, 3, -1, 1, -1, -1, -1, -1, -1, -1);
-	planet->AddRoom(room);
-	room = new Room("This is the fourth room", "Fourth Room", 2, -1, -1, 0, -1, -1, -1, -1, -1, -1);
-	planet->AddRoom(room);
-	room = NULL;
+	planet->AddRoom(new Room("This is the first room", "First Room", 1, -1, 3, -1, -1, -1, -1, -1, -1, -1));
+	planet->AddRoom(new Room("This is the second room", "Second Room", -1, 0, 2, -1, -1, -1, -1, -1, -1, -1));
+	planet->AddRoom(new Room("This is the third room", "Third Room", -1, 3, -1, 1, -1, -1, -1, -1, -1, -1));
+	planet->AddRoom(new Room("This is the fourth room", "Fourth Room", 2, -1, -1, 0, -1, -1, -1, -1, -1, -1));
 	return planet;
 }

@@ -10,22 +10,22 @@ Entity::~Entity()
 
 }
 
-void Entity::SetPlanet(int planet_id)
+void Entity::SetPlanetID(int planet_id)
 {
 	m_planet_id = planet_id;
 }
 
-int Entity::GetPlanet()
+int Entity::GetPlanetID()
 {
 	return m_planet_id;
 }
 
-void Entity::SetRoom(int room_id)
+void Entity::SetRoomID(int room_id)
 {
 	m_room_id = room_id;
 }
 
-int Entity::GetRoom()
+int Entity::GetRoomID()
 {
 	return m_room_id;
 }
