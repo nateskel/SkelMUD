@@ -10,8 +10,6 @@ public:
 	Player();
 	Player(int player_id, std::string player_name);
 	~Player();
-	void SetName(std::string name);
-	std::string GetName();
 	int GetID();
 
 protected:

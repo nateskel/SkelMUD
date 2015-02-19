@@ -19,16 +19,6 @@ Player::~Player()
 
 }
 
-void Player::SetName(std::string name)
-{
-	m_player_name = name;
-}
-
-std::string Player::GetName()
-{
-	return m_player_name;
-}
-
 int Player::GetID()
 {
 	return m_player_id;

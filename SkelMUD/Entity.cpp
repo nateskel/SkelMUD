@@ -29,3 +29,14 @@ int Entity::GetRoomID()
 {
 	return m_room_id;
 }
+
+void Entity::SetName(std::string name)
+{
+	m_name = name;
+}
+
+std::string Entity::GetName()
+{
+	return m_name;
+}
+

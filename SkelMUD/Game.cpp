@@ -61,6 +61,7 @@ void Game::Start()
 		int DEBUGINT = 0;
 		for (it; it != it_end; it++)
 		{
+			int id = it->first;
 			Thread::Lock(m_mutex);
 			Connection* connection = it->second;
 			if (connection == NULL)
@@ -69,6 +70,9 @@ void Game::Start()
 			Thread::Unlock(m_mutex);
 			if (state == Connection::DISCONNECTED)
 			{
+				m_planets[m_player_map[id]->GetPlanetID()]->GetRoom(m_player_map[id]->GetRoomID())->RemovePlayer(id);
+				delete m_player_map[id];
+				m_player_map.erase(id);
 				m_connection_map.erase(it);
 				std::cout<< "ERASED" << std::endl;
 				continue;
@@ -81,7 +85,6 @@ void Game::Start()
 					break;
 					*/
 			}
-			int id = it->first;
 			if (state == Connection::CONNECTED)
 			{
 				std::cout << m_connection_map.size() << std::endl;
