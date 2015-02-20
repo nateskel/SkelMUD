@@ -15,7 +15,6 @@ public:
 	void SetRoomID(int room_id);
 	int GetRoomID();
 protected:
-	int m_player_id;
 	std::string m_name;
 	int m_planet_id;
 	int m_room_id;

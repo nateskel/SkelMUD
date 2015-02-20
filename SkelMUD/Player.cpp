@@ -9,7 +9,7 @@ Player::Player()
 Player::Player(int player_id, std::string player_name)
 {
 	m_player_id = player_id;
-	m_player_name = player_name;
+	m_name = player_name;
 	SetRoomID(0);
 	SetPlanetID(0);
 }

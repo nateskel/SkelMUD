@@ -50,6 +50,7 @@ int Connection::Send(char* data)
 		SetState(DISCONNECTED);
 		m_running = false;
 	}
+	return sent;
 }
 
 int Connection::Receive(char* data)
@@ -123,13 +124,13 @@ THREAD Connection::ConnectionThread(LPVOID lpParam)
 	{
 		memset(output, 0, sizeof(output));
 		int result = connection->Receive(output);
-		if (result == -1)
+		if (result == 0)
 		{
 			std::cout << "DISCONNECTED" << std::endl;
 			connection->SetState(DISCONNECTED);
 			connection->Stop();
 		}
-		else if (std::string(output) != "\r\n")
+		else if (std::string(output) != "\r\n" && std::string(output) != "")
 			connection->AddReceivedData(std::string(output));
 	}
 	connection->Close();

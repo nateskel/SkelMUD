@@ -59,7 +59,7 @@ void Game::Start()
 		it_end = m_connection_map.end();
 		Thread::Unlock(m_mutex);
 		int DEBUGINT = 0;
-		for (it; it != it_end; it++)
+		for (it; it != it_end; )
 		{
 			int id = it->first;
 			Thread::Lock(m_mutex);
@@ -70,37 +70,37 @@ void Game::Start()
 			Thread::Unlock(m_mutex);
 			if (state == Connection::DISCONNECTED)
 			{
-				m_planets[m_player_map[id]->GetPlanetID()]->GetRoom(m_player_map[id]->GetRoomID())->RemovePlayer(id);
-				delete m_player_map[id];
-				m_player_map.erase(id);
-				m_connection_map.erase(it);
+				if (m_player_map.find(id) != m_player_map.end())
+				{
+					m_planets[m_player_map[id]->GetPlanetID()]->GetRoom(m_player_map[id]->GetRoomID())->RemovePlayer(id);
+					delete m_player_map[id];
+					m_player_map.erase(id);
+				}
+				std::map<SOCKET, Connection*>::iterator it_temp = it;
+				it++;
+				m_connection_map.erase(it_temp);
 				std::cout<< "ERASED" << std::endl;
 				continue;
 			}
-			else
-			{
-				/*
-				it++;
-				if (it == it_end)
-					break;
-					*/
-			}
-			if (state == Connection::CONNECTED)
+			else if (state == Connection::CONNECTED)
 			{
 				std::cout << m_connection_map.size() << std::endl;
 				m_sender.Send(m_output_manager.GetIntroText(), connection, YELLOW);
 				connection->SetState(Connection::USERNAME);
+				it++;
 				continue;
 			}
-			if (connection->HasMoreData())
+			else
 			{
-				std::string data = connection->GetNextData();
-				RemoveEndline(data);
-				switch(state)
+				if (connection->HasMoreData())
 				{
+					std::string data = connection->GetNextData();
+					RemoveEndline(data);
+					switch (state)
+					{
 					case Connection::USERNAME:
-					//TODO: this should be run through character creation
-					// the name used here is the username, not the character name (TEMPORARY)
+						//TODO: this should be run through character creation
+						// the name used here is the username, not the character name (TEMPORARY)
 						m_player_map[id] = new Player(id, data);
 						m_planets[m_player_map[id]->GetPlanetID()]->GetRoom(m_player_map[id]->GetRoomID())->AddPlayer(m_player_map[id]);
 						m_sender.Send("Password: ", connection, YELLOW);
@@ -115,21 +115,23 @@ void Game::Start()
 						processCommand(data, id);
 						break;
 					case Connection::OOC: {
-						std::vector<std::string> allTokens = Tokenizer::GetAllTokens(data);
-						if (allTokens.size() == 2) {
-							if (Tokenizer::UpperCase(allTokens[0]) == "OOC" && Tokenizer::UpperCase(allTokens[1]) == "OFF") {
-								m_sender.Send("OOC Off\r\n", m_connection_map[id], MAGENTA);
-								m_connection_map[id]->SetState(Connection::LOGGEDIN);
-								break;
-							}
-						}
-						data.insert(0, "OOC ");
-						processCommand(data, id);
+											  std::vector<std::string> allTokens = Tokenizer::GetAllTokens(data);
+											  if (allTokens.size() == 2) {
+												  if (Tokenizer::UpperCase(allTokens[0]) == "OOC" && Tokenizer::UpperCase(allTokens[1]) == "OFF") {
+													  m_sender.Send("OOC Off\r\n", m_connection_map[id], MAGENTA);
+													  m_connection_map[id]->SetState(Connection::LOGGEDIN);
+													  break;
+												  }
+											  }
+											  data.insert(0, "OOC ");
+											  processCommand(data, id);
 					}
 						break;
 					default:
 						break;
+					}
 				}
+				it++;
 			}
 		}
 	}
@@ -219,13 +221,14 @@ void Game::processLook(int id)
 {
 	Player* current_player = m_player_map[id];
 	Room* room = m_planets[current_player->GetPlanetID()]->GetRoom(current_player->GetRoomID());
-	std::vector<int> visible_players = room->GetPlayerIDs(id);
 	std::string output = room->GetLongDescription();
 	output.append("\r\n");
 	output.append(room->GetShortDescription());
 	output.append("\r\n\r\n");
 	output.append(CYAN);
-	for (int i = 0; i < (int)visible_players.size(); i++)
+
+	std::vector<int> visible_players = room->GetPlayerIDs(id);
+	for (int i = 0; i < visible_players.size(); i++)
 	{
 		output.append(m_player_map[visible_players[i]]->GetName());
 		output.append(" is here.\r\n");
