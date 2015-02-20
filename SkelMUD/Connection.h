@@ -23,7 +23,8 @@ public:
 	bool IsRunning();
 	void Stop();
 	void Close();
-	int Send(char* data);
+	int StageSend(std::string data);
+	void Send(std::string data);
 	int Receive(char* data);
 	HANDLE GetMutex();
 	SOCKET GetSocket();
@@ -40,6 +41,7 @@ private:
 	bool m_running;
 	State m_state;
 	HANDLE m_mutex;
+	std::string m_send_buffer;
 	std::list<std::string> m_receive_list;
 };
 #endif // CONNECTION_H

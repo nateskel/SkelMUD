@@ -1,5 +1,6 @@
 #include "Connection.h"
 #include <iostream>
+#include <vector>
 
 
 Connection::Connection(DataSocket* socket)
@@ -9,6 +10,7 @@ Connection::Connection(DataSocket* socket)
 	m_mutex = CreateMutex(NULL, false, NULL);
 #endif
 	m_state = CONNECTED;
+	m_send_buffer = "";
 }
 
 Connection::Connection()
@@ -42,15 +44,26 @@ bool Connection::IsRunning()
 	return m_running;
 }
 
-int Connection::Send(char* data)
+int Connection::StageSend(std::string data)
 {
-	int sent =  m_socket->Send(data);
-	if(sent == -1)
+	m_send_buffer.append(data);
+	return 0;
+}
+
+void Connection::Send(std::string data)
+{
+	if (m_send_buffer == "")
+		return;
+	m_send_buffer.append(data);
+	std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
+	output.push_back('\0');
+	int sent = m_socket->Send(&output[0]);
+	if (sent == -1)
 	{
 		SetState(DISCONNECTED);
 		m_running = false;
 	}
-	return sent;
+	m_send_buffer = "";
 }
 
 int Connection::Receive(char* data)

@@ -1,12 +1,12 @@
 #include "Player.h"
 
-Player::Player()
+Player::Player() : Entity()
 {
 	m_room_id = 0;
 	m_planet_id = 0;
 }
 
-Player::Player(int player_id, std::string player_name)
+Player::Player(int player_id, std::string player_name) : Entity()
 {
 	m_player_id = player_id;
 	m_name = player_name;

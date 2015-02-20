@@ -58,7 +58,7 @@ void Game::Start()
 		it = m_connection_map.begin();
 		it_end = m_connection_map.end();
 		Thread::Unlock(m_mutex);
-		int DEBUGINT = 0;
+		//int DEBUGINT = 0;
 		for (it; it != it_end; )
 		{
 			int id = it->first;
@@ -68,6 +68,39 @@ void Game::Start()
 				continue;
 			Connection::State state = connection->GetState();
 			Thread::Unlock(m_mutex);
+			if (state == Connection::LOGGEDIN)
+			{
+				Player* player = m_player_map[id];
+				if (player == NULL)
+				{
+					// Log.Error("Logged in player not found!");
+				}
+				else
+				{
+					std::string statusbar = RED;
+					statusbar.append("<");
+					statusbar.append("HP: ");
+					statusbar.append(std::to_string(player->GetHP()));
+					statusbar.append("/");
+					statusbar.append(std::to_string(player->GetMaxHP()));
+					statusbar.append(CYAN);
+					statusbar.append(" SP: ");
+					statusbar.append(std::to_string(player->GetSP()));
+					statusbar.append("/");
+					statusbar.append(std::to_string(player->GetMaxSP()));
+					statusbar.append(YELLOW);
+					statusbar.append(" Stamina: ");
+					statusbar.append(std::to_string(player->GetStamina()));
+					statusbar.append("/");
+					statusbar.append(std::to_string(player->GetMaxStamina()));
+					statusbar.append(">");
+					statusbar.append(WHITE);
+					statusbar.append("\r\n> ");
+					connection->Send(statusbar);
+				}
+			}
+			else
+				connection->Send("\r\n> ");
 			if (state == Connection::DISCONNECTED)
 			{
 				if (m_player_map.find(id) != m_player_map.end())
@@ -280,6 +313,8 @@ Planet* BuildPlanet()
 	planet->AddRoom(new Room("This is the first room", "First Room", 1, -1, 3, -1, -1, -1, -1, -1, -1, -1));
 	planet->AddRoom(new Room("This is the second room", "Second Room", -1, 0, 2, -1, -1, -1, -1, -1, -1, -1));
 	planet->AddRoom(new Room("This is the third room", "Third Room", -1, 3, -1, 1, -1, -1, -1, -1, -1, -1));
-	planet->AddRoom(new Room("This is the fourth room", "Fourth Room", 2, -1, -1, 0, -1, -1, -1, -1, -1, -1));
+	planet->AddRoom(new Room("This is the fourth room", "Fourth Room", 2, -1, 4, 0, -1, -1, -1, -1, -1, -1));
+	planet->AddRoom(new Room("You have somehow ended up in SB's apartment!\r\n\r\nYou see a small roll of bedding on the ground.", "SB's apartment",
+		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1));
 	return planet;
 }

@@ -26,9 +26,7 @@ void Sender::SendAll(std::string data, std::map<SOCKET, Connection*> connection_
 			continue;
 		if (it->second->GetSocket() != exclude && (it->second->GetState() == Connection::LOGGEDIN || it->second->GetState() == Connection::OOC))
 		{
-			std::vector<char> output(data.begin(), data.end());
-			output.push_back('\0');
-			it->second->Send(&output[0]);
+			it->second->StageSend(data);
 		}
 	}
 }
@@ -47,9 +45,7 @@ void Sender::SendTo(std::string data, std::map<SOCKET, Connection*> connection_m
 	{
 		if (it->second->GetSocket() == target)
 		{
-			std::vector<char> output(data.begin(), data.end());
-			output.push_back('\0');
-			it->second->Send(&output[0]);
+			it->second->StageSend(data);
 			break;
 		}
 	}
@@ -64,9 +60,7 @@ void Sender::Send(std::string data, Connection* connection, std::string color)
 {
 	data.insert(0, color);
 	data.append(WHITE);
-	std::vector<char> output(data.begin(), data.end());
-	output.push_back('\0');
-	connection->Send(&output[0]);
+	connection->StageSend(data);
 }
 
 void Sender::SendToMultiple(std::string data, std::map<SOCKET, Connection*> connection_map, std::vector<int> targets)
@@ -84,9 +78,7 @@ void Sender::SendToMultiple(std::string data, std::map<SOCKET, Connection*> conn
 		for (it = connection_map.begin(); it != connection_map.end(); it++)
 		if (targets[i] == it->first)
 		{
-			std::vector<char> output(data.begin(), data.end());
-			output.push_back('\0');
-			it->second->Send(&output[0]);
+			it->second->StageSend(data);
 			break;
 		}
 	}
