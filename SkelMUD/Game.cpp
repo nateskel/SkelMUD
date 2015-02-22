@@ -1,5 +1,7 @@
 #include "Game.h"
 #include "Tokenizer.h"
+#include "File.h"
+#include "Utils.h"
 #include <iostream>
 #include <algorithm>
 
@@ -11,7 +13,11 @@ Game::Game()
 #endif
 	m_sender = Sender();
 	m_output_manager = OutputManager();
-	m_planets.push_back(BuildPlanet());
+	//m_planets.push_back(BuildPlanet());
+	File accountFile = File();
+	File planetFile = File();
+	m_accounts = accountFile.LoadAccounts();
+	m_planets = planetFile.LoadPlanets();
 }
 
 Game::~Game()
@@ -112,7 +118,6 @@ void Game::Start()
 				std::map<SOCKET, Connection*>::iterator it_temp = it;
 				it++;
 				m_connection_map.erase(it_temp);
-				std::cout<< "ERASED" << std::endl;
 				continue;
 			}
 			else if (state == Connection::CONNECTED)
@@ -184,15 +189,31 @@ void Game::processCommand(std::string data, int id)
 			m_connection_map[id]->SetState(Connection::OOC);
 			return;
 		}
-		std::string output = m_player_map[id]->GetName();
+		std::string output = "\r\n";
+		output.append(m_player_map[id]->GetName());
 		output.append("(ooc): ");
 		output.append(data);
 		output.append("\r\n");
 		m_sender.SendAll(output, m_connection_map, id, YELLOW);
 	}
+	else if (command == "SAY")
+	{
+		Player* player = m_player_map[id];
+		int planet_id = player->GetPlanetID();
+		int room_id = player->GetRoomID();
+		std::vector<int> players = m_planets[planet_id]->GetRoom(room_id)->GetPlayerIDs(id);
+		std::string color = BOLD;
+		color.append(CYAN);
+		std::string prefix = "\r\n";
+		prefix.append(m_player_map[id]->GetName());
+		prefix.append(": ");
+		data.insert(0, prefix);
+		data.append("\r\n");
+		m_sender.SendToMultiple(data, m_connection_map, players, color);
+	}
 	else if (command == "HELP")
 	{
-		m_sender.Send("Commands are not case sensitive\r\n\r\nOOC <message>: Out of character global chat\r\nOOC <ON/OFF>: Turn OOC permanently ON/OFF\r\n", m_connection_map[id]);
+		m_sender.Send("Commands are not case sensitive\r\n\r\nOOC <message>: Out of character global chat\r\nOOC <ON/OFF>: Turn OOC permanently ON/OFF\r\nSAY <message>: In character local chat.\r\n", m_connection_map[id]);
 	}
 	else if (command == "QUIT1459")
 	{
@@ -239,9 +260,11 @@ bool Game::processDirectionCommand(std::string command, int id)
 	{
 		std::vector<int> leaving_players = m_planets[current_planet]->GetRoom(current_room)->GetPlayerIDs(id);
 		std::vector<int> arriving_players = m_planets[current_planet]->GetRoom(current_player->GetRoomID())->GetPlayerIDs(id);
-		std::string arrive_message = current_player->GetName();
+		std::string arrive_message = "\r\n";
+		arrive_message.append(current_player->GetName());
 		arrive_message.append(" entered the room\r\n");
-		std::string leave_message = current_player->GetName();
+		std::string leave_message = "\r\n";
+		leave_message.append(current_player->GetName());
 		leave_message.append(" left the room\r\n");
 		m_sender.SendToMultiple(arrive_message, m_connection_map, arriving_players);
 		m_sender.SendToMultiple(leave_message, m_connection_map, leaving_players);
@@ -261,7 +284,7 @@ void Game::processLook(int id)
 	output.append(CYAN);
 
 	std::vector<int> visible_players = room->GetPlayerIDs(id);
-	for (int i = 0; i < visible_players.size(); i++)
+	for (int i = 0; i < (int)visible_players.size(); i++)
 	{
 		output.append(m_player_map[visible_players[i]]->GetName());
 		output.append(" is here.\r\n");
@@ -315,6 +338,6 @@ Planet* BuildPlanet()
 	planet->AddRoom(new Room("This is the third room", "Third Room", -1, 3, -1, 1, -1, -1, -1, -1, -1, -1));
 	planet->AddRoom(new Room("This is the fourth room", "Fourth Room", 2, -1, 4, 0, -1, -1, -1, -1, -1, -1));
 	planet->AddRoom(new Room("You have somehow ended up in SB's apartment!\r\n\r\nYou see a small roll of bedding on the ground.", "SB's apartment",
-		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1));
+		-1, -1, -1, 3, -1, -1, -1, -1, -1, -1));
 	return planet;
 }

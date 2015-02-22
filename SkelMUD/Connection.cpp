@@ -129,6 +129,21 @@ bool Connection::HasMoreData()
 	return result;
 }
 
+void Connection::SetUsername(std::string username)
+{
+	m_account.username = username;
+}
+
+void Connection::SetPassword(std::string password)
+{
+	m_account.password = password;
+}
+
+void Connection::SetAccount(Account account)
+{
+	m_account = account;
+}
+
 THREAD Connection::ConnectionThread(LPVOID lpParam)
 {
 	Connection* connection = (Connection*)lpParam;

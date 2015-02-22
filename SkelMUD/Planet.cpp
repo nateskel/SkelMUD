@@ -20,6 +20,11 @@ Room* Planet::GetRoom(int id)
 	return m_rooms[id];
 }
 
+void Planet::SetName(std::string name)
+{
+	m_planet_name = name;
+}
+
 bool Planet::MoveNorth(int room_id, int player_id)
 {
 	int new_room = m_rooms[room_id]->GetNorth();

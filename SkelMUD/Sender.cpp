@@ -18,7 +18,7 @@ void Sender::SendAll(std::string data, std::map<SOCKET, Connection*> connection_
 void Sender::SendAll(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET exclude, std::string color)
 {
 	data.insert(0, color);
-	data.append(WHITE);
+	data.append(RESET);
 	std::map<SOCKET, Connection*>::iterator it;
 	for (it = connection_map.begin(); it != connection_map.end(); it++)
 	{
@@ -39,7 +39,7 @@ void Sender::SendTo(std::string data, std::map<SOCKET, Connection*> connection_m
 void Sender::SendTo(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET target, std::string color)
 {
 	data.insert(0, color);
-	data.append(WHITE);
+	data.append(RESET);
 	std::map<SOCKET, Connection*>::iterator it;
 	for (it = connection_map.begin(); it != connection_map.end(); it++)
 	{
@@ -59,7 +59,7 @@ void Sender::Send(std::string data, Connection* connection)
 void Sender::Send(std::string data, Connection* connection, std::string color)
 {
 	data.insert(0, color);
-	data.append(WHITE);
+	data.append(RESET);
 	connection->StageSend(data);
 }
 
@@ -71,7 +71,7 @@ void Sender::SendToMultiple(std::string data, std::map<SOCKET, Connection*> conn
 void Sender::SendToMultiple(std::string data, std::map<SOCKET, Connection*> connection_map, std::vector<int> targets, std::string color)
 {
 	data.insert(0, color);
-	data.append(WHITE);
+	data.append(RESET);
 	std::map<SOCKET, Connection*>::iterator it;
 	for (u_int i = 0; i < targets.size(); i++)
 	{

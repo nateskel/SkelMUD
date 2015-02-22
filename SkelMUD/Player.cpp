@@ -10,8 +10,8 @@ Player::Player(int player_id, std::string player_name) : Entity()
 {
 	m_player_id = player_id;
 	m_name = player_name;
-	SetRoomID(0);
-	SetPlanetID(0);
+	m_room_id = 0;
+	m_planet_id = 0;
 }
 
 Player::~Player()

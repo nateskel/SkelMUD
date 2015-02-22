@@ -19,6 +19,13 @@ public:
 	Connection(DataSocket* socket);
 	Connection();
 	~Connection();
+	struct Account
+	{
+		std::string username;
+		std::string password;
+		int id;
+	};
+	enum State { CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEWUSER, LOGGEDIN, OOC };
 	void Run();
 	bool IsRunning();
 	void Stop();
@@ -32,9 +39,11 @@ public:
 	std::string GetNextData();
 	static THREAD ConnectionThread(LPVOID lpParam);
 	bool HasMoreData();
-	enum State { CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEWUSER, LOGGEDIN , OOC};
 	void SetState(State state);
 	State GetState();
+	void SetUsername(std::string username);
+	void SetPassword(std::string password);
+	void SetAccount(Account account);
 protected:
 private:
 	DataSocket* m_socket;
@@ -43,5 +52,6 @@ private:
 	HANDLE m_mutex;
 	std::string m_send_buffer;
 	std::list<std::string> m_receive_list;
+	Account m_account;
 };
 #endif // CONNECTION_H

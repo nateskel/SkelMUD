@@ -25,6 +25,7 @@ private:
 	std::map<SOCKET, Connection*> m_connection_map;
 	std::map<int, Player*> m_player_map;
 	std::vector<Planet*> m_planets;
+	std::vector<Connection::Account> m_accounts;
 	std::map<int, std::string> m_output_map;
 	static THREAD ListenThread(LPVOID lpParam);
 	Sender m_sender;

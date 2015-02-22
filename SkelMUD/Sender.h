@@ -7,6 +7,9 @@
 #include <string>
 
 static const std::string NONE = "";
+static const std::string RESET = "\33[0m";
+static const std::string BOLD = "\33[1m";
+static const std::string NORMAL = "\33[22m";
 static const std::string BLACK = "\33[30m";
 static const std::string RED = "\33[31m";
 static const std::string GREEN = "\33[32m";

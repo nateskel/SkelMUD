@@ -19,8 +19,18 @@ public:
 	bool MoveSouth(int room_id, int player_id);
 	bool MoveEast(int room_id, int player_id);
 	bool MoveWest(int room_id, int player_id);
+	void SetName(std::string name);
+	struct Coordinates
+	{
+		int x;
+		int y;
+		int z;
+	};
+	Coordinates coordinates;
+
 protected:
 private:
+	std::string m_planet_name;
 	std::vector<Room*> m_rooms;
 	void ChangeRoom(int old_room, int new_room, int player_id);
 };
