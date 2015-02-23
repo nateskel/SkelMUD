@@ -172,6 +172,7 @@ void Game::Start()
 				it++;
 			}
 		}
+		Sleep(1);
 	}
 }
 
