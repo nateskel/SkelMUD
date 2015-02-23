@@ -153,16 +153,16 @@ void Game::Start()
 						processCommand(data, id);
 						break;
 					case Connection::OOC: {
-											  std::vector<std::string> allTokens = Tokenizer::GetAllTokens(data);
-											  if (allTokens.size() == 2) {
-												  if (Tokenizer::UpperCase(allTokens[0]) == "OOC" && Tokenizer::UpperCase(allTokens[1]) == "OFF") {
-													  m_sender.Send("OOC Off\r\n", m_connection_map[id], MAGENTA);
-													  m_connection_map[id]->SetState(Connection::LOGGEDIN);
-													  break;
-												  }
-											  }
-											  data.insert(0, "OOC ");
-											  processCommand(data, id);
+						std::vector<std::string> allTokens = Tokenizer::GetAllTokens(data);
+						if (allTokens.size() == 2) {
+							if (Tokenizer::UpperCase(allTokens[0]) == "OOC" && Tokenizer::UpperCase(allTokens[1]) == "OFF") {
+								m_sender.Send("OOC Off\r\n", m_connection_map[id], MAGENTA);
+								m_connection_map[id]->SetState(Connection::LOGGEDIN);
+								break;
+							}
+						}
+						data.insert(0, "OOC ");
+						processCommand(data, id);
 					}
 						break;
 					default:
@@ -329,16 +329,4 @@ void Game::RemoveEndline(std::string &data)
 {
 	data.erase(std::remove(data.begin(), data.end(), '\n'), data.end());
 	data.erase(std::remove(data.begin(), data.end(), '\r'), data.end());
-}
-
-Planet* BuildPlanet()
-{
-	Planet* planet = new Planet();
-	planet->AddRoom(new Room("This is the first room", "First Room", 1, -1, 3, -1, -1, -1, -1, -1, -1, -1));
-	planet->AddRoom(new Room("This is the second room", "Second Room", -1, 0, 2, -1, -1, -1, -1, -1, -1, -1));
-	planet->AddRoom(new Room("This is the third room", "Third Room", -1, 3, -1, 1, -1, -1, -1, -1, -1, -1));
-	planet->AddRoom(new Room("This is the fourth room", "Fourth Room", 2, -1, 4, 0, -1, -1, -1, -1, -1, -1));
-	planet->AddRoom(new Room("You have somehow ended up in SB's apartment!\r\n\r\nYou see a small roll of bedding on the ground.", "SB's apartment",
-		-1, -1, -1, 3, -1, -1, -1, -1, -1, -1));
-	return planet;
 }

@@ -26,10 +26,18 @@ public:
 		int id;
 	};
 	enum State { CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEWUSER, LOGGEDIN, OOC };
-	void Run();
+
 	bool IsRunning();
+	bool HasMoreData();
+
+	void Run();
 	void Stop();
 	void Close();
+	void SetState(State state);
+	State GetState();
+	void SetUsername(std::string username);
+	void SetPassword(std::string password);
+	void SetAccount(Account account);
 	int StageSend(std::string data);
 	void Send(std::string data);
 	int Receive(char* data);
@@ -38,12 +46,6 @@ public:
 	void AddReceivedData(std::string data);
 	std::string GetNextData();
 	static THREAD ConnectionThread(LPVOID lpParam);
-	bool HasMoreData();
-	void SetState(State state);
-	State GetState();
-	void SetUsername(std::string username);
-	void SetPassword(std::string password);
-	void SetAccount(Account account);
 protected:
 private:
 	DataSocket* m_socket;
