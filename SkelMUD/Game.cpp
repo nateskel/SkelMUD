@@ -4,6 +4,10 @@
 #include "Utils.h"
 #include <iostream>
 #include <algorithm>
+#ifndef _WIN_32
+#include <unistd.h>
+#define Sleep(seconds) sleep(seconds)
+#endif
 
 Game::Game()
 {
@@ -14,9 +18,9 @@ Game::Game()
 	m_sender = Sender();
 	m_output_manager = OutputManager();
 	//m_planets.push_back(BuildPlanet());
-	File accountFile = File();
+	//File accountFile = File();
 	File planetFile = File();
-	m_accounts = accountFile.LoadAccounts();
+	//m_accounts = accountFile.LoadAccounts();
 	m_planets = planetFile.LoadPlanets();
 }
 

@@ -1,5 +1,7 @@
 #include "Utils.h"
 #include <algorithm>
+#include <dirent.h>
+#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -31,5 +33,25 @@ std::vector<std::string> Utils::GetFilenames(std::string path)
 	}
 	FindClose(hFind);
 	return output;
+}
+#else
+std::vector<std::string> Utils::GetFilenames(std::string path)
+{
+	std::vector<std::string> files = std::vector<std::string>();
+	DIR *dp;
+	struct dirent *dirp;
+	if((dp  = opendir(path.c_str())) == NULL) {
+		std::cout << "Error(" << errno << ") opening " << path << std::endl;
+		// handle error
+	}
+
+	while ((dirp = readdir(dp)) != NULL) {
+		std::string filename = std::string(dirp->d_name);
+		if(filename == ".." or filename == ".")
+			continue;
+		files.push_back(path + filename);
+	}
+	closedir(dp);
+	return files;
 }
 #endif

@@ -10,20 +10,23 @@
 class File
 {
 public:
-	File::File();
-	File::~File();
-	bool ReadNextLine(std::string &data);
+	File();
+	~File();
+	bool ReadNextLine(std::fstream& stream, std::string &data);
 	void WriteLine(std::string data);
-	void OpenRead(std::string filename);
+	void OpenRead(std::fstream& stream, std::string filename);
 	void OpenWrite(std::string filename);
 	void OpenReadWrite(std::string filename);
-	void Close();
+	void Close(std::fstream& stream);
 	std::vector<Connection::Account> LoadAccounts();
 	std::vector<Planet*> LoadPlanets();
 protected:
 private:
-	const std::string DIRECTORY = "D:\\SkelMUD\\SkelMUD\\SkelMUD\\Planets\\";
+	// Temporary hardcoded value
+	// possibly move to a config file
+	//const std::string DIRECTORY = "D:\\SkelMUD\\SkelMUD\\SkelMUD\\Planets\\";
+	const std::string DIRECTORY = "/root/SkelMUD/SkelMUD/Planets/";
 	std::string m_filename;
-	std::fstream m_file;
+	std::fstream *m_file;
 };
 #endif // FILE_H
