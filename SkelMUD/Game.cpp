@@ -50,15 +50,6 @@ std::string Game::GetOutput(int id)
 void Game::Start()
 {
 	m_running = true;
-//#ifdef _WIN32
-//	DWORD dwThreadId;
-//	HANDLE hThread;
-//	hThread = CreateThread(NULL, 0, ListenThread, this, 0, &dwThreadId);
-//#else
-//	pthread_t ptThreadID;
-//	int hThread;
-//	hThread = pthread_create(&ptThreadID, NULL, ListenThread, this);
-//#endif
 	T_HANDLE hThread = Thread::MakeThread(ListenThread, this);
 	std::map<SOCKET, Connection*>::iterator it;
 	std::map<SOCKET, Connection*>::iterator it_end;
@@ -137,7 +128,7 @@ void Game::Start()
 				if (connection->HasMoreData())
 				{
 					std::string data = connection->GetNextData();
-					RemoveEndline(data);
+					Utils::RemoveEndline(data);
 					switch (state)
 					{
 					case Connection::USERNAME:
@@ -228,22 +219,18 @@ void Game::processCommand(std::string data, int id)
 	{
 		processLook(id);
 	}
-	else if (command == "N" || command == "S" || command == "E" || command == "W" ||
-		command == "NORTH" || command == "SOUTH" || command == "EAST" || command == "WEST")
-	{
-		processDirectionCommand(command, id);
-	}
 	else if (command == "CON")
 	{
 		m_sender.Send(std::to_string(m_connection_map.size()), m_connection_map[id]);
 	}
 	else
 	{
-		m_sender.Send("Unrecognized Command. Type 'help' for a list of commands.\r\n", m_connection_map[id]);
+		if(!processDirectionalCommand(command, id))
+			m_sender.Send("Unrecognized Command. Type 'help' for a list of commands.\r\n", m_connection_map[id]);
 	}
 }
 
-bool Game::processDirectionCommand(std::string command, int id)
+bool Game::processDirectionalCommand(std::string command, int id)
 {
 	bool result = false;
 	Player* current_player = m_player_map[id];
@@ -327,10 +314,4 @@ THREAD Game::ListenThread(LPVOID lpParam)
 	game->m_running = false;
 	myListener.Close();
 	return 0;
-}
-
-void Game::RemoveEndline(std::string &data)
-{
-	data.erase(std::remove(data.begin(), data.end(), '\n'), data.end());
-	data.erase(std::remove(data.begin(), data.end(), '\r'), data.end());
 }

@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <string>
 #include <vector>
 
@@ -9,3 +12,5 @@ public:
 protected:
 private:
 };
+
+#endif // UTILS_H

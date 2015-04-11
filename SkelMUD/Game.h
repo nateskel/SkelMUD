@@ -7,6 +7,7 @@
 #include "TextProcessor.h"
 #include "Planet.h"
 #include "Thread.h"
+#include "Utils.h"
 #include <map>
 
 class Game
@@ -15,7 +16,6 @@ public:
 	Game();
 	~Game();
 	void Start();
-	void RemoveEndline(std::string &data);
 	void AddOutput(int id, std::string output);
 	std::string GetOutput(int id);
 
@@ -32,7 +32,7 @@ private:
 	OutputManager m_output_manager;
 
 	void processCommand(std::string command, int id);
-	bool processDirectionCommand(std::string command, int id);
+	bool processDirectionalCommand(std::string command, int id);
 	void processLook(int id);
 	//virtual void recv_callback(char* data, int socket);
 };
