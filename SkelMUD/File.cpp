@@ -78,7 +78,7 @@ std::vector<Planet*> File::LoadPlanets()
 	std::fstream stream;
 	for (int i = 0; i < files.size(); i++)
 	{
-		if(files[i] == ".." or files[i] == ".")
+		if(files[i] == ".." || files[i] == ".")
 			continue;
 		Planet* planet = new Planet();
 		OpenRead(stream, files[i]);

@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include <iostream>
 #include <algorithm>
-#ifndef _WIN_32
+#ifndef _WIN32
 #include <unistd.h>
 #define Sleep(seconds) sleep(seconds)
 #endif
@@ -12,7 +12,7 @@
 Game::Game()
 {
 	m_running = false;
-#ifdef _WIN_32
+#ifdef _WIN32
 	m_mutex = CreateMutex(NULL, false, NULL);
 #endif
 	m_sender = Sender();
@@ -50,15 +50,16 @@ std::string Game::GetOutput(int id)
 void Game::Start()
 {
 	m_running = true;
-#ifdef _WIN32
-	DWORD dwThreadId;
-	HANDLE hThread;
-	hThread = CreateThread(NULL, 0, ListenThread, this, 0, &dwThreadId);
-#else
-	pthread_t ptThreadID;
-	int hThread;
-	hThread = pthread_create(&ptThreadID, NULL, ListenThread, this);
-#endif
+//#ifdef _WIN32
+//	DWORD dwThreadId;
+//	HANDLE hThread;
+//	hThread = CreateThread(NULL, 0, ListenThread, this, 0, &dwThreadId);
+//#else
+//	pthread_t ptThreadID;
+//	int hThread;
+//	hThread = pthread_create(&ptThreadID, NULL, ListenThread, this);
+//#endif
+	T_HANDLE hThread = Thread::MakeThread(ListenThread, this);
 	std::map<SOCKET, Connection*>::iterator it;
 	std::map<SOCKET, Connection*>::iterator it_end;
 	while (m_running)
@@ -126,7 +127,6 @@ void Game::Start()
 			}
 			else if (state == Connection::CONNECTED)
 			{
-				std::cout << m_connection_map.size() << std::endl;
 				m_sender.Send(m_output_manager.GetIntroText(), connection, YELLOW);
 				connection->SetState(Connection::USERNAME);
 				it++;

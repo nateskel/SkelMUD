@@ -1,11 +1,12 @@
 #include "Utils.h"
 #include <algorithm>
-#include <dirent.h>
 #include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
 #include <strsafe.h>
+#else
+#include <dirent.h>
 #endif
 
 void Utils::RemoveEndline(std::string &data)

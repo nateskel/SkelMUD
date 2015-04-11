@@ -24,8 +24,11 @@ protected:
 private:
 	// Temporary hardcoded value
 	// possibly move to a config file
-	//const std::string DIRECTORY = "D:\\SkelMUD\\SkelMUD\\SkelMUD\\Planets\\";
+#ifdef _WIN32
+	const std::string DIRECTORY = "D:\\SkelMUD\\SkelMUD\\SkelMUD\\Planets\\";
+#else
 	const std::string DIRECTORY = "/root/SkelMUD/SkelMUD/Planets/";
+#endif
 	std::string m_filename;
 	std::fstream *m_file;
 };

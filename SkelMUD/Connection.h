@@ -3,9 +3,9 @@
 
 #ifdef _WIN32
     //#include <windows.h>
-    #define THREAD DWORD WINAPI
+    //#define THREAD DWORD WINAPI
 #else
-    #define LPVOID void*
+    //#define LPVOID void*
 #endif
 
 #include "Network.h"
