@@ -291,6 +291,18 @@ void Game::processLook(int id)
 		output.append("East ");
 	if (room->GetWest() != -1)
 		output.append("West ");
+	if (room->GetNorthEast() != -1)
+		output.append("NorthEast ");
+	if (room->GetNorthWest() != -1)
+		output.append("NorthWest ");
+	if (room->GetSouthEast() != -1)
+		output.append("SouthEast ");
+	if (room->GetSouthWest() != -1)
+		output.append("SouthWest ");
+	if (room->GetUp() != -1)
+		output.append("Up ");
+	if (room->GetDown() != -1)
+		output.append("Down ");
 	output.append("\r\n");
 	m_sender.Send(output, m_connection_map[id]);
 }

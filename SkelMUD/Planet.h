@@ -19,6 +19,12 @@ public:
 	bool MoveSouth(int room_id, int player_id);
 	bool MoveEast(int room_id, int player_id);
 	bool MoveWest(int room_id, int player_id);
+	bool MoveNorthWest(int room_id, int player_id);
+	bool MoveNorthEast(int room_id, int player_id);
+	bool MoveSouthWest(int room_id, int player_id);
+	bool MoveSouthEast(int room_id, int player_id);
+	bool MoveUp(int room_id, int player_id);
+	bool MoveDown(int room_id, int player_id);
 	void SetName(std::string name);
 	struct Coordinates
 	{
@@ -63,6 +69,12 @@ public:
 	int GetSouth();
 	int GetEast();
 	int GetWest();
+	int GetNorthWest();
+	int GetNorthEast();
+	int GetSouthWest();
+	int GetSouthEast();
+	int GetUp();
+	int GetDown();
 protected:
 private:
 	int m_id;

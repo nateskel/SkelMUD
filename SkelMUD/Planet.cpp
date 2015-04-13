@@ -61,6 +61,60 @@ bool Planet::MoveWest(int room_id, int player_id)
 	return true;
 }
 
+bool Planet::MoveNorthWest(int room_id, int player_id)
+{
+	int new_room = m_rooms[room_id]->GetNorthWest();
+	if (new_room == -1)
+		return false;
+	ChangeRoom(room_id, new_room, player_id);
+	return true;
+}
+
+bool Planet::MoveNorthEast(int room_id, int player_id)
+{
+	int new_room = m_rooms[room_id]->GetNorthEast();
+	if (new_room == -1)
+		return false;
+	ChangeRoom(room_id, new_room, player_id);
+	return true;
+}
+
+bool Planet::MoveSouthWest(int room_id, int player_id)
+{
+	int new_room = m_rooms[room_id]->GetSouthWest();
+	if (new_room == -1)
+		return false;
+	ChangeRoom(room_id, new_room, player_id);
+	return true;
+}
+
+bool Planet::MoveSouthEast(int room_id, int player_id)
+{
+	int new_room = m_rooms[room_id]->GetSouthEast();
+	if (new_room == -1)
+		return false;
+	ChangeRoom(room_id, new_room, player_id);
+	return true;
+}
+
+bool Planet::MoveUp(int room_id, int player_id)
+{
+	int new_room = m_rooms[room_id]->GetUp();
+	if (new_room == -1)
+		return false;
+	ChangeRoom(room_id, new_room, player_id);
+	return true;
+}
+
+bool Planet::MoveDown(int room_id, int player_id)
+{
+	int new_room = m_rooms[room_id]->GetDown();
+	if (new_room == -1)
+		return false;
+	ChangeRoom(room_id, new_room, player_id);
+	return true;
+}
+
 void Planet::ChangeRoom(int old_room, int new_room, int player_id)
 {
 	Player* player = m_rooms[old_room]->GetPlayer(player_id);
@@ -170,4 +224,34 @@ int Room::GetEast()
 int Room::GetWest()
 {
 	return m_west;
+}
+
+int Room::GetNorthWest()
+{
+	return m_northwest;
+}
+
+int Room::GetNorthEast()
+{
+	return m_northeast;
+}
+
+int Room::GetSouthWest()
+{
+	return m_southwest;
+}
+
+int Room::GetSouthEast()
+{
+	return m_southeast;
+}
+
+int Room::GetUp()
+{
+	return m_up;
+}
+
+int Room::GetDown()
+{
+	return m_down;
 }
