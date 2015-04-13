@@ -21,7 +21,11 @@ class Thread
 public:
 	Thread();
 	~Thread();
+	#ifdef _WIN32
 	static T_HANDLE MakeThread(THREAD_FUNCTION thread_function, LPVOID object);
+	#else
+	static T_HANDLE MakeThread(THREAD_FUNCTION (*thread_function)(void *), LPVOID object);
+	#endif
 	static int Lock(HANDLE mutex);
 	static int Unlock(HANDLE mutex);
 

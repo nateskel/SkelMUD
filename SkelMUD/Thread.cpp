@@ -21,13 +21,15 @@ int Thread::Unlock(HANDLE mutex)
    return 0;
 }
 
+#ifdef _WIN32
 T_HANDLE Thread::MakeThread(THREAD_FUNCTION thread_function, LPVOID object)
 {
-#ifdef _WIN32
 	DWORD dwThreadId;
 	HANDLE hThread;
 	hThread = CreateThread(NULL, 0, thread_function, object, 0, &dwThreadId);
 #else
+T_HANDLE Thread::MakeThread(THREAD_FUNCTION (*thread_function)(void *), LPVOID object)
+{
 	pthread_t ptThreadID;
 	int hThread;
 	hThread = pthread_create(&ptThreadID, NULL, thread_function, object);
