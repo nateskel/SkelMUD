@@ -1,0 +1,100 @@
+TestPlanet
+0
+0
+0
+0
+FirstRoom
+1
+-1
+3
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+0
+0
+-1
+0
+0
+0
+First Room
+This is the first room.
+You start here.
+And stuff.
+@End
+1
+SecondRoom
+-1
+0
+2
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+0
+0
+-1
+0
+0
+0
+Second Room
+This is the second room.
+This is just a test.
+I know these rooms are boring.
+@End
+2
+ThirdRoom
+-1
+3
+-1
+1
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+0
+0
+-1
+0
+0
+0
+Third Room
+Third Room.
+You know the drill.
+Another room.
+@End
+3
+FourthRoom
+2
+-1
+-1
+0
+-1
+-1
+-1
+-1
+-1
+-1
+-1
+0
+0
+-1
+0
+0
+0
+Fourth Room
+Fourth Room
+Blah blah blah
+Stuff
+@End
