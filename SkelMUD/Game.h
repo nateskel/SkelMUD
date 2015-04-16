@@ -18,6 +18,8 @@ public:
 	void Start();
 	void AddOutput(int id, std::string output);
 	std::string GetOutput(int id);
+	void RegisterCommand(std::string command_string, void* command_function);
+	void ProcessCommand(std::string command_string);
 
 private:
 	bool m_running;
@@ -27,6 +29,7 @@ private:
 	std::vector<Planet*> m_planets;
 	std::vector<Connection::Account> m_accounts;
 	std::map<int, std::string> m_output_map;
+	std::map<std::string, void*> m_command_map;
 	static THREAD ListenThread(LPVOID lpParam);
 	Sender m_sender;
 	OutputManager m_output_manager;

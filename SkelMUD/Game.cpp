@@ -1,7 +1,6 @@
 #include "Game.h"
 #include "Tokenizer.h"
 #include "File.h"
-#include "Utils.h"
 #include <iostream>
 #include <algorithm>
 #ifndef _WIN32
@@ -25,6 +24,16 @@ Game::Game()
 }
 
 Game::~Game()
+{
+
+}
+
+void Game::RegisterCommand(std::string command_string, void* command_function)
+{
+
+}
+
+void Game::ProcessCommand(std::string command_string)
 {
 
 }
@@ -244,6 +253,18 @@ bool Game::processDirectionalCommand(std::string command, int id)
 		result = m_planets[current_planet]->MoveEast(current_room, id);
 	else if (command == "W" || command == "WEST")
 		result = m_planets[current_planet]->MoveWest(current_room, id);
+	else if (command == "NE" || command == "NORTHEAST")
+		result = m_planets[current_planet]->MoveNorthEast(current_room, id);
+	else if (command == "NW" || command == "NORTHWEST")
+		result = m_planets[current_planet]->MoveNorthWest(current_room, id);
+	else if (command == "SE" || command == "SOUTHEAST")
+		result = m_planets[current_planet]->MoveSouthEast(current_room, id);
+	else if (command == "SW" || command == "SOUTHWEST")
+		result = m_planets[current_planet]->MoveSouthWest(current_room, id);
+	else if (command == "U" || command == "UP")
+		result = m_planets[current_planet]->MoveUp(current_room, id);
+	else if (command == "D" || command == "DOWN")
+		result = m_planets[current_planet]->MoveDown(current_room, id);
 	if (!result)
 	{
 		m_sender.Send("Can't go that way!\r\n", m_connection_map[id]);
