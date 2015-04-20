@@ -1,6 +1,9 @@
 Debug
+Release
 *.sln
 *.suo
 SkelMUD/Debug
 *.vcxproj
 *.filters
+*.opensdf
+*.sdf
