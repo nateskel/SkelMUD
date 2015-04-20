@@ -17,3 +17,7 @@ TODO:
 - Update room transition code
     - Timer logic
     - Command based transitions (ie "Press button")
+
+4/19/2015:
+	
+Command processing architecture rewritten.
