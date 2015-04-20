@@ -44,6 +44,7 @@ void Game::registerCommands()
 	RegisterCommand("OOCON", processOOC, Connection::OOC);
 	RegisterCommand("QUIT1459", processQuit, Connection::LOGGEDIN);
 	RegisterCommand("HELP", processHelp, Connection::LOGGEDIN);
+	RegisterCommand("INVENTORY", processInventory, Connection::LOGGEDIN);
 }
 
 void Game::augmentCommand(Connection::State state, std::string &data)
@@ -343,11 +344,19 @@ void* Game::processOOC(int id, std::string data, Game* game)
 void* Game::processHelp(int id, std::string data, Game* game)
 {
 	game->m_sender.Send("Commands are not case sensitive\r\n\r\nOOC <message>: Out of character global chat\r\nOOC <ON/OFF>: Turn OOC permanently ON/OFF\r\nSAY <message>: In character local chat.\r\n", game->m_connection_map[id]);
+	return 0;
 }
 
 void* Game::processQuit(int id, std::string data, Game* game)
 {
 	game->m_running = false;
+	return 0;
+}
+
+void* Game::processInventory(int id, std::string data, Game* game)
+{
+	game->m_sender.Send("TODO: Show inventory", game->m_connection_map[id]);
+	return 0;
 }
 
 THREAD Game::ListenThread(LPVOID lpParam)
