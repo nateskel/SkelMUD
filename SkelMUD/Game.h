@@ -31,7 +31,7 @@ private:
 	std::vector<std::string> DIRECTIONS;
 	bool m_running;
 	HANDLE m_mutex;
-	Logger Log = Logger(Logger::L_ERROR);
+	Logger Log = Logger(Logger::L_DEBUG);
 	std::map<SOCKET, Connection*> m_connection_map;
 	std::map<int, Player*> m_player_map;
 	std::vector<Planet*> m_planets;
@@ -43,7 +43,6 @@ private:
 	Sender m_sender;
 	OutputManager m_output_manager;
 
-	void processCommand(std::string command, int id);
 	void registerCommands();
 	std::string createStatusBar(Player* player);
 	bool isDirection(std::string input);

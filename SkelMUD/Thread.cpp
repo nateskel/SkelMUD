@@ -1,6 +1,5 @@
 #include "Thread.h"
 
-
 int Thread::Lock(HANDLE mutex)
 {
 #ifdef _WIN32

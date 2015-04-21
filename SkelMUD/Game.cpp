@@ -16,6 +16,8 @@ Game::Game()
 	m_running = false;
 #ifdef _WIN32
 	m_mutex = CreateMutex(NULL, false, NULL);
+#else
+	pthread_mutex_init ( &m_mutex, NULL);
 #endif
 	m_sender = Sender();
 	m_output_manager = OutputManager();
@@ -45,6 +47,7 @@ void Game::registerCommands()
 	RegisterCommand("QUIT1459", processQuit, Connection::LOGGEDIN);
 	RegisterCommand("HELP", processHelp, Connection::LOGGEDIN);
 	RegisterCommand("INVENTORY", processInventory, Connection::LOGGEDIN);
+	Log.Debug("Registered Commands");
 }
 
 void Game::augmentCommand(Connection::State state, std::string &data)
@@ -120,6 +123,7 @@ void Game::Start()
 			}
 			else if (state == Connection::CONNECTED)
 			{
+				Log.Debug("User Connected");
 				m_sender.Send(m_output_manager.GetIntroText(), connection, YELLOW);
 				connection->SetState(Connection::USERNAME);
 				it++;

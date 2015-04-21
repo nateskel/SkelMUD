@@ -31,4 +31,4 @@ private:
 
 };
 
-#endif
+#endif // THREAD_H
