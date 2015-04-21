@@ -15,6 +15,7 @@ public:
 protected:
 	int m_player_id;
 	std::string m_player_name;
+	std::string m_class;
 	
 private:
 };

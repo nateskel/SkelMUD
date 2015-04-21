@@ -38,6 +38,7 @@ protected:
 	int m_sp;
 	int m_max_stamina;
 	int m_stamina;
+	
 private:
 };
 

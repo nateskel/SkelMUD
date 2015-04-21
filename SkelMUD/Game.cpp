@@ -10,6 +10,9 @@
 
 Game::Game()
 {
+#ifdef _WIN32
+	m_mutex = CreateMutex(NULL, false, NULL);
+#endif
 	DIRECTIONS = { "NORTH", "N", "SOUTH", "S", "EAST", "E", "WEST", "W", "NORTHEAST", "NE", "NORTHWEST",
 		"NW", "SOUTHEAST", "SE", "SOUTHWEST", "SW", "UP", "U", "DOWN", "D" };
 	std::sort(DIRECTIONS.begin(), DIRECTIONS.end());
@@ -90,7 +93,10 @@ void Game::Start()
 			Thread::Lock(m_mutex);
 			Connection* connection = it->second;
 			if (connection == NULL)
+			{
+				Thread::Unlock(m_mutex);
 				continue;
+			}
 			Connection::State state = connection->GetState();
 			Thread::Unlock(m_mutex);
 			if (state == Connection::LOGGEDIN)
