@@ -42,7 +42,7 @@ std::vector<std::string> Utils::GetFilenames(std::string path)
 	DIR *dp;
 	struct dirent *dirp;
 	if((dp  = opendir(path.c_str())) == NULL) {
-		std::cout << "Error(" << errno << ") opening " << path << std::endl;
+		// std::cout << "Error(" << errno << ") opening " << path << std::endl;
 		// handle error
 	}
 

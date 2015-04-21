@@ -53,3 +53,7 @@ std::string Logger::TimeStamp()
 	Utils::RemoveEndline(output);
 	return output;
 }
+
+void Logger::SetOutputLevel(Logger::Log_Level level) {
+	m_level = level;
+}

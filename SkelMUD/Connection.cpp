@@ -146,6 +146,7 @@ void Connection::SetAccount(Account account)
 
 THREAD Connection::ConnectionThread(LPVOID lpParam)
 {
+	Logger Log = Logger(Logger::L_DEBUG);
 	Connection* connection = (Connection*)lpParam;
 	char output[1000];
 	while (connection->IsRunning())
@@ -154,7 +155,7 @@ THREAD Connection::ConnectionThread(LPVOID lpParam)
 		int result = connection->Receive(output);
 		if (result == 0)
 		{
-			std::cout << "DISCONNECTED" << std::endl;
+			Log.Info("Player Disconnected");
 			connection->SetState(DISCONNECTED);
 			connection->Stop();
 		}

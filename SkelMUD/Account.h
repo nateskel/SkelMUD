@@ -20,7 +20,7 @@ private:
 	AccountLevel m_level;
 	std::string m_username;
 	std::string m_password;
-	vector<std::string> m_characters;
+	std::vector<std::string> m_characters;
 };
 
 #endif // ACCOUNT_H

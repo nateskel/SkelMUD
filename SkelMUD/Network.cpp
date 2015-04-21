@@ -94,7 +94,6 @@ int DataSocket::Connect()
 
 int DataSocket::Send(char* data)
 {
-	std::cout << "SEND: " << data << std::endl;
 	int sent = (int)send(m_data_socket, data, strlen(data) + 1, MSG_NOSIGNAL);
 	int err = errno;
 	return sent;

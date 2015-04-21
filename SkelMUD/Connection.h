@@ -10,12 +10,14 @@
 
 #include "Network.h"
 #include "Thread.h"
+#include "Logger.h"
 #include <string>
 #include <list>
 
 class Connection
 {
 public:
+	Logger Log = Logger(Logger::L_DEBUG);
 	Connection(DataSocket* socket);
 	Connection();
 	~Connection();
