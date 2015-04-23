@@ -26,9 +26,9 @@ Game::Game()
 	m_output_manager = OutputManager();
 	//m_planets.push_back(BuildPlanet());
 	//File accountFile = File();
-	File planetFile = File();
-	//m_accounts = accountFile.LoadAccounts();
-	m_planets = planetFile.LoadPlanets();
+	File file = File();
+	m_accounts = file.LoadAccounts();
+	m_planets = file.LoadPlanets();
 	registerCommands();
 }
 
@@ -50,6 +50,8 @@ void Game::registerCommands()
 	RegisterCommand("QUIT1459", processQuit, Connection::LOGGEDIN);
 	RegisterCommand("HELP", processHelp, Connection::LOGGEDIN);
 	RegisterCommand("INVENTORY", processInventory, Connection::LOGGEDIN);
+	RegisterCommand("NEWUSER_CONFIRM", processNewUserConfirm, Connection::NEWUSER_CONFIRM);
+	RegisterCommand("NEWPASSWORD", processNewPassword, Connection::NEWPASSWORD);
 	Log.Debug("Registered Commands");
 }
 
@@ -63,9 +65,17 @@ void Game::augmentCommand(Connection::State state, std::string &data)
 	{
 		data.insert(0, "PASSWORD ");
 	}
+	else if (state == Connection::NEWPASSWORD)
+	{
+		data.insert(0, "NEWPASSWORD ");
+	}
 	else if (state == Connection::OOC)
 	{
 		data.insert(0, "OOCON ");
+	}
+	else if (state == Connection::NEWUSER_CONFIRM)
+	{
+		data.insert(0, "NEWUSER_CONFIRM ");
 	}
 	else if (isDirection(data))
 	{
@@ -176,7 +186,9 @@ bool Game::ProcessCommand(std::string command_string, Connection::State state, i
 	Command command = m_command_map[command_input];
 	if (command.state == state)
 	{
+		Thread::Lock(m_mutex);
 		command.command_function(id, command_string, this);
+		Thread::Unlock(m_mutex);
 		return true;
 	}
 	return false;
@@ -292,10 +304,42 @@ void* Game::processLook(int id, std::string data, Game* game)
 
 void* Game::processUsername(int id, std::string data, Game* game)
 {
-	game->m_player_map[id] = new Player(id, data);
-	game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(game->m_player_map[id]);
-	game->m_sender.Send("Password: ", game->m_connection_map[id], YELLOW);
-	game->m_connection_map[id]->SetState(Connection::PASSWORD);
+	Connection* connection = game->m_connection_map[id];
+	Utils::RemoveEndline(data);
+	std::string username = "";
+	std::vector<std::string> connected_users;
+	for (auto i = game->m_connection_map.begin(); i != game->m_connection_map.end(); ++i)
+	{
+		connected_users.push_back(i->second->GetAccount().username);
+	}
+	if (std::find(connected_users.begin(), connected_users.end(), data) != connected_users.end())
+	{
+		game->m_sender.Send("Player already connected!\r\nEnter Username:", connection);
+		return 0;
+	}
+	auto pred = [data](const Connection::Account &item) {
+		return item.username == data;
+	};
+	auto account = std::find_if(std::begin(game->m_accounts), std::end(game->m_accounts), pred);
+	if (account != std::end(game->m_accounts))
+	{
+		username = (*account).username;
+		//TODO: This will be changed to character creation
+		game->m_player_map[id] = new Player(id, data);
+		game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(game->m_player_map[id]);
+		game->m_sender.Send("Password: ", connection, YELLOW);
+		connection->SetState(Connection::PASSWORD);
+	}
+	else
+	{
+		game->m_sender.Send("Account does not exist, create new account? (Y/N)", connection);
+		Connection::Account account;
+		account.username = data;
+		account.id = -1;
+		account.password = "";
+		connection->SetAccount(account);
+		connection->SetState(Connection::NEWUSER_CONFIRM);
+	}
 	return 0;
 }
 
@@ -420,4 +464,61 @@ std::string Game::createStatusBar(Player* player)
 	statusbar.append(WHITE);
 	statusbar.append("\r\n> ");
 	return statusbar;
+}
+
+void* Game::processNewUser(int id, std::string data, Game* game)
+{
+	Connection* connection = game->m_connection_map[id];
+	std::string username = Tokenizer::GetFirstToken(data);
+	auto pred = [username](const Connection::Account &item) {
+		return item.username == username;
+	};
+	if (std::find_if(std::begin(game->m_accounts), std::end(game->m_accounts), pred) != std::end(game->m_accounts))
+	{
+		game->m_sender.Send("That username already exists!", connection);
+	}
+	else
+	{
+		game->m_sender.Send("Password: ", connection);
+		connection->SetState(Connection::NEWPASSWORD);
+	}
+	return 0;
+}
+
+void* Game::processNewUserConfirm(int id, std::string data, Game* game)
+{
+	Connection* connection = game->m_connection_map[id];
+	Utils::RemoveEndline(data);
+	data = Tokenizer::UpperCase(data);
+	if (data == "Y" || data == "YES")
+	{
+		game->m_sender.Send("Password: ", connection);
+		connection->SetState(Connection::NEWPASSWORD);
+	}
+	else
+	{
+		game->m_sender.Send("Username: ", connection);
+		connection->SetState(Connection::USERNAME);
+	}
+	return 0;
+}
+
+void* Game::processNewPassword(int id, std::string data, Game* game)
+{
+	Connection* connection = game->m_connection_map[id];
+	Utils::RemoveEndline(data);
+	Connection::Account account = connection->GetAccount();
+	account.password = data;
+	account.id = game->m_accounts.size();
+	std::fstream file_stream;
+	File file = File();
+	file.SaveAccount(file_stream, account);
+	game->m_accounts.push_back(account);
+	game->m_sender.Send("Logged in!\r\n", connection);
+	connection->SetState(Connection::LOGGEDIN);
+	//TODO: This will be changed to character creation
+	game->m_player_map[id] = new Player(id, account.username);
+	game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(game->m_player_map[id]);
+	processLook(id, "", game);
+	return 0;
 }

@@ -19,9 +19,9 @@ void File::OpenRead(std::fstream& stream, std::string filename)
 	stream.open(filename.c_str(), std::ios::in);
 }
 
-void File::OpenWrite(std::string filename)
+void File::OpenWrite(std::fstream& stream, std::string filename)
 {
-	m_file->open(filename.c_str(), std::ios::out);
+	stream.open(filename.c_str(), std::ios::out || std::ios::app);
 }
 
 void File::OpenReadWrite(std::string filename)
@@ -58,11 +58,9 @@ std::vector<Connection::Account> File::LoadAccounts()
 	while (ReadNextLine(stream, data))
 	{
 		account.username = data;
-		if (!ReadNextLine(stream, data))
-			return accounts;
+		ReadNextLine(stream, data);
 		account.password = data;
-		if (!ReadNextLine(stream, data))
-			return accounts;
+		ReadNextLine(stream, data);
 		account.id = std::stoi(data);
 	}
 	accounts.push_back(account);
@@ -144,4 +142,11 @@ std::vector<Planet*> File::LoadPlanets()
 		Close(stream);
 	}
 	return planets;
+}
+
+void File::SaveAccount(std::fstream& stream, Connection::Account)
+{
+	OpenWrite(stream, "Accounts.dat");
+	// Save the account
+	Close(stream);
 }

@@ -165,3 +165,8 @@ THREAD Connection::ConnectionThread(LPVOID lpParam)
 	connection->Close();
 	return 0;
 }
+
+Connection::Account Connection::GetAccount()
+{
+	return m_account;
+}

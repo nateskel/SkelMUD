@@ -50,6 +50,9 @@ private:
 
 	static void* processLook(int id, std::string data, Game* game);
 	static void* processUsername(int id, std::string data, Game* game);
+	static void* processNewUserConfirm(int id, std::string data, Game* game);
+	static void* processNewUser(int id, std::string data, Game* game);
+	static void* processNewPassword(int id, std::string data, Game* game);
 	static void* processPassword(int id, std::string data, Game* game);
 	static void* processSay(int id, std::string data, Game* game);
 	static void* processDirectionalCommand(int id, std::string command, Game* game);

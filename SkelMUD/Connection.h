@@ -27,7 +27,9 @@ public:
 		std::string password;
 		int id;
 	};
-	enum State { CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEWUSER, LOGGEDIN, OOC };
+	enum State { CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEWUSER_CONFIRM, 
+		NEWUSER, NEWPASSWORD, CHARACTER_SELECTION,
+		LOGGEDIN, OOC };
 
 	bool IsRunning();
 	bool HasMoreData();
@@ -39,6 +41,7 @@ public:
 	State GetState();
 	void SetUsername(std::string username);
 	void SetPassword(std::string password);
+	Connection::Account GetAccount();
 	void SetAccount(Account account);
 	int StageSend(std::string data);
 	void Send(std::string data);

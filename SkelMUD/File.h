@@ -15,10 +15,11 @@ public:
 	bool ReadNextLine(std::fstream& stream, std::string &data);
 	void WriteLine(std::string data);
 	void OpenRead(std::fstream& stream, std::string filename);
-	void OpenWrite(std::string filename);
+	void OpenWrite(std::fstream& stream, std::string filename);
 	void OpenReadWrite(std::string filename);
 	void Close(std::fstream& stream);
 	std::vector<Connection::Account> LoadAccounts();
+	void SaveAccount(std::fstream& stream, Connection::Account);
 	std::vector<Planet*> LoadPlanets();
 protected:
 private:

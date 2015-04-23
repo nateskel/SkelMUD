@@ -40,10 +40,11 @@ std::string Logger::TimeStamp()
 	time(&rawtime);
 	#ifdef _WIN32
 	localtime_s(&timeinfo, &rawtime);
+	char timebuf[26];
 	#else
 	timeinfo = *localtime(&rawtime);
-	#endif
 	char* timebuf;
+	#endif
 	#ifdef _WIN32
 	asctime_s(timebuf, 26, &timeinfo);
 	#else
