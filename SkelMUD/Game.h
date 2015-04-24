@@ -60,6 +60,7 @@ private:
 	static void* processHelp(int id, std::string data, Game* game);
 	static void* processQuit(int id, std::string data, Game* game);
 	static void* processInventory(int id, std::string data, Game* game);
+	static void* processCharacterSelection(int id, std::string data, Game* game);
 };
 
 #endif // GAME_H

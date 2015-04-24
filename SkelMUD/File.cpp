@@ -15,13 +15,12 @@ File::~File()
 
 void File::OpenRead(std::fstream& stream, std::string filename)
 {
-	//m_file->open(filename.c_str(), std::ios::in);
 	stream.open(filename.c_str(), std::ios::in);
 }
 
 void File::OpenWrite(std::fstream& stream, std::string filename)
 {
-	stream.open(filename.c_str(), std::ios::out || std::ios::app);
+	stream.open(filename.c_str(), std::ios::out | std::ios::app);
 }
 
 void File::OpenReadWrite(std::string filename)
@@ -42,9 +41,10 @@ bool File::ReadNextLine(std::fstream &stream, std::string &data)
 	return stream.good();
 }
 
-void File::WriteLine(std::string data)
+void File::WriteLine(std::fstream &stream, std::string data)
 {
-	*m_file << data << "\r\n";
+	//*m_file << data << "\r\n";
+	stream << data << "\r\n";
 }
 
 std::vector<Connection::Account> File::LoadAccounts()
@@ -53,17 +53,24 @@ std::vector<Connection::Account> File::LoadAccounts()
 	std::vector<Connection::Account> accounts;
 	std::string data;
 	std::fstream stream;
-	OpenRead(stream, "Accounts.dat");
-
-	while (ReadNextLine(stream, data))
-	{
+	OpenRead(stream, ACCOUNTFILE);
+	while (ReadNextLine(stream, data)) {
 		account.username = data;
 		ReadNextLine(stream, data);
 		account.password = data;
 		ReadNextLine(stream, data);
 		account.id = std::stoi(data);
+		ReadNextLine(stream, data);
+		if (data == "Wizard")
+			account.level = Connection::AccountLevel::Wizard;
+		else if (data == "Standard")
+			account.level = Connection::AccountLevel::Standard;
+		else if (data == "GM")
+			account.level = Connection::AccountLevel::GM;
+		else if (data == "Trial")
+			account.level = Connection::AccountLevel::Trial;
+		accounts.push_back(account);
 	}
-	accounts.push_back(account);
 	Close(stream);
 	return accounts;
 }
@@ -144,9 +151,21 @@ std::vector<Planet*> File::LoadPlanets()
 	return planets;
 }
 
-void File::SaveAccount(std::fstream& stream, Connection::Account)
+void File::SaveAccount(std::fstream& stream, Connection::Account account)
 {
-	OpenWrite(stream, "Accounts.dat");
-	// Save the account
+	OpenWrite(stream, ACCOUNTFILE);
+	WriteLine(stream, account.username);
+	WriteLine(stream, account.password);
+	char str[4];
+	sprintf(str, "%d", account.id);
+	WriteLine(stream, str);
+	std::string level = "Standard";
+	if (account.level == Connection::GM)
+		level = "GM";
+	else if (account.level == Connection::Wizard)
+		level = "Wizard";
+	else if (account.level == Connection::Trial)
+		level = "Trial";
+	WriteLine(stream, level);
 	Close(stream);
 }

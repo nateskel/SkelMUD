@@ -21,11 +21,16 @@ public:
 	Connection(DataSocket* socket);
 	Connection();
 	~Connection();
+	enum AccountLevel
+	{
+		Wizard, GM, Standard, Trial
+	};
 	struct Account
 	{
 		std::string username;
 		std::string password;
-		int id;
+		long id;
+		AccountLevel level;
 	};
 	enum State { CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEWUSER_CONFIRM, 
 		NEWUSER, NEWPASSWORD, CHARACTER_SELECTION,

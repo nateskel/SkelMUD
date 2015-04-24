@@ -5,6 +5,8 @@
 #include <algorithm>
 #ifndef _WIN32
 #include <unistd.h>
+#include <sstream>
+
 #define Sleep(seconds) sleep(seconds)
 #endif
 
@@ -52,6 +54,7 @@ void Game::registerCommands()
 	RegisterCommand("INVENTORY", processInventory, Connection::LOGGEDIN);
 	RegisterCommand("NEWUSER_CONFIRM", processNewUserConfirm, Connection::NEWUSER_CONFIRM);
 	RegisterCommand("NEWPASSWORD", processNewPassword, Connection::NEWPASSWORD);
+	RegisterCommand("CHARACTERSELECTION", processCharacterSelection, Connection::CHARACTER_SELECTION);
 	Log.Debug("Registered Commands");
 }
 
@@ -76,6 +79,10 @@ void Game::augmentCommand(Connection::State state, std::string &data)
 	else if (state == Connection::NEWUSER_CONFIRM)
 	{
 		data.insert(0, "NEWUSER_CONFIRM ");
+	}
+	else if (state == Connection::CHARACTER_SELECTION)
+	{
+		data.insert(0, "CHARACTERSELECTION ");
 	}
 	else if (isDirection(data))
 	{
@@ -347,8 +354,13 @@ void* Game::processPassword(int id, std::string data, Game* game)
 {
 	Connection* connection = game->m_connection_map[id];
 	game->m_sender.Send("Logged in!\r\n", connection);
-	connection->SetState(Connection::LOGGEDIN);
-	processLook(id, "", game);
+	game->m_sender.Send("Select Character:\r\n\r\n", connection);
+	//TODO: temporary placeholder
+	game->m_sender.Send("None\r\n\r\n", connection);
+	game->m_sender.Send("[0] Create New Character", connection);
+	connection->SetState(Connection::CHARACTER_SELECTION);
+	//connection->SetState(Connection::LOGGEDIN);
+	//processLook(id, "", game);
 	return 0;
 }
 
@@ -497,7 +509,7 @@ void* Game::processNewUserConfirm(int id, std::string data, Game* game)
 	}
 	else
 	{
-		game->m_sender.Send("Username: ", connection);
+		game->m_sender.Send("Enter Username: ", connection);
 		connection->SetState(Connection::USERNAME);
 	}
 	return 0;
@@ -510,15 +522,38 @@ void* Game::processNewPassword(int id, std::string data, Game* game)
 	Connection::Account account = connection->GetAccount();
 	account.password = data;
 	account.id = game->m_accounts.size();
+	account.level = Connection::Standard;
 	std::fstream file_stream;
 	File file = File();
 	file.SaveAccount(file_stream, account);
 	game->m_accounts.push_back(account);
 	game->m_sender.Send("Logged in!\r\n", connection);
-	connection->SetState(Connection::LOGGEDIN);
-	//TODO: This will be changed to character creation
-	game->m_player_map[id] = new Player(id, account.username);
-	game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(game->m_player_map[id]);
-	processLook(id, "", game);
+	game->m_sender.Send("Select Character:", connection);
+	//TODO: temporary placeholder
+	game->m_sender.Send("None\r\n", connection);
+	game->m_sender.Send("[0] Create New Character", connection);
+	connection->SetState(Connection::CHARACTER_SELECTION);
+	//connection->SetState(Connection::LOGGEDIN);
+	//game->m_player_map[id] = new Player(id, account.username);
+	//game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(game->m_player_map[id]);
+	//processLook(id, "", game);
+	return 0;
+}
+
+void *Game::processCharacterSelection(int id, std::string data, Game *game) {
+	Connection* connection = game->m_connection_map[id];
+	//TODO: error checking and character selection logic
+	int selection = std::atoi(data.c_str());
+	if(selection == 0) {
+		//TODO: Handle Character Creation
+		game->m_player_map[id] = new Player(id, connection->GetAccount().username);
+		game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(game->m_player_map[id]);
+		processLook(id, "", game);
+		connection->SetState(Connection::LOGGEDIN);
+	}
+	else
+	{
+		// Handle Character Selection
+	}
 	return 0;
 }
