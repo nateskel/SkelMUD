@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 File::File()
 {
@@ -44,7 +45,7 @@ bool File::ReadNextLine(std::fstream &stream, std::string &data)
 void File::WriteLine(std::fstream &stream, std::string data)
 {
 	//*m_file << data << "\r\n";
-	stream << data << "\r\n";
+	stream << data << "\n";
 }
 
 std::vector<Connection::Account> File::LoadAccounts()
@@ -156,9 +157,9 @@ void File::SaveAccount(std::fstream& stream, Connection::Account account)
 	OpenWrite(stream, ACCOUNTFILE);
 	WriteLine(stream, account.username);
 	WriteLine(stream, account.password);
-	char str[4];
-	sprintf(str, "%d", account.id);
-	WriteLine(stream, str);
+	std::stringstream ss;
+	ss << account.id;
+	WriteLine(stream, ss.str());
 	std::string level = "Standard";
 	if (account.level == Connection::GM)
 		level = "GM";

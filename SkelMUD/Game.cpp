@@ -55,6 +55,7 @@ void Game::registerCommands()
 	RegisterCommand("NEWUSER_CONFIRM", processNewUserConfirm, Connection::NEWUSER_CONFIRM);
 	RegisterCommand("NEWPASSWORD", processNewPassword, Connection::NEWPASSWORD);
 	RegisterCommand("CHARACTERSELECTION", processCharacterSelection, Connection::CHARACTER_SELECTION);
+	RegisterCommand("TEST", processTest, Connection::LOGGEDIN);
 	Log.Debug("Registered Commands");
 }
 
@@ -555,5 +556,14 @@ void *Game::processCharacterSelection(int id, std::string data, Game *game) {
 	{
 		// Handle Character Selection
 	}
+	return 0;
+}
+
+void* Game::processTest(int id, std::string data, Game* game)
+{
+	Connection* connection = game->m_connection_map[id];
+	Player* player = game->m_player_map[id];
+	player->SetHP(player->GetHP() - 5);
+	game->m_sender.Send("\033[2A\033[K", connection);
 	return 0;
 }
