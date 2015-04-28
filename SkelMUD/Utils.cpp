@@ -6,13 +6,14 @@
 #include <windows.h>
 #include <strsafe.h>
 #else
+
 #include <dirent.h>
+
 #endif
 
-void Utils::RemoveEndline(std::string &data)
-{
-	data.erase(std::remove(data.begin(), data.end(), '\n'), data.end());
-	data.erase(std::remove(data.begin(), data.end(), '\r'), data.end());
+void Utils::RemoveEndline(std::string &data) {
+    data.erase(std::remove(data.begin(), data.end(), '\n'), data.end());
+    data.erase(std::remove(data.begin(), data.end(), '\r'), data.end());
 }
 
 #ifdef _WIN32
@@ -36,23 +37,24 @@ std::vector<std::string> Utils::GetFilenames(std::string path)
 	return output;
 }
 #else
-std::vector<std::string> Utils::GetFilenames(std::string path)
-{
-	std::vector<std::string> files = std::vector<std::string>();
-	DIR *dp;
-	struct dirent *dirp;
-	if((dp  = opendir(path.c_str())) == NULL) {
-		// std::cout << "Error(" << errno << ") opening " << path << std::endl;
-		// handle error
-	}
 
-	while ((dirp = readdir(dp)) != NULL) {
-		std::string filename = std::string(dirp->d_name);
-		if(filename == ".." or filename == ".")
-			continue;
-		files.push_back(path + filename);
-	}
-	closedir(dp);
-	return files;
+std::vector<std::string> Utils::GetFilenames(std::string path) {
+    std::vector<std::string> files = std::vector<std::string>();
+    DIR* dp;
+    struct dirent* dirp;
+    if ((dp = opendir(path.c_str())) == NULL) {
+        // std::cout << "Error(" << errno << ") opening " << path << std::endl;
+        // handle error
+    }
+
+    while ((dirp = readdir(dp)) != NULL) {
+        std::string filename = std::string(dirp->d_name);
+        if (filename == ".." or filename == ".")
+            continue;
+        files.push_back(path + filename);
+    }
+    closedir(dp);
+    return files;
 }
+
 #endif

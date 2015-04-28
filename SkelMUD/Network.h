@@ -1,4 +1,4 @@
-#ifndef	NETWORK_H
+#ifndef    NETWORK_H
 #define NETWORK_H
 
 #ifdef _WIN32
@@ -6,52 +6,62 @@
     #include <winsock2.h>
 #define MSG_NOSIGNAL 0
 #else
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <sys/un.h>
-    #include <arpa/inet.h>
-    #include <netdb.h>
-    #define SOCKET int
-	#define closesocket shutdown
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/un.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+
+#define SOCKET int
+#define closesocket shutdown
 #endif
 
-class DataSocket
-{
+class DataSocket {
 public:
-	DataSocket();
-	DataSocket(SOCKET socket);
-	~DataSocket();
+    DataSocket();
 
-	int Connect();
-	int Send(char* data);
-	int Receive(char* data);
-	void Close();
-	SOCKET GetSocket();
+    DataSocket(SOCKET socket);
+
+    ~DataSocket();
+
+    int Connect();
+
+    int Send(char* data);
+
+    int Receive(char* data);
+
+    void Close();
+
+    SOCKET GetSocket();
 
 private:
-	SOCKET m_data_socket;
+    SOCKET m_data_socket;
 
 };
 
-class ServerSocket
-{
+class ServerSocket {
 public:
 
-	ServerSocket(int port);
-	~ServerSocket();
+    ServerSocket(int port);
 
-	int Listen();
-	int Close();
-	int Initialize();
-	DataSocket* Accept();
+    ~ServerSocket();
+
+    int Listen();
+
+    int Close();
+
+    int Initialize();
+
+    DataSocket* Accept();
 
 private:
-	int m_port;
-	bool m_listening;
-	SOCKET m_listen_socket;
+    int m_port;
+    bool m_listening;
+    SOCKET m_listen_socket;
 
-	// private default constructor
-	ServerSocket() { }
+    // private default constructor
+    ServerSocket() { }
 };
 
 #endif

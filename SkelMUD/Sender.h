@@ -19,23 +19,32 @@ static const std::string MAGENTA = "\33[35m";
 static const std::string CYAN = "\33[36m";
 static const std::string WHITE = "\33[37m";
 
-class Sender
-{
+class Sender {
 public:
-	Sender();
-	~Sender();
+    Sender();
 
-	void SendAll(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET exclude);
-	void SendTo(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET target);
-	void Send(std::string data, Connection* connection);
-	void SendToMultiple(std::string data, std::map<SOCKET, Connection*> connection_map, std::vector<int> targets);
-	void SendAll(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET exclude, std::string color);
-	void SendTo(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET target, std::string color);
-	void Send(std::string data, Connection* connection, std::string color);
-	void SendToMultiple(std::string data, std::map<SOCKET, Connection*> connection_map, std::vector<int> targets, std::string color);
-	
+    ~Sender();
+
+    void SendAll(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET exclude);
+
+    void SendTo(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET target);
+
+    void Send(std::string data, Connection* connection);
+
+    void SendToMultiple(std::string data, std::map<SOCKET, Connection*> connection_map, std::vector<int> targets);
+
+    void SendAll(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET exclude, std::string color);
+
+    void SendTo(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET target, std::string color);
+
+    void Send(std::string data, Connection* connection, std::string color);
+
+    void SendToMultiple(std::string data, std::map<SOCKET, Connection*> connection_map, std::vector<int> targets,
+                        std::string color);
+
 protected:
 private:
-	//std::map<SOCKET, Connection*> m_connection_map;
+    //std::map<SOCKET, Connection*> m_connection_map;
 };
+
 #endif // SENDER_H

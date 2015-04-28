@@ -3,23 +3,27 @@
 
 #include <string>
 
-class OutputManager
-{
+class OutputManager {
 public:
-	OutputManager();
-	~OutputManager();
-	void SetInputText(std::string inputtext);
-	std::string GetIntroText();
+    OutputManager();
+
+    ~OutputManager();
+
+    void SetInputText(std::string inputtext);
+
+    std::string GetIntroText();
+
 protected:
 private:
-	std::string m_intro_text;
+    std::string m_intro_text;
 };
 
-class InputManager
-{
+class InputManager {
 public:
-	InputManager();
-	~InputManager();
+    InputManager();
+
+    ~InputManager();
+
 protected:
 private:
 };
