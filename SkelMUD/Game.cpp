@@ -338,11 +338,11 @@ void* Game::processUsername(int id, std::string data, Game* game) {
     }
     else {
         game->m_sender.Send("Account does not exist, create new account? (Y/N)", connection);
-        Connection::Account account;
-        account.username = data;
-        account.id = -1;
-        account.password = "";
-        connection->SetAccount(account);
+        Connection::Account new_account;
+        new_account.username = data;
+        new_account.id = -1;
+        new_account.password = "";
+        connection->SetAccount(new_account);
         connection->SetState(Connection::NEWUSER_CONFIRM);
     }
     return 0;
