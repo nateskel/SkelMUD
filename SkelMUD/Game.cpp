@@ -171,6 +171,8 @@ void Game::Start() {
                     std::string data = connection->GetNextData();
                     Utils::RemoveEndline(data);
                     augmentCommand(state, data);
+                    if(state == Connection::LOGGEDIN)
+                        m_sender.Send("\033[2A\033[K", connection);
                     if (!ProcessCommand(data, state, id)) {
                         m_sender.Send("Unrecognized Command. Type 'help' for a list of commands.\r\n", connection);
                     }
