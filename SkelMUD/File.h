@@ -39,8 +39,10 @@ private:
 	const std::string DIRECTORY = "D:\\SkelMUD\\SkelMUD\\SkelMUD\\Planets\\";
 	const std::string ACCOUNTFILE = "Accounts.dat";
 #else
-    const std::string DIRECTORY = "/root/SkelMUD/SkelMUD/Planets/";
-    const std::string ACCOUNTFILE = "/root/SkelMUD/SkelMUD/Accounts.dat";
+    // const std::string DIRECTORY = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Planets/";
+    const std::string DIRECTORY = "./Planets/";
+    // const std::string ACCOUNTFILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Accounts.dat";
+    const std::string ACCOUNTFILE = "Accounts.dat";
 #endif
     std::string m_filename;
     std::fstream* m_file;
