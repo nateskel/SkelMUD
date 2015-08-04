@@ -3,9 +3,11 @@
 #include <iostream>
 #include <time.h>
 
-Logger::Logger(Log_Level level) {
-    m_level = level;
-}
+//Logger::Logger(Log_Level level) {
+//    m_level = level;
+//}
+
+Logger::Log_Level Logger::m_level = L_DEBUG;
 
 void Logger::Debug(std::string message) {
     if (m_level == L_DEBUG) {

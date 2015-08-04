@@ -2,8 +2,8 @@
 
 int main() {
     Game game = Game();
-    Logger Log = Logger(Logger::Log_Level::L_DEBUG);
-    Log.Info("Starting...");
+    Logger::SetOutputLevel(Logger::L_DEBUG);
+    Logger::Info("Starting...");
     game.Start();
     return 0;
 }

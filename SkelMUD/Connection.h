@@ -16,7 +16,6 @@
 
 class Connection {
 public:
-    Logger Log = Logger(Logger::L_DEBUG);
 
     Connection(DataSocket* socket);
 

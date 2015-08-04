@@ -38,7 +38,6 @@ private:
     std::vector<std::string> DIRECTIONS;
     bool m_running;
     HANDLE m_mutex;
-    Logger Log = Logger(Logger::L_DEBUG);
     std::map<SOCKET, Connection*> m_connection_map;
     std::map<int, Player*> m_player_map;
     std::vector<Planet*> m_planets;

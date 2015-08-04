@@ -124,14 +124,13 @@ void Connection::SetAccount(Account account) {
 }
 
 THREAD Connection::ConnectionThread(LPVOID lpParam) {
-    Logger Log = Logger(Logger::L_DEBUG);
     Connection* connection = (Connection*) lpParam;
     char output[1000];
     while (connection->IsRunning()) {
         memset(output, 0, sizeof(output));
         int result = connection->Receive(output); // block until data is received
         if (result == 0) {
-            Log.Info("Player Disconnected");
+            Logger::Info("Player Disconnected");
             connection->SetState(DISCONNECTED);
             connection->Stop();
         }

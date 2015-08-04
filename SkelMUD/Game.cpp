@@ -80,7 +80,7 @@ void Game::registerCommands() {
     RegisterCommand("NEWPASSWORD", processNewPassword, Connection::NEWPASSWORD);
     RegisterCommand("CHARACTERSELECTION", processCharacterSelection, Connection::CHARACTER_SELECTION);
     RegisterCommand("TEST", processTest, Connection::LOGGEDIN);
-    Log.Debug("Registered Commands");
+    Logger::Debug("Registered Commands");
 }
 
 void Game::augmentCommand(Connection::State state, std::string &data) {
@@ -138,7 +138,7 @@ void Game::Start() {
             if (state == Connection::LOGGEDIN) {
                 Player* player = m_player_map[id];
                 if (player == NULL) {
-                    Log.Error("Logged in player not found!");
+                    Logger::Error("Logged in player not found!");
                 }
                 else {
                     std::string statusbar = createStatusBar(player);
@@ -160,7 +160,7 @@ void Game::Start() {
                 continue;
             }
             else if (state == Connection::CONNECTED) {
-                Log.Debug("User Connected");
+                Logger::Debug("User Connected");
                 m_sender.Send(m_output_manager.GetIntroText(), connection, YELLOW);
                 connection->SetState(Connection::USERNAME);
                 it++;
@@ -171,8 +171,8 @@ void Game::Start() {
                     std::string data = connection->GetNextData();
                     Utils::RemoveEndline(data);
                     augmentCommand(state, data);
-                    if(state == Connection::LOGGEDIN)
-                        m_sender.Send("\033[2A\033[K", connection);
+//                    if(state == Connection::LOGGEDIN)
+//                        m_sender.Send("\033[2A\033[K", connection);
                     if (!ProcessCommand(data, state, id)) {
                         m_sender.Send("Unrecognized Command. Type 'help' for a list of commands.\r\n", connection);
                     }
@@ -332,9 +332,9 @@ void* Game::processUsername(int id, std::string data, Game* game) {
     if (account != std::end(game->m_accounts)) {
         username = (*account).username;
         //TODO: This will be changed to character creation
-        game->m_player_map[id] = new Player(id, data);
-        game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(
-                game->m_player_map[id]);
+//        Player* player = new Player(id, data);
+//        game->m_player_map[id] = player;
+//        game->m_planets[player->GetPlanetID()]->GetRoom(player->GetRoomID())->AddPlayer(player);
         game->m_sender.Send("Password: ", connection, YELLOW);
         connection->SetState(Connection::PASSWORD);
     }
@@ -530,6 +530,7 @@ void* Game::processCharacterSelection(int id, std::string data, Game* game) {
     if (selection == 0) {
         //TODO: Handle Character Creation
         game->m_player_map[id] = new Player(id, connection->GetAccount().username);
+        Logger::Debug(connection->GetAccount().username);
         game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(
                 game->m_player_map[id]);
         processLook(id, "", game);
