@@ -316,25 +316,13 @@ void* Game::processLook(int id, std::string data, Game* game) {
 void* Game::processUsername(int id, std::string data, Game* game) {
     Connection* connection = game->m_connection_map[id];
     Utils::RemoveEndline(data);
-    std::string username = "";
-    std::vector<std::string> connected_users;
-    for (auto i = game->m_connection_map.begin(); i != game->m_connection_map.end(); ++i) {
-        connected_users.push_back(i->second->GetAccount().username);
-    }
-    if (std::find(connected_users.begin(), connected_users.end(), data) != connected_users.end()) {
-        game->m_sender.Send("Player already connected!\r\nEnter Username:", connection);
-        return 0;
-    }
+
     auto pred = [data](const Connection::Account &item) {
         return item.username == data;
     };
     auto account = std::find_if(std::begin(game->m_accounts), std::end(game->m_accounts), pred);
     if (account != std::end(game->m_accounts)) {
-        username = (*account).username;
-        //TODO: This will be changed to character creation
-//        Player* player = new Player(id, data);
-//        game->m_player_map[id] = player;
-//        game->m_planets[player->GetPlanetID()]->GetRoom(player->GetRoomID())->AddPlayer(player);
+        connection->SetAccount(*account);
         game->m_sender.Send("Password: ", connection, YELLOW);
         connection->SetState(Connection::PASSWORD);
     }
@@ -352,6 +340,33 @@ void* Game::processUsername(int id, std::string data, Game* game) {
 
 void* Game::processPassword(int id, std::string data, Game* game) {
     Connection* connection = game->m_connection_map[id];
+    if(connection->GetAccount().password != data)
+    {
+        game->m_sender.Send("Incorrect Password\r\n", connection, RED);
+        game->m_sender.Send("Enter Username: ", connection, YELLOW);
+        connection->SetState(Connection::USERNAME);
+        return 0;
+    }
+
+    // Check if account is already logged in
+    for (auto i = game->m_connection_map.begin(); i != game->m_connection_map.end(); ++i) {
+        Connection::Account account = i->second->GetAccount();
+        Logger::Debug(account.username);
+        if (account.logged_in)
+            Logger::Debug("LOGGED IN");
+        else
+            Logger::Debug("NOT LOGGED IN");
+        if (account.username == connection->GetAccount().username && account.logged_in)
+        {
+            game->m_sender.Send("Player already connected!\r\n", connection, RED);
+            game->m_sender.Send("Enter Username: ", connection, YELLOW);
+            connection->ResetAccount();
+            connection->SetState(Connection::USERNAME);
+            return 0;
+        }
+    }
+
+    connection->SetLoggedIn(true);
     game->m_sender.Send("Logged in!\r\n", connection);
     game->m_sender.Send("Select Character:\r\n\r\n", connection);
     //TODO: temporary placeholder
@@ -530,7 +545,6 @@ void* Game::processCharacterSelection(int id, std::string data, Game* game) {
     if (selection == 0) {
         //TODO: Handle Character Creation
         game->m_player_map[id] = new Player(id, connection->GetAccount().username);
-        Logger::Debug(connection->GetAccount().username);
         game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(
                 game->m_player_map[id]);
         processLook(id, "", game);

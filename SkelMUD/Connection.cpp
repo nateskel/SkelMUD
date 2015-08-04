@@ -144,3 +144,19 @@ THREAD Connection::ConnectionThread(LPVOID lpParam) {
 Connection::Account Connection::GetAccount() {
     return m_account;
 }
+
+void Connection::SetLoggedIn(bool logged_in) {
+    m_account.logged_in = logged_in;
+}
+
+bool Connection::GetLoggedIn() {
+    return m_account.logged_in;
+}
+
+void Connection::ResetAccount() {
+    m_account.username  = "";
+    m_account.password  = "";
+    m_account.id        = 0;
+    m_account.level     = Trial;
+    m_account.logged_in = false;
+}

@@ -31,6 +31,7 @@ public:
         std::string password;
         long id;
         AccountLevel level;
+        bool logged_in;
     };
     enum State {
         CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEWUSER_CONFIRM,
@@ -56,9 +57,15 @@ public:
 
     void SetPassword(std::string password);
 
+    void SetLoggedIn(bool logged_in);
+
+    bool GetLoggedIn();
+
     Connection::Account GetAccount();
 
     void SetAccount(Account account);
+
+    void ResetAccount();
 
     int StageSend(std::string data);
 
