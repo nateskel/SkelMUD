@@ -78,6 +78,7 @@ void Game::registerCommands() {
     RegisterCommand("NEW_USER_CONFIRM", processNewUserConfirm, Connection::NEW_USER_CONFIRM);
     RegisterCommand("NEW_PASSWORD", processNewPassword, Connection::NEW_PASSWORD);
     RegisterCommand("CHARACTERSELECTION", processCharacterSelection, Connection::CHARACTER_SELECTION);
+    RegisterCommand("CHARACTERCREATION", processCharacterCreation, Connection::CHARACTER_CREATION);
     RegisterCommand("TEST", processTest, Connection::LOGGED_IN);
     Logger::Debug("Registered Commands");
 }
@@ -108,7 +109,7 @@ void Game::augmentCommand(Connection::State state, std::string &data) {
         data.insert(0, "CHARACTERSELECTION ");
     }
     else if (state == Connection::CHARACTER_CREATION) {
-        data.insert(0, "CHARACTERCREATION");
+        data.insert(0, "CHARACTERCREATION ");
     }
     else if (isDirection(data)) {
         data = Tokenizer::UpperCase(data);
@@ -189,7 +190,7 @@ void Game::Start() {
     }
 }
 
-void Game::RegisterCommand(std::string command_string, void* (* command_function)(int, std::string, Game*),
+void Game::RegisterCommand(std::string command_string, void (* command_function)(int, std::string, Game*),
                            Connection::State state) {
     Command command;
     command.command_function = command_function;
@@ -229,7 +230,7 @@ std::string Game::GetOutput(int id) {
         return NULL;
 }
 
-void* Game::processDirectionalCommand(int id, std::string command, Game* game) {
+void Game::processDirectionalCommand(int id, std::string command, Game* game) {
     bool result = false;
     Player* current_player = game->m_player_map[id];
     int current_planet = current_player->GetPlanetID();
@@ -271,10 +272,9 @@ void* Game::processDirectionalCommand(int id, std::string command, Game* game) {
         game->m_sender.SendToMultiple(leave_message, game->m_connection_map, leaving_players);
         processLook(id, "", game);
     }
-    return 0;
 }
 
-void* Game::processLook(int id, std::string data, Game* game) {
+void Game::processLook(int id, std::string data, Game* game) {
     Player* current_player = game->m_player_map[id];
     Room* room = game->m_planets[current_player->GetPlanetID()]->GetRoom(current_player->GetRoomID());
     std::string output = room->GetLongDescription();
@@ -312,10 +312,9 @@ void* Game::processLook(int id, std::string data, Game* game) {
         output.append("Down ");
     output.append("\r\n");
     game->m_sender.Send(output, game->m_connection_map[id]);
-    return 0;
 }
 
-void* Game::processUsername(int id, std::string data, Game* game) {
+void Game::processUsername(int id, std::string data, Game* game) {
     Connection* connection = game->m_connection_map[id];
     Utils::RemoveEndline(data);
 
@@ -337,10 +336,9 @@ void* Game::processUsername(int id, std::string data, Game* game) {
         connection->SetAccount(new_account);
         connection->SetState(Connection::NEW_USER_CONFIRM);
     }
-    return 0;
 }
 
-void* Game::processPassword(int id, std::string data, Game* game) {
+void Game::processPassword(int id, std::string data, Game* game) {
     Connection* connection = game->m_connection_map[id];
     if(connection->GetAccount().password != data)
     {
@@ -348,7 +346,7 @@ void* Game::processPassword(int id, std::string data, Game* game) {
         game->m_sender.Send("Enter Username: ", connection, YELLOW);
         connection->ResetAccount();
         connection->SetState(Connection::USERNAME);
-        return 0;
+        return;
     }
 
     // Check if account is already logged in
@@ -365,7 +363,7 @@ void* Game::processPassword(int id, std::string data, Game* game) {
             game->m_sender.Send("Enter Username: ", connection, YELLOW);
             connection->ResetAccount();
             connection->SetState(Connection::USERNAME);
-            return 0;
+            return;
         }
     }
 
@@ -376,10 +374,9 @@ void* Game::processPassword(int id, std::string data, Game* game) {
     game->m_sender.Send("None\r\n\r\n", connection);
     game->m_sender.Send("[0] Create New Character", connection);
     connection->SetState(Connection::CHARACTER_SELECTION);
-    return 0;
 }
 
-void* Game::processSay(int id, std::string data, Game* game) {
+void Game::processSay(int id, std::string data, Game* game) {
     Player* player = game->m_player_map[id];
     int planet_id = player->GetPlanetID();
     int room_id = player->GetRoomID();
@@ -392,22 +389,21 @@ void* Game::processSay(int id, std::string data, Game* game) {
     data.insert(0, prefix);
     data.append("\r\n");
     game->m_sender.SendToMultiple(data, game->m_connection_map, players, color);
-    return 0;
 }
 
-void* Game::processOOC(int id, std::string data, Game* game) {
+void Game::processOOC(int id, std::string data, Game* game) {
     std::vector<std::string> commandlist = Tokenizer::GetAllTokens(data);
     if (commandlist.size() == 0)
-        return 0;
+        return;
     if (commandlist.size() == 2 && commandlist[0] == "OOC" && Tokenizer::UpperCase(commandlist[1]) == "OFF") {
         game->m_sender.Send("OOC Off\r\n", game->m_connection_map[id], MAGENTA);
         game->m_connection_map[id]->SetState(Connection::LOGGED_IN);
-        return 0;
+        return;
     }
     if (Tokenizer::UpperCase(commandlist[0]) == "ON") {
         game->m_sender.Send("OOC On\r\n", game->m_connection_map[id], MAGENTA);
         game->m_connection_map[id]->SetState(Connection::OOC);
-        return 0;
+        return;
     }
     std::string output = "\r\n";
     output.append(game->m_player_map[id]->GetName());
@@ -415,24 +411,20 @@ void* Game::processOOC(int id, std::string data, Game* game) {
     output.append(data);
     output.append("\r\n");
     game->m_sender.SendAll(output, game->m_connection_map, id, YELLOW);
-    return 0;
 }
 
-void* Game::processHelp(int id, std::string data, Game* game) {
+void Game::processHelp(int id, std::string data, Game* game) {
     game->m_sender.Send(
             "Commands are not case sensitive\r\n\r\nOOC <message>: Out of character global chat\r\nOOC <ON/OFF>: Turn OOC permanently ON/OFF\r\nSAY <message>: In character local chat.\r\n",
             game->m_connection_map[id]);
-    return 0;
 }
 
-void* Game::processQuit(int id, std::string data, Game* game) {
+void Game::processQuit(int id, std::string data, Game* game) {
     game->m_running = false;
-    return 0;
 }
 
-void* Game::processInventory(int id, std::string data, Game* game) {
+void Game::processInventory(int id, std::string data, Game* game) {
     game->m_sender.Send("TODO: Show inventory", game->m_connection_map[id]);
-    return 0;
 }
 
 THREAD Game::ListenThread(LPVOID lpParam) {
@@ -484,7 +476,7 @@ std::string Game::createStatusBar(Player* player) {
     return statusbar;
 }
 
-void* Game::processNewUser(int id, std::string data, Game* game) {
+void Game::processNewUser(int id, std::string data, Game* game) {
     Connection* connection = game->m_connection_map[id];
     std::string username = Tokenizer::GetFirstToken(data);
     auto pred = [username](const Connection::Account &item) {
@@ -497,10 +489,9 @@ void* Game::processNewUser(int id, std::string data, Game* game) {
         game->m_sender.Send("Password: ", connection);
         connection->SetState(Connection::NEW_PASSWORD);
     }
-    return 0;
 }
 
-void* Game::processNewUserConfirm(int id, std::string data, Game* game) {
+void Game::processNewUserConfirm(int id, std::string data, Game* game) {
     Connection* connection = game->m_connection_map[id];
     Utils::RemoveEndline(data);
     data = Tokenizer::UpperCase(data);
@@ -512,10 +503,9 @@ void* Game::processNewUserConfirm(int id, std::string data, Game* game) {
         game->m_sender.Send("Enter Username: ", connection);
         connection->SetState(Connection::USERNAME);
     }
-    return 0;
 }
 
-void* Game::processNewPassword(int id, std::string data, Game* game) {
+void Game::processNewPassword(int id, std::string data, Game* game) {
     Connection* connection = game->m_connection_map[id];
     Utils::RemoveEndline(data);
     Connection::Account account = connection->GetAccount();
@@ -536,10 +526,9 @@ void* Game::processNewPassword(int id, std::string data, Game* game) {
     //game->m_player_map[id] = new Player(id, account.username);
     //game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(game->m_player_map[id]);
     //processLook(id, "", game);
-    return 0;
 }
 
-void* Game::processCharacterSelection(int id, std::string data, Game* game) {
+void Game::processCharacterSelection(int id, std::string data, Game* game) {
     Connection* connection = game->m_connection_map[id];
     //TODO: error checking and character selection logic
     int selection = std::atoi(data.c_str());
@@ -554,25 +543,30 @@ void* Game::processCharacterSelection(int id, std::string data, Game* game) {
     else {
         // Handle Character Selection
     }
-    return 0;
 }
 
-void* Game::processTest(int id, std::string data, Game* game) {
+void Game::processTest(int id, std::string data, Game* game) {
     Connection* connection = game->m_connection_map[id];
     Player* player = game->m_player_map[id];
     player->SetHP(player->GetHP() - 5);
     game->m_sender.Send("\033[2A\033[K", connection);
-    return 0;
 }
 
-void* Game::processCharacterCreation(int id, std::string data, Game *game) {
+void Game::processCharacterCreation(int id, std::string data, Game *game) {
+    Connection* connection = game->m_connection_map[id];
     CharacterCreator creator(game->m_classes);
-    if (game->m_char_creator_map.find(id) != game->m_char_creator_map.end())
-    {
+    if (game->m_char_creator_map.find(id) != game->m_char_creator_map.end()) {
         creator = game->m_char_creator_map[id];
     }
-    else
-    {
+    else {
         game->m_char_creator_map[id] = creator;
+    }
+    std::string output = creator.processNext(data);
+    if ( output == "FINISH") {
+        creator.getPlayer();
+        connection->SetState(Connection::LOGGED_IN);
+    }
+    else {
+        game->m_sender.Send(output, connection);
     }
 }

@@ -24,12 +24,12 @@ public:
     std::string GetOutput(int id);
 
     struct Command {
-        void* (* command_function)(int, std::string, Game*);
+        void (* command_function)(int, std::string, Game*);
 
         Connection::State state;
     };
 
-    void RegisterCommand(std::string command_string, void* (* command_function)(int, std::string, Game*),
+    void RegisterCommand(std::string command_string, void (* command_function)(int, std::string, Game*),
                          Connection::State state);
 
     bool ProcessCommand(std::string command_string, Connection::State state, int id);
@@ -61,35 +61,35 @@ private:
 
     void augmentCommand(Connection::State state, std::string &data);
 
-    static void* processLook(int id, std::string data, Game* game);
+    static void processLook(int id, std::string data, Game* game);
 
-    static void* processUsername(int id, std::string data, Game* game);
+    static void processUsername(int id, std::string data, Game* game);
 
-    static void* processNewUserConfirm(int id, std::string data, Game* game);
+    static void processNewUserConfirm(int id, std::string data, Game* game);
 
-    static void* processNewUser(int id, std::string data, Game* game);
+    static void processNewUser(int id, std::string data, Game* game);
 
-    static void* processNewPassword(int id, std::string data, Game* game);
+    static void processNewPassword(int id, std::string data, Game* game);
 
-    static void* processPassword(int id, std::string data, Game* game);
+    static void processPassword(int id, std::string data, Game* game);
 
-    static void* processSay(int id, std::string data, Game* game);
+    static void processSay(int id, std::string data, Game* game);
 
-    static void* processDirectionalCommand(int id, std::string command, Game* game);
+    static void processDirectionalCommand(int id, std::string command, Game* game);
 
-    static void* processOOC(int id, std::string data, Game* game);
+    static void processOOC(int id, std::string data, Game* game);
 
-    static void* processHelp(int id, std::string data, Game* game);
+    static void processHelp(int id, std::string data, Game* game);
 
-    static void* processQuit(int id, std::string data, Game* game);
+    static void processQuit(int id, std::string data, Game* game);
 
-    static void* processInventory(int id, std::string data, Game* game);
+    static void processInventory(int id, std::string data, Game* game);
 
-    static void* processCharacterSelection(int id, std::string data, Game* game);
+    static void processCharacterSelection(int id, std::string data, Game* game);
 
-    static void* processCharacterCreation(int id, std::string data, Game* game);
+    static void processCharacterCreation(int id, std::string data, Game* game);
 
-    static void* processTest(int id, std::string data, Game* game);
+    static void processTest(int id, std::string data, Game* game);
 };
 
 #endif // GAME_H

@@ -6,13 +6,14 @@
 #define SKELMUD_CHARACTERCREATION_H
 
 #include <vector>
+#include <map>
 #include "CharacterClass.h"
 #include "Player.h"
 
 class CharacterCreator {
 public:
 
-    CharacterCreator(const std::vector<CharacterClass> &classes) : classes(classes) { }
+    CharacterCreator(const std::vector<CharacterClass> &classes);
 
     CharacterCreator() { }
 
@@ -21,25 +22,20 @@ public:
     };
 
     std::string processNext(std::string data);
-
     Player* getPlayer();
-
     std::string showClassList();
-
-    void processClassSelection(std::string data);
-
+    std::string processClassSelection(std::string data);
     std::string showNameMessage();
-
-    void processNameSelection();
-
+    std::string processNameSelection(std::string data);
     std::string signalComplete();
 
 private:
     CreatorState m_state;
-
     Player* m_player;
-
+    std::map<CharacterCreator::CreatorState, std::string (CharacterCreator::*)(std::string)> m_state_map;
     std::vector<CharacterClass> classes;
+
+    void initializeStates();
 };
 
 #endif //SKELMUD_CHARACTERCREATION_H
