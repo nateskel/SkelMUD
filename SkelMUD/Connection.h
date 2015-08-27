@@ -11,6 +11,7 @@
 #include "Network.h"
 #include "Thread.h"
 #include "Logger.h"
+#include "CharacterCreation.h"
 #include <string>
 #include <list>
 
@@ -26,6 +27,7 @@ public:
     enum AccountLevel {
         Wizard, GM, Standard, Trial
     };
+
     struct Account {
         std::string username;
         std::string password;
@@ -33,10 +35,11 @@ public:
         AccountLevel level;
         bool logged_in;
     };
+
     enum State {
-        CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEWUSER_CONFIRM,
-        NEWUSER, NEWPASSWORD, CHARACTER_SELECTION,
-        LOGGEDIN, OOC
+        CONNECTED, DISCONNECTED, USERNAME, PASSWORD, NEW_USER_CONFIRM,
+        NEW_USER, NEW_PASSWORD, CHARACTER_SELECTION, CHARACTER_CREATION,
+        LOGGED_IN, OOC
     };
 
     bool IsRunning();
@@ -83,7 +86,6 @@ public:
 
     static THREAD ConnectionThread(LPVOID lpParam);
 
-protected:
 private:
     DataSocket* m_socket;
     bool m_running;

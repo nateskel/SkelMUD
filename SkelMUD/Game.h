@@ -43,8 +43,10 @@ private:
     std::vector<Planet*> m_planets;
     std::vector<Connection::Account> m_accounts;
     std::vector<Command> m_command_list;
+    std::vector<CharacterClass> m_classes;
     std::map<int, std::string> m_output_map;
     std::map<std::string, Command> m_command_map;
+    std::map<int, CharacterCreator> m_char_creator_map;
 
     static THREAD ListenThread(LPVOID lpParam);
 
@@ -84,6 +86,8 @@ private:
     static void* processInventory(int id, std::string data, Game* game);
 
     static void* processCharacterSelection(int id, std::string data, Game* game);
+
+    static void* processCharacterCreation(int id, std::string data, Game* game);
 
     static void* processTest(int id, std::string data, Game* game);
 };

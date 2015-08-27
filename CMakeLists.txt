@@ -32,7 +32,7 @@ set(SOURCE_FILES
     SkelMUD/Utils.cpp
     SkelMUD/Utils.h)
 
-add_executable(SkelMUD ${SOURCE_FILES} SkelMUD/SkelMUD.cpp)
+add_executable(SkelMUD ${SOURCE_FILES} SkelMUD/SkelMUD.cpp SkelMUD/CharacterCreation.h SkelMUD/CharacterCreation.h SkelMUD/CharacterCreation.cpp SkelMUD/CharacterClass.cpp SkelMUD/CharacterClass.h)
 FIND_PACKAGE(Threads)
 # FIND_PACKAGE(Threads) sets the following:
 # CMAKE_THREAD_LIBS_INIT        - the thread library to link into an application (-lpthread )

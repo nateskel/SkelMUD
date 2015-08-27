@@ -45,8 +45,9 @@ std::vector<Connection::Account> File::LoadAccounts() {
     std::vector<Connection::Account> accounts;
     std::string data;
     std::fstream stream;
-    OpenRead(stream, ACCOUNTFILE);
+    OpenRead(stream, PLAYERS_DIRECTORY + ACCOUNTFILE);
     while (ReadNextLine(stream, data)) {
+        account.logged_in = false;
         account.username = data;
         ReadNextLine(stream, data);
         account.password = data;
@@ -70,7 +71,7 @@ std::vector<Connection::Account> File::LoadAccounts() {
 std::vector<Planet*> File::LoadPlanets() {
     std::vector<Planet*> planets = std::vector<Planet*>();
     std::string data;
-    std::vector<std::string> files = Utils::GetFilenames(DIRECTORY);
+    std::vector<std::string> files = Utils::GetFilenames(PLANETS_DIRECTORY);
     std::fstream stream;
     for (int i = 0; i < files.size(); i++) {
         if (files[i] == ".." || files[i] == ".")
@@ -140,7 +141,7 @@ std::vector<Planet*> File::LoadPlanets() {
 }
 
 void File::SaveAccount(std::fstream &stream, Connection::Account account) {
-    OpenWrite(stream, ACCOUNTFILE);
+    OpenWrite(stream, PLAYERS_DIRECTORY + ACCOUNTFILE);
     WriteLine(stream, account.username);
     WriteLine(stream, account.password);
     std::stringstream ss;
@@ -155,4 +156,8 @@ void File::SaveAccount(std::fstream &stream, Connection::Account account) {
         level = "Trial";
     WriteLine(stream, level);
     Close(stream);
+}
+
+std::vector<CharacterClass> File::LoadClasses() {
+    return std::vector<CharacterClass>();
 }

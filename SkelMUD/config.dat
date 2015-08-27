@@ -1,2 +1,5 @@
 port: 25570
 data_directory: none
+planets_directory: none
+players_directory: none
+class_directory: none

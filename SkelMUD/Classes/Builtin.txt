@@ -1,0 +1,25 @@
+This file is a reference for the built in attributes that all characters have and the commands associated with them
+If this attribute is not included in the Class file, it will assume a maximum level of 1
+
+Piloting (Dependant on ship size - tier one ship will max out to level one piloting, tier two ship may be impossible to
+fly unless level 2 reached
+ - Launch
+ - Orbit
+ - Land
+ - Speed / Set Speed
+ - Course / Set Course
+
+ Ship Combat
+ - Lock
+ - Fire <weapon> (dependant on installed weapons)
+ - Shields <up / down> (dependant on installed shield)
+ - Evade (attempts to break enemy ship lock) (dependant on installed engine)
+
+ Combat (Ground)
+ - Attack
+ - Run
+
+ Weapon Crafting / Armor Crafting / Item Crafting (?)
+ - Disassemble
+ - Assemble
+ - Upgrade

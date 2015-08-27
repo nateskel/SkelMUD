@@ -26,11 +26,10 @@ Game::Game() {
 #endif
     m_sender = Sender();
     m_output_manager = OutputManager();
-    //m_planets.push_back(BuildPlanet());
-    //File accountFile = File();
-    File file = File();
+    File file;
     m_accounts = file.LoadAccounts();
     m_planets = file.LoadPlanets();
+    m_classes = file.LoadClasses();
     registerCommands();
 }
 
@@ -67,19 +66,19 @@ void Game::registerCommands() {
      */
     RegisterCommand("USERNAME", processUsername, Connection::USERNAME);
     RegisterCommand("PASSWORD", processPassword, Connection::PASSWORD);
-    RegisterCommand("SAY", processSay, Connection::LOGGEDIN);
-    RegisterCommand("LOOK", processLook, Connection::LOGGEDIN);
-    RegisterCommand("L", processLook, Connection::LOGGEDIN);
-    RegisterCommand("DIRECTION", processDirectionalCommand, Connection::LOGGEDIN);
-    RegisterCommand("OOC", processOOC, Connection::LOGGEDIN);
+    RegisterCommand("SAY", processSay, Connection::LOGGED_IN);
+    RegisterCommand("LOOK", processLook, Connection::LOGGED_IN);
+    RegisterCommand("L", processLook, Connection::LOGGED_IN);
+    RegisterCommand("DIRECTION", processDirectionalCommand, Connection::LOGGED_IN);
+    RegisterCommand("OOC", processOOC, Connection::LOGGED_IN);
     RegisterCommand("OOCON", processOOC, Connection::OOC);
-    RegisterCommand("QUIT1459", processQuit, Connection::LOGGEDIN);
-    RegisterCommand("HELP", processHelp, Connection::LOGGEDIN);
-    RegisterCommand("INVENTORY", processInventory, Connection::LOGGEDIN);
-    RegisterCommand("NEWUSER_CONFIRM", processNewUserConfirm, Connection::NEWUSER_CONFIRM);
-    RegisterCommand("NEWPASSWORD", processNewPassword, Connection::NEWPASSWORD);
+    RegisterCommand("QUIT1459", processQuit, Connection::LOGGED_IN);
+    RegisterCommand("HELP", processHelp, Connection::LOGGED_IN);
+    RegisterCommand("INVENTORY", processInventory, Connection::LOGGED_IN);
+    RegisterCommand("NEW_USER_CONFIRM", processNewUserConfirm, Connection::NEW_USER_CONFIRM);
+    RegisterCommand("NEW_PASSWORD", processNewPassword, Connection::NEW_PASSWORD);
     RegisterCommand("CHARACTERSELECTION", processCharacterSelection, Connection::CHARACTER_SELECTION);
-    RegisterCommand("TEST", processTest, Connection::LOGGEDIN);
+    RegisterCommand("TEST", processTest, Connection::LOGGED_IN);
     Logger::Debug("Registered Commands");
 }
 
@@ -96,17 +95,20 @@ void Game::augmentCommand(Connection::State state, std::string &data) {
     else if (state == Connection::PASSWORD) {
         data.insert(0, "PASSWORD ");
     }
-    else if (state == Connection::NEWPASSWORD) {
-        data.insert(0, "NEWPASSWORD ");
+    else if (state == Connection::NEW_PASSWORD) {
+        data.insert(0, "NEW_PASSWORD ");
     }
     else if (state == Connection::OOC) {
         data.insert(0, "OOCON ");
     }
-    else if (state == Connection::NEWUSER_CONFIRM) {
-        data.insert(0, "NEWUSER_CONFIRM ");
+    else if (state == Connection::NEW_USER_CONFIRM) {
+        data.insert(0, "NEW_USER_CONFIRM ");
     }
     else if (state == Connection::CHARACTER_SELECTION) {
         data.insert(0, "CHARACTERSELECTION ");
+    }
+    else if (state == Connection::CHARACTER_CREATION) {
+        data.insert(0, "CHARACTERCREATION");
     }
     else if (isDirection(data)) {
         data = Tokenizer::UpperCase(data);
@@ -135,7 +137,7 @@ void Game::Start() {
             }
             Connection::State state = connection->GetState();
             Thread::Unlock(m_mutex);
-            if (state == Connection::LOGGEDIN) {
+            if (state == Connection::LOGGED_IN) {
                 Player* player = m_player_map[id];
                 if (player == NULL) {
                     Logger::Error("Logged in player not found!");
@@ -171,7 +173,7 @@ void Game::Start() {
                     std::string data = connection->GetNextData();
                     Utils::RemoveEndline(data);
                     augmentCommand(state, data);
-//                    if(state == Connection::LOGGEDIN)
+//                    if(state == Connection::LOGGED_IN)
 //                        m_sender.Send("\033[2A\033[K", connection);
                     if (!ProcessCommand(data, state, id)) {
                         m_sender.Send("Unrecognized Command. Type 'help' for a list of commands.\r\n", connection);
@@ -333,7 +335,7 @@ void* Game::processUsername(int id, std::string data, Game* game) {
         new_account.id = -1;
         new_account.password = "";
         connection->SetAccount(new_account);
-        connection->SetState(Connection::NEWUSER_CONFIRM);
+        connection->SetState(Connection::NEW_USER_CONFIRM);
     }
     return 0;
 }
@@ -344,6 +346,7 @@ void* Game::processPassword(int id, std::string data, Game* game) {
     {
         game->m_sender.Send("Incorrect Password\r\n", connection, RED);
         game->m_sender.Send("Enter Username: ", connection, YELLOW);
+        connection->ResetAccount();
         connection->SetState(Connection::USERNAME);
         return 0;
     }
@@ -373,8 +376,6 @@ void* Game::processPassword(int id, std::string data, Game* game) {
     game->m_sender.Send("None\r\n\r\n", connection);
     game->m_sender.Send("[0] Create New Character", connection);
     connection->SetState(Connection::CHARACTER_SELECTION);
-    //connection->SetState(Connection::LOGGEDIN);
-    //processLook(id, "", game);
     return 0;
 }
 
@@ -400,7 +401,7 @@ void* Game::processOOC(int id, std::string data, Game* game) {
         return 0;
     if (commandlist.size() == 2 && commandlist[0] == "OOC" && Tokenizer::UpperCase(commandlist[1]) == "OFF") {
         game->m_sender.Send("OOC Off\r\n", game->m_connection_map[id], MAGENTA);
-        game->m_connection_map[id]->SetState(Connection::LOGGEDIN);
+        game->m_connection_map[id]->SetState(Connection::LOGGED_IN);
         return 0;
     }
     if (Tokenizer::UpperCase(commandlist[0]) == "ON") {
@@ -494,7 +495,7 @@ void* Game::processNewUser(int id, std::string data, Game* game) {
     }
     else {
         game->m_sender.Send("Password: ", connection);
-        connection->SetState(Connection::NEWPASSWORD);
+        connection->SetState(Connection::NEW_PASSWORD);
     }
     return 0;
 }
@@ -505,7 +506,7 @@ void* Game::processNewUserConfirm(int id, std::string data, Game* game) {
     data = Tokenizer::UpperCase(data);
     if (data == "Y" || data == "YES") {
         game->m_sender.Send("Password: ", connection);
-        connection->SetState(Connection::NEWPASSWORD);
+        connection->SetState(Connection::NEW_PASSWORD);
     }
     else {
         game->m_sender.Send("Enter Username: ", connection);
@@ -531,7 +532,7 @@ void* Game::processNewPassword(int id, std::string data, Game* game) {
     game->m_sender.Send("None\r\n", connection);
     game->m_sender.Send("[0] Create New Character", connection);
     connection->SetState(Connection::CHARACTER_SELECTION);
-    //connection->SetState(Connection::LOGGEDIN);
+    //connection->SetState(Connection::LOGGED_IN);
     //game->m_player_map[id] = new Player(id, account.username);
     //game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(game->m_player_map[id]);
     //processLook(id, "", game);
@@ -548,7 +549,7 @@ void* Game::processCharacterSelection(int id, std::string data, Game* game) {
         game->m_planets[game->m_player_map[id]->GetPlanetID()]->GetRoom(game->m_player_map[id]->GetRoomID())->AddPlayer(
                 game->m_player_map[id]);
         processLook(id, "", game);
-        connection->SetState(Connection::LOGGEDIN);
+        connection->SetState(Connection::LOGGED_IN);
     }
     else {
         // Handle Character Selection
@@ -562,4 +563,16 @@ void* Game::processTest(int id, std::string data, Game* game) {
     player->SetHP(player->GetHP() - 5);
     game->m_sender.Send("\033[2A\033[K", connection);
     return 0;
+}
+
+void* Game::processCharacterCreation(int id, std::string data, Game *game) {
+    CharacterCreator creator(game->m_classes);
+    if (game->m_char_creator_map.find(id) != game->m_char_creator_map.end())
+    {
+        creator = game->m_char_creator_map[id];
+    }
+    else
+    {
+        game->m_char_creator_map[id] = creator;
+    }
 }

@@ -21,7 +21,7 @@ void Sender::SendAll(std::string data, std::map<SOCKET, Connection*> connection_
         if (it->second == NULL)
             continue;
         if (it->second->GetSocket() != exclude &&
-            (it->second->GetState() == Connection::LOGGEDIN || it->second->GetState() == Connection::OOC)) {
+            (it->second->GetState() == Connection::LOGGED_IN || it->second->GetState() == Connection::OOC)) {
             it->second->StageSend(data);
         }
     }
