@@ -1,13 +1,14 @@
 #include "Network.h"
 #include <iostream>
+#include <unistd.h>
 
 ServerSocket::ServerSocket(int port) {
     m_listening = false;
-    m_port = port;
+    m_port = (u_int16_t)port;
 #ifdef _WIN32
         WSADATA wsaData;
         WSAStartup(MAKEWORD(2, 2), &wsaData);
-    #endif
+#endif
 }
 
 ServerSocket::~ServerSocket() {
@@ -39,7 +40,7 @@ int ServerSocket::Listen() {
     return error;
 }
 
-DataSocket* ServerSocket::Accept() {
+DataSocket ServerSocket::Accept() {
 
     sockaddr_in socket_address;
 
@@ -55,7 +56,9 @@ DataSocket* ServerSocket::Accept() {
     SOCKET data_socket;
     socklen_t socket_address_size = sizeof(sockaddr_in);
     data_socket = accept(m_listen_socket, (sockaddr*) &socket_address, &socket_address_size);
-    DataSocket* dataSocket = new DataSocket(data_socket);
+    DataSocket dataSocket(data_socket);
+    // std::shared_ptr<DataSocket> dataSocket (new DataSocket(data_socket));
+    // std::shared_ptr<DataSocket> dataSocket = std::make_shared<DataSocket>(data_socket);
     return dataSocket;
 }
 
@@ -99,5 +102,7 @@ SOCKET DataSocket::GetSocket() {
 void DataSocket::Close() {
 #ifdef WIN32
     closesocket(m_data_socket);
-    #endif
+#else
+    close(m_data_socket);
+#endif
 }

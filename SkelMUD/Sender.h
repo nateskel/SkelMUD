@@ -2,6 +2,7 @@
 #define SENDER_H
 
 #include "Connection.h"
+#include "Network.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -24,23 +25,6 @@ public:
     Sender();
 
     ~Sender();
-
-    void SendAll(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET exclude);
-
-    void SendTo(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET target);
-
-    void Send(std::string data, Connection* connection);
-
-    void SendToMultiple(std::string data, std::map<SOCKET, Connection*> connection_map, std::vector<int> targets);
-
-    void SendAll(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET exclude, std::string color);
-
-    void SendTo(std::string data, std::map<SOCKET, Connection*> connection_map, SOCKET target, std::string color);
-
-    void Send(std::string data, Connection* connection, std::string color);
-
-    void SendToMultiple(std::string data, std::map<SOCKET, Connection*> connection_map, std::vector<int> targets,
-                        std::string color);
 
 protected:
 private:

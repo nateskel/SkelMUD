@@ -4,33 +4,33 @@ project(SkelMUD)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-    SkelMUD/Connection.cpp
-    SkelMUD/Connection.h
-    SkelMUD/Entity.cpp
-    SkelMUD/Entity.h
-    SkelMUD/File.cpp
-    SkelMUD/File.h
-    SkelMUD/Game.cpp
-    SkelMUD/Game.h
-    SkelMUD/Logger.cpp
-    SkelMUD/Logger.h
-    SkelMUD/Network.cpp
-    SkelMUD/Network.h
-    SkelMUD/Planet.cpp
-    SkelMUD/Planet.h
-    SkelMUD/Player.cpp
-    SkelMUD/Player.h
-    SkelMUD/Sender.cpp
-    SkelMUD/Sender.h
-    SkelMUD/SkelMUD.cpp
-    SkelMUD/TextProcessor.cpp
-    SkelMUD/TextProcessor.h
-    SkelMUD/Thread.cpp
-    SkelMUD/Thread.h
-    SkelMUD/Tokenizer.cpp
-    SkelMUD/Tokenizer.h
-    SkelMUD/Utils.cpp
-    SkelMUD/Utils.h)
+        SkelMUD/Connection.cpp
+        SkelMUD/Connection.h
+        SkelMUD/Entity.cpp
+        SkelMUD/Entity.h
+        SkelMUD/File.cpp
+        SkelMUD/File.h
+        SkelMUD/Game.cpp
+        SkelMUD/Game.h
+        SkelMUD/Logger.cpp
+        SkelMUD/Logger.h
+        SkelMUD/Network.cpp
+        SkelMUD/Network.h
+        SkelMUD/Planet.cpp
+        SkelMUD/Planet.h
+        SkelMUD/Player.cpp
+        SkelMUD/Player.h
+        SkelMUD/Sender.cpp
+        SkelMUD/Sender.h
+        SkelMUD/SkelMUD.cpp
+        SkelMUD/TextProcessor.cpp
+        SkelMUD/TextProcessor.h
+        SkelMUD/Thread.cpp
+        SkelMUD/Thread.h
+        SkelMUD/Tokenizer.cpp
+        SkelMUD/Tokenizer.h
+        SkelMUD/Utils.cpp
+        SkelMUD/Utils.h SkelMUD/Connection.cpp SkelMUD/Connection.h)
 
 add_executable(SkelMUD ${SOURCE_FILES} SkelMUD/SkelMUD.cpp)
 FIND_PACKAGE(Threads)

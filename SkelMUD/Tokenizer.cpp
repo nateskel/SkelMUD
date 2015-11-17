@@ -1,4 +1,5 @@
 #include "Tokenizer.h"
+#include "Utils.h"
 #include <algorithm>
 
 std::string Tokenizer::GetFirstToken(std::string &data) {
@@ -15,6 +16,7 @@ std::string Tokenizer::GetFirstToken(std::string &data) {
     }
     else
         output = "";
+    Utils::RemoveEndline(output);
     return output;
 }
 

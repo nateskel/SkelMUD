@@ -1,10 +1,12 @@
-#ifndef    NETWORK_H
+#ifndef NETWORK_H
 #define NETWORK_H
 
 #ifdef _WIN32
-	#include <ws2tcpip.h>
-    #include <winsock2.h>
+#include <ws2tcpip.h>
+#include <winsock2.h>
+#ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
+#endif
 #else
 
 #include <sys/socket.h>
@@ -12,8 +14,9 @@
 #include <sys/un.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <memory>
 
-#define SOCKET int
+typedef int SOCKET;
 #define closesocket shutdown
 #endif
 
@@ -37,7 +40,6 @@ public:
 
 private:
     SOCKET m_data_socket;
-
 };
 
 class ServerSocket {
@@ -53,7 +55,7 @@ public:
 
     int Initialize();
 
-    DataSocket* Accept();
+    DataSocket Accept();
 
 private:
     int m_port;
