@@ -25,12 +25,14 @@ set(SOURCE_FILES
         SkelMUD/SkelMUD.cpp
         SkelMUD/TextProcessor.cpp
         SkelMUD/TextProcessor.h
-        SkelMUD/Thread.cpp
-        SkelMUD/Thread.h
         SkelMUD/Tokenizer.cpp
         SkelMUD/Tokenizer.h
         SkelMUD/Utils.cpp
-        SkelMUD/Utils.h SkelMUD/Connection.cpp SkelMUD/Connection.h)
+        SkelMUD/Utils.h
+        SkelMUD/States/GameState.cpp
+        SkelMUD/States/GameState.h
+        SkelMUD/States/LoginState.cpp
+        SkelMUD/States/LoginState.h SkelMUD/GameData.cpp SkelMUD/GameData.h SkelMUD/States/TestState.cpp SkelMUD/States/TestState.h)
 
 add_executable(SkelMUD ${SOURCE_FILES} SkelMUD/SkelMUD.cpp)
 FIND_PACKAGE(Threads)

@@ -6,6 +6,8 @@
 
 class Tokenizer {
 public:
+    static std::string GetFirstToken(std::string &data, bool doPop);
+
     static std::string GetFirstToken(std::string &data);
 
     static std::vector<std::string> GetTokens(std::string &data, int number);

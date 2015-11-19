@@ -10,7 +10,6 @@
 #include "Network.h"
 
 class Connection {
-private:
 public:
     Connection(DataSocket &dataSocket) : dataSocket(dataSocket) { }
 

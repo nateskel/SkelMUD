@@ -2,12 +2,13 @@
 #include "Utils.h"
 #include <algorithm>
 
-std::string Tokenizer::GetFirstToken(std::string &data) {
+std::string Tokenizer::GetFirstToken(std::string &data, bool doPop) {
     std::string::size_type n = data.find(' ');
     std::string output;
     if (n != std::string::npos) {
         output = data.substr(0, n);
-        data = data.substr(n + 1);
+        if(doPop)
+            data = data.substr(n + 1);
         return output;
     }
     else if (data != "") {
@@ -68,4 +69,8 @@ std::string Tokenizer::UpperCase(std::string data) {
 std::string Tokenizer::LowerCase(std::string data) {
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
     return data;
+}
+
+std::string Tokenizer::GetFirstToken(std::string &data) {
+    return GetFirstToken(data, true);
 }
