@@ -8,3 +8,7 @@ void LoginState::processInput(std::string input, std::shared_ptr<Connection> con
     connection->AddOutput("Welcome, ");
     connection->AddOutput(input);
 }
+
+void LoginState::init(std::shared_ptr<Connection> connection) {
+    connection->AddOutput("Welcome to the chat!\r\nEnter Username: ");
+}

@@ -5,30 +5,34 @@
 #include <thread>
 #include <vector>
 #include <list>
+#include <sstream>
 #include "Connection.h"
 #include "Logger.h"
 #include "Tokenizer.h"
 
 void Connection::Run() {
     std::thread connThread(&Connection::connectionThread, this);
-    isRunning = true;
-    Logger::Debug("Connection Started\n");
+    is_connected = true;
+    owner_ip = dataSocket.GetIP();
+    std::stringstream ss;
+    ss << "Incoming connection from " << owner_ip;
+    Logger::Debug(ss.str());
     connThread.detach();
 }
 
 void Connection::connectionThread() {
     char buffer[1000];
-    dataSocket.Send("CONNECTED\n");
-    while(isRunning) {
+    while(is_connected) {
         memset(buffer, 0, sizeof(buffer));
         int result = dataSocket.Receive(buffer);
         if(result == 0)
-            isRunning = false;
+            is_connected = false;
         else {
             std::string string_data = std::string(buffer);
             m_receive_buffer.push_back(string_data);
         }
     }
+    Close();
 }
 
 void Connection::Send(char* output) {
@@ -42,12 +46,12 @@ void Connection::AddOutput(std::string output) {
 void Connection::FlushOutput() {
     if (m_send_buffer == "")
         return;
+    m_send_buffer.append("\r\n");
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');
     int sent = dataSocket.Send(&output[0]);
     if (sent == -1) {
-//        SetState(DISCONNECTED);
-        isRunning = false;
+        is_connected = false;
     }
     m_send_buffer = "";
 }
@@ -66,4 +70,24 @@ std::string Connection::GetNextReceived() {
 
 SOCKET Connection::GetSocket() {
     return dataSocket.GetSocket();
+}
+
+Connection::Connection() {
+    state = "";
+}
+
+void Connection::SetState(std::string connection_state) {
+    state = connection_state;
+}
+
+std::string Connection::GetState() {
+    return state;
+}
+
+std::string Connection::GetIP() {
+    return owner_ip;
+}
+
+bool Connection::IsConnected() {
+    return is_connected;
 }

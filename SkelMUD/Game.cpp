@@ -1,13 +1,10 @@
 #include "Game.h"
-#include "Tokenizer.h"
 #include "File.h"
 #include "States/LoginState.h"
-#include "States/TestState.h"
+#include "States/PlayingState.h"
 #include <iostream>
 #include <algorithm>
-#include <memory>
 #include <thread>
-#include <chrono>
 
 #ifndef _WIN32
 #include <sstream>
@@ -24,8 +21,8 @@ Game::Game() {
     //std::sort(DIRECTIONS.begin(), DIRECTIONS.end());
     isRunning = true;
     port = 4321;
-    data = GameData();
-    state = std::make_shared<LoginState>(data);
+    data = std::make_shared<GameData>();
+    initStates();
 }
 
 std::mutex Game::game_mutex;
@@ -37,21 +34,34 @@ Game::~Game() {
 void Game::Start() {
     std::thread listener(&Game::listenerThread, this);
     listener.detach();
+    std::list<int> disconnected;
     while(isRunning) {
-        std::map<int, std::shared_ptr<Connection>> connection_map = data.GetAllConnections();
+        std::map<int, std::shared_ptr<Connection>> connection_map = data->GetAllConnections();
         for(auto connection_map_entry : connection_map)
         {
             std::lock_guard<std::mutex> lock(Game::game_mutex);
             std::shared_ptr<Connection> connection = connection_map_entry.second;
-            //Connection connection = connection_map_entry.second;
-            connection->FlushOutput();
+            if(!connection->IsConnected())
+            {
+                disconnected.push_back(connection->GetSocket());
+                std::stringstream ss;
+                ss << connection->GetIP() << " has disconnected (connection dropped)";
+                Logger::Info(ss.str());
+            }
             std::string received = connection->GetNextReceived();
+            Utils::RemoveEndline(received);
+            connection->FlushOutput();
             if(received == "")
                 continue;
-            else if(Tokenizer::GetFirstToken(received, false) == "next")
-                state = std::make_shared<TestState>(data);
-            state->processInput(received, connection);
-            connection->FlushOutput();
+            std::stringstream ss;
+            ss << "Received data (" << connection->GetIP() << "): " << received;
+            Logger::Debug(ss.str());
+            state_map[connection->GetState()]->processInput(received, connection);
+            // connection->FlushOutput();
+        }
+        for(auto disconnect_entry : disconnected)
+        {
+            data->EraseConnection(disconnect_entry);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -62,11 +72,16 @@ void Game::listenerThread() {
     socket.Listen();
     while(isRunning) {
         DataSocket dataSocket = socket.Accept();
-        //std::shared_ptr<Connection> connection = std::make_shared<Connection>(dataSocket);
-        //m_connection_map[connection->GetSocket()] = connection;
         auto connection = std::make_shared<Connection>(dataSocket);
         std::lock_guard<std::mutex> guard(Game::game_mutex);
-        data.AddConnection(connection);
+        connection->SetState(LOGIN);
+        state_map[LOGIN]->init(connection);
+        data->AddConnection(connection);
         connection->Run();
     }
+}
+
+void Game::initStates() {
+    state_map[LOGIN] = std::make_shared<LoginState>(data);
+    state_map[PLAYING] = std::make_shared<PlayingState>(data);
 }

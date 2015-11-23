@@ -4,6 +4,10 @@
 
 #include "GameState.h"
 
-void GameState::processInput(std::string input, std::shared_ptr<Connection> connection) {
+//void GameState::processInput(std::string input, std::shared_ptr<Connection> connection) {
+//
+//}
+
+void GameState::init(std::shared_ptr<Connection> connection) {
 
 }

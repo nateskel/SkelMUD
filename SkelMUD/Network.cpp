@@ -56,7 +56,10 @@ DataSocket ServerSocket::Accept() {
     SOCKET data_socket;
     socklen_t socket_address_size = sizeof(sockaddr_in);
     data_socket = accept(m_listen_socket, (sockaddr*) &socket_address, &socket_address_size);
+    char buff[20];
+    memset(&buff, 0, sizeof(buff));
     DataSocket dataSocket(data_socket);
+    dataSocket.SetIP(inet_ntop(AF_INET, &socket_address.sin_addr, buff, INET_ADDRSTRLEN));
     // std::shared_ptr<DataSocket> dataSocket (new DataSocket(data_socket));
     // std::shared_ptr<DataSocket> dataSocket = std::make_shared<DataSocket>(data_socket);
     return dataSocket;
@@ -105,4 +108,12 @@ void DataSocket::Close() {
 #else
     close(m_data_socket);
 #endif
+}
+
+std::string DataSocket::GetIP() {
+    return ip;
+}
+
+void DataSocket::SetIP(std::string remote_ip) {
+    ip = remote_ip;
 }

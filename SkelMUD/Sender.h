@@ -22,13 +22,30 @@ static const std::string WHITE = "\33[37m";
 
 class Sender {
 public:
-    Sender();
+//    Sender();
+//
+//    ~Sender();
 
-    ~Sender();
+    static void SendAll(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, SOCKET exclude);
+
+    static void SendTo(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, SOCKET target);
+
+    static void Send(std::string data, std::shared_ptr<Connection> connection);
+
+    static void SendToMultiple(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, std::vector<int> targets);
+
+    static void SendAll(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, SOCKET exclude, std::string color);
+
+    static void SendTo(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, SOCKET target, std::string color);
+
+    static void Send(std::string data, std::shared_ptr<Connection> connection, std::string color);
+
+    static void SendToMultiple(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, std::vector<int> targets,
+                        std::string color);
 
 protected:
 private:
-    //std::map<SOCKET, Connection*> m_connection_map;
+    //std::map<SOCKET, std::shared_ptr<Connection>> m_connection_map;
 };
 
 #endif // SENDER_H

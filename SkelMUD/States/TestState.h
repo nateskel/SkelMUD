@@ -11,7 +11,7 @@
 class TestState : public GameState{
 public:
     virtual void processInput(std::string input, std::shared_ptr<Connection> connection) override;
-    TestState(GameData data) : GameState(data) { };
+    TestState(std::shared_ptr<GameData> data) : GameState(data) { };
 };
 
 

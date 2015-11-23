@@ -9,8 +9,6 @@ public:
         L_INFO, L_ERROR, L_DEBUG, L_NONE
     };
 
-    // Logger(Log_Level level);
-
     static void Info(std::string message);
 
     static void Error(std::string message);
@@ -25,6 +23,8 @@ protected:
 private:
 
     static std::string TimeStamp();
+
+    static void logMessage(std::string log_type, std::string message);
 };
 
 #endif // LOGGER_H

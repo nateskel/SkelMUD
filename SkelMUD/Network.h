@@ -38,8 +38,13 @@ public:
 
     SOCKET GetSocket();
 
+    std::string GetIP();
+
+    void SetIP(std::string remote_ip);
+
 private:
     SOCKET m_data_socket;
+    std::string ip;
 };
 
 class ServerSocket {

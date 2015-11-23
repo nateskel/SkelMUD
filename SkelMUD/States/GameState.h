@@ -13,10 +13,11 @@
 class GameState {
 public:
     GameState() {};
-    GameState(GameData& data) : game_data(data) {};
-    virtual void processInput(std::string input, std::shared_ptr<Connection> connection);
+    GameState(std::shared_ptr<GameData> data) : game_data(data) {};
+    virtual void processInput(std::string input, std::shared_ptr<Connection> connection) = 0;
+    virtual void init(std::shared_ptr<Connection> connection);
 protected:
-    GameData game_data;
+    std::shared_ptr<GameData> game_data;
 };
 
 #endif //SKELMUD_GAMESTATE_H

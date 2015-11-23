@@ -12,9 +12,11 @@ class LoginState : public GameState {
 public:
     void processInput(std::string input, std::shared_ptr<Connection> connection);
 
-    LoginState(GameData data) : GameState(data) {  }
+    LoginState(std::shared_ptr<GameData> data) : GameState(data) {  }
 private:
 
+public:
+    virtual void init(std::shared_ptr<Connection> connection) override;
 };
 
 

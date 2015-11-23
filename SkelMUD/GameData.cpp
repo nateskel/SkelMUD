@@ -16,3 +16,7 @@ std::shared_ptr<Connection> GameData::GetConnection(int index) {
 std::map<int, std::shared_ptr<Connection>> GameData::GetAllConnections() {
     return connections;
 }
+
+void GameData::EraseConnection(int index) {
+    connections.erase(index);
+}

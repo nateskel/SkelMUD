@@ -3,7 +3,6 @@
 
 #include "Connection.h"
 #include "Player.h"
-#include "Sender.h"
 #include "TextProcessor.h"
 #include "Planet.h"
 #include "Utils.h"
@@ -13,6 +12,9 @@
 #include <map>
 #include <mutex>
 
+#define LOGIN "Login"
+#define PLAYING "Playing"
+
 class Game {
 public:
     Game();
@@ -21,14 +23,13 @@ public:
     void Start();
 
 private:
-    GameData data;
-    std::shared_ptr<GameState> state;
-    // std::vector<std::string> DIRECTIONS;
-    //std::map<SOCKET, std::shared_ptr<Connection>> m_connection_map;
+    std::shared_ptr<GameData> data;
+    std::map<std::string, std::shared_ptr<GameState>> state_map;
     bool isRunning;
     int port;
     static std::mutex game_mutex;
     void listenerThread();
+    void initStates();
 };
 
 #endif // GAME_H
