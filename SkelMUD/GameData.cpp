@@ -3,9 +3,10 @@
 //
 
 #include "GameData.h"
+#include "Logger.h"
 
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {
-    connections[connection->GetSocket()] = connection;
+    connections[connection->GetID()] = connection;
 
 }
 

@@ -22,6 +22,7 @@ Game::Game() {
     isRunning = true;
     port = 4321;
     data = std::make_shared<GameData>();
+    connection_id = 0;
     initStates();
 }
 
@@ -41,12 +42,15 @@ void Game::Start() {
         {
             std::lock_guard<std::mutex> lock(Game::game_mutex);
             std::shared_ptr<Connection> connection = connection_map_entry.second;
+            Connection test = *connection.get();
             if(!connection->IsConnected())
             {
-                disconnected.push_back(connection->GetSocket());
+                // disconnected.push_back(connection->GetSocket());
+                disconnected.push_back(connection->GetID());
                 std::stringstream ss;
                 ss << connection->GetIP() << " has disconnected (connection dropped)";
                 Logger::Info(ss.str());
+                continue;
             }
             std::string received = connection->GetNextReceived();
             Utils::RemoveEndline(received);
@@ -73,9 +77,13 @@ void Game::listenerThread() {
     while(isRunning) {
         DataSocket dataSocket = socket.Accept();
         auto connection = std::make_shared<Connection>(dataSocket);
-        std::lock_guard<std::mutex> guard(Game::game_mutex);
         connection->SetState(LOGIN);
         state_map[LOGIN]->init(connection);
+        std::lock_guard<std::mutex> guard(Game::game_mutex);
+        // TODO: connection_id temporary for debugging
+        // TODO: eventually connection_id could increment beyond the size of int
+        connection->SetID(connection_id);
+        ++connection_id;
         data->AddConnection(connection);
         connection->Run();
     }

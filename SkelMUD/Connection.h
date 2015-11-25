@@ -11,12 +11,13 @@
 
 class Connection {
 public:
-    Connection(DataSocket &dataSocket) : dataSocket(dataSocket) { }
+    Connection(DataSocket &dataSocket) : dataSocket(dataSocket), id(-1) { }
 
 private:
     void connectionThread();
     DataSocket dataSocket;
     bool is_connected;
+    int id;
     std::string m_send_buffer;
     std::string state;
     std::list<std::string> m_receive_buffer;
@@ -35,6 +36,8 @@ public:
     std::string GetNextReceived();
     std::string GetIP();
     bool IsConnected();
+    int GetID();
+    void SetID(int connection_id);
 };
 
 #endif //SKELMUD_CONNECTION_H

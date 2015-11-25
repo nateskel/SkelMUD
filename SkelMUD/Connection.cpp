@@ -91,3 +91,11 @@ std::string Connection::GetIP() {
 bool Connection::IsConnected() {
     return is_connected;
 }
+
+int Connection::GetID() {
+    return id;
+}
+
+void Connection::SetID(int connection_id) {
+    id = connection_id;
+}

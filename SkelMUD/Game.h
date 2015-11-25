@@ -27,6 +27,7 @@ private:
     std::map<std::string, std::shared_ptr<GameState>> state_map;
     bool isRunning;
     int port;
+    int connection_id;
     static std::mutex game_mutex;
     void listenerThread();
     void initStates();

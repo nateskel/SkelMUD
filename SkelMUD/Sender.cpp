@@ -1,10 +1,10 @@
 #include "Sender.h"
 
-void Sender::SendAll(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, SOCKET exclude) {
+void Sender::SendAll(std::string data, std::map<int, std::shared_ptr<Connection>> connection_map, int exclude) {
     SendAll(data, connection_map, exclude, "");
 }
 
-void Sender::SendAll(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, SOCKET exclude,
+void Sender::SendAll(std::string data, std::map<int, std::shared_ptr<Connection>> connection_map, int exclude,
                      std::string color) {
     data.insert(0, color);
     data.append(RESET);
@@ -15,16 +15,16 @@ void Sender::SendAll(std::string data, std::map<SOCKET, std::shared_ptr<Connecti
     }
 }
 
-void Sender::SendTo(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, SOCKET target) {
+void Sender::SendTo(std::string data, std::map<int, std::shared_ptr<Connection>> connection_map, int target) {
     SendTo(data, connection_map, target, "");
 }
 
-void Sender::SendTo(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, SOCKET target, std::string color) {
+void Sender::SendTo(std::string data, std::map<int, std::shared_ptr<Connection>> connection_map, int target, std::string color) {
     data.insert(0, color);
     data.append(RESET);
     std::map<SOCKET, std::shared_ptr<Connection>>::iterator it;
     for (it = connection_map.begin(); it != connection_map.end(); it++) {
-        if (it->second->GetSocket() == target) {
+        if (it->second->GetID() == target) {
             it->second->AddOutput(data);
             break;
         }
@@ -41,11 +41,11 @@ void Sender::Send(std::string data, std::shared_ptr<Connection> connection, std:
     connection->AddOutput(data);
 }
 
-void Sender::SendToMultiple(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, std::vector<int> targets) {
+void Sender::SendToMultiple(std::string data, std::map<int, std::shared_ptr<Connection>> connection_map, std::vector<int> targets) {
     SendToMultiple(data, connection_map, targets, "");
 }
 
-void Sender::SendToMultiple(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, std::vector<int> targets,
+void Sender::SendToMultiple(std::string data, std::map<int, std::shared_ptr<Connection>> connection_map, std::vector<int> targets,
                             std::string color) {
     data.insert(0, color);
     data.append(RESET);
