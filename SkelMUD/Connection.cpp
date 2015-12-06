@@ -25,8 +25,11 @@ void Connection::connectionThread() {
     while(is_connected) {
         memset(buffer, 0, sizeof(buffer));
         int result = dataSocket.Receive(buffer);
-        if(result == 0)
+        Logger::Debug("Receive result: " + std::to_string(result));
+        if(result <= 0) {
             is_connected = false;
+            perror("Error: ");
+        }
         else {
             std::string string_data = std::string(buffer);
             m_receive_buffer.push_back(string_data);

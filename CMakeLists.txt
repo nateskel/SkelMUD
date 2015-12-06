@@ -32,7 +32,7 @@ set(SOURCE_FILES
         SkelMUD/States/GameState.cpp
         SkelMUD/States/GameState.h
         SkelMUD/States/LoginState.cpp
-        SkelMUD/States/LoginState.h SkelMUD/GameData.cpp SkelMUD/GameData.h SkelMUD/States/TestState.cpp SkelMUD/States/TestState.h SkelMUD/States/PlayingState.cpp SkelMUD/States/PlayingState.h)
+        SkelMUD/States/LoginState.h SkelMUD/GameData.cpp SkelMUD/GameData.h SkelMUD/States/TestState.cpp SkelMUD/States/TestState.h SkelMUD/States/PlayingState.cpp SkelMUD/States/PlayingState.h SkelMUD/Skexml/Node.cpp SkelMUD/Skexml/Node.h SkelMUD/Skexml/SkexmlParser.cpp SkelMUD/Skexml/SkexmlParser.h SkelMUD/Skexml/AttributeNode.cpp SkelMUD/Skexml/AttributeNode.h SkelMUD/Skexml/ListNode.cpp SkelMUD/Skexml/ListNode.h)
 
 add_executable(SkelMUD ${SOURCE_FILES} SkelMUD/SkelMUD.cpp)
 FIND_PACKAGE(Threads)
