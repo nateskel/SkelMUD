@@ -23,6 +23,16 @@ public:
     void AddListAttribute(std::string name, std::string value);
     std::string GetName();
     void SetName(std::string name);
+
+    // Getters
+    const std::map<std::string, std::shared_ptr<Node>> &GetChildren() const {
+        return _children;
+    }
+
+    const std::map<std::string, std::string> &GetAttributes() const {
+        return _attributes;
+    }
+
 protected:
     std::shared_ptr<Node> _parent;
     std::map<std::string, std::shared_ptr<Node>> _children;

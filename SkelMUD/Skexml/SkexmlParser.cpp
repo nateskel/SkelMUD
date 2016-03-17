@@ -4,7 +4,6 @@
 
 #include "SkexmlParser.h"
 #include <iostream>
-#include <fstream>
 #include "../Logger.h"
 
 std::shared_ptr<Node> SkexmlParser::Parse(std::string filename) {
@@ -29,7 +28,22 @@ std::shared_ptr<Node> SkexmlParser::Parse(std::string filename) {
 }
 
 void SkexmlParser::BuildSkeXML(std::string filename, std::shared_ptr<Node> node) {
+    std::ofstream file;
+    file.open(filename);
+    std::stringstream ss;
+}
 
+void SkexmlParser::WriteNode(std::stringstream xml_string, std::shared_ptr<Node> node) {
+    std::string node_name = node->GetName();
+    xml_string << "[" << node_name << "]" << "\r\n";
+    std::string list = node->GetAttribute("List");
+    if(list != "") {
+        auto pos = list.find(";");
+        while (pos != std::string::npos) {
+            list.replace(pos, 1, "\r\n");
+            pos = list.find(";");
+        }
+    }
 }
 
 std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& file) {

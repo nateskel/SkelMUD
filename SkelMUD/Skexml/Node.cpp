@@ -52,5 +52,8 @@ std::string Node::GetName() {
 }
 
 std::string Node::GetAttribute(std::string attribute_name) {
-    return _attributes[attribute_name];
+    if(_attributes.find(attribute_name) != _attributes.end())
+        return _attributes[attribute_name];
+    else
+        return "";
 }

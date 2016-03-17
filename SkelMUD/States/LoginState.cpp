@@ -3,12 +3,15 @@
 //
 
 #include "LoginState.h"
+#include "../Sender.h"
 
 void LoginState::processInput(std::string input, std::shared_ptr<Connection> connection) {
-    connection->AddOutput("Welcome, ");
-    connection->AddOutput(input);
+    Sender::Send("Welcome, ", connection);
+    Sender::Send(input, connection);
+    connection->SetState("Playing");
 }
 
 void LoginState::init(std::shared_ptr<Connection> connection) {
-    connection->AddOutput("Welcome to the chat!\r\nEnter Username: ");
+//    connection->AddOutput("Welcome to the chat!\r\nEnter Username: ");
+    Sender::Send("Welcome to the chat!\r\nEnter Username: ", connection);
 }
