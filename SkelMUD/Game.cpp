@@ -2,6 +2,7 @@
 #include "File.h"
 #include "States/LoginState.h"
 #include "States/PlayingState.h"
+#include "States/UserNameState.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -70,8 +71,8 @@ void Game::listenerThread() {
     while(isRunning) {
         DataSocket dataSocket = socket.Accept();
         auto connection = std::make_shared<Connection>(dataSocket);
-        connection->SetState(LOGIN);
-        state_map[LOGIN]->init(connection);
+        connection->SetState(USERNAME);
+        state_map[USERNAME]->init(connection);
         std::lock_guard<std::mutex> guard(Game::game_mutex);
         // TODO: connection_id temporary for debugging
         // TODO: eventually connection_id could increment beyond the size of int
@@ -83,6 +84,6 @@ void Game::listenerThread() {
 }
 
 void Game::initStates() {
-    state_map[LOGIN] = std::make_shared<LoginState>(data);
+    state_map[USERNAME] = std::make_shared<UserNameState>(data);
     state_map[PLAYING] = std::make_shared<PlayingState>(data);
 }

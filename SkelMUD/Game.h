@@ -13,6 +13,7 @@
 #include <mutex>
 
 #define LOGIN "Login"
+#define USERNAME "Username"
 #define PLAYING "Playing"
 
 class Game {

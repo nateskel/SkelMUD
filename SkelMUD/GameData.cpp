@@ -21,3 +21,11 @@ std::map<int, std::shared_ptr<Connection>> GameData::GetAllConnections() {
 void GameData::EraseConnection(int index) {
     connections.erase(index);
 }
+
+GameData::GameData() {
+    _accounts.LoadAccounts(ACCOUNT_FILE);
+}
+
+Accounts GameData::GetAccounts() {
+    return _accounts;
+}

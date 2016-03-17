@@ -73,7 +73,6 @@ void SkexmlParser::WriteNode(std::stringstream &xml_string, std::shared_ptr<Node
 std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& file) {
     std::shared_ptr<Node> node = std::make_shared<Node>(name);
     std::string child_name = "";
-    Logger::SetOutputLevel(Logger::L_DEBUG);
     Logger::Debug(name);
     std::string input = "";
     file >> input;
@@ -92,8 +91,8 @@ std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& fi
         }
         else if(input.length() - 1 > input.find("]")) {
             std::string attribute_name = input.substr(1, input.find("]") - 1);
-            unsigned long value_begin = input.find("]");
-            unsigned long value_end = input.find("[/");
+            unsigned long value_begin = input.find("]") + 1;
+            unsigned long value_end = input.find("[/") - value_begin;
             std::string value = input.substr(value_begin, value_end);
             node->AddAttribute(attribute_name, value);
         }
