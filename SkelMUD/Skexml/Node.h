@@ -18,11 +18,15 @@ public:
     std::shared_ptr<Node> GetChild(std::string child_name);
     void AddChild(std::shared_ptr<Node> child);
     void AddChild(std::string name, std::shared_ptr<Node> child);
+    std::string GetAttribute(std::string attribute_name);
+    void AddAttribute(std::string name, std::string value);
+    void AddListAttribute(std::string name, std::string value);
     std::string GetName();
     void SetName(std::string name);
 protected:
     std::shared_ptr<Node> _parent;
     std::map<std::string, std::shared_ptr<Node>> _children;
+    std::map<std::string, std::string> _attributes;
     std::string _name;
 };
 

@@ -21,6 +21,20 @@ void Node::AddChild(std::shared_ptr<Node> child) {
     _children[child->GetName()] = child;
 }
 
+void Node::AddAttribute(std::string name, std::string value) {
+    _attributes[name] = value;
+}
+
+
+void Node::AddListAttribute(std::string name, std::string value) {
+    if(_attributes.find(name) == _attributes.end()) {
+        _attributes[name] = value;
+    }
+    else {
+        _attributes[name] = _attributes[name] + ";" + value;
+    }
+}
+
 std::shared_ptr<Node> Node::GetParent() {
     return std::shared_ptr<Node>();
 }
@@ -35,4 +49,8 @@ void Node::SetName(std::string name) {
 
 std::string Node::GetName() {
     return _name;
+}
+
+std::string Node::GetAttribute(std::string attribute_name) {
+    return _attributes[attribute_name];
 }

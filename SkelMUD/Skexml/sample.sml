@@ -1,0 +1,9 @@
+[Account]
+[Username]Bob[/Username]
+[Password]pass[/Password]
+[List_of_stuff]
+One
+Two
+Three
+[/List_of_stuff]
+[Account]

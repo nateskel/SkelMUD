@@ -7,13 +7,15 @@
 
 
 #include <memory>
+#include <fstream>
 #include "Node.h"
 
 class SkexmlParser {
 public:
     static std::shared_ptr<Node> Parse(std::string filename);
-    static void BuildSkeXML(std::string filename, std::shared_ptr<Node>);
+    static void BuildSkeXML(std::string filename, std::shared_ptr<Node> node);
 private:
+    static std::shared_ptr<Node> MakeNode(std::string name, std::ifstream& file);
 
 };
 
