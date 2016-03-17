@@ -27,7 +27,7 @@ void Accounts::LoadAccounts(std::string filename) {
         std::shared_ptr<Node> child_node = child.second;
         std::string username = child_node->GetAttribute("Username");
         std::string password_string = child_node->GetAttribute("Password");
-        size_t password = (size_t)atoi(password_string.c_str());
+        size_t password = (size_t)atol(password_string.c_str());
         AddAccount(username, password);
     }
 }

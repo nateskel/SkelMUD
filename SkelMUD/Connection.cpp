@@ -102,3 +102,27 @@ int Connection::GetID() {
 void Connection::SetID(int connection_id) {
     id = connection_id;
 }
+
+std::string Connection::GetUsername() {
+    return username;
+}
+
+std::string Connection::GetPassword() {
+    return password;
+}
+
+void Connection::SetAccount(Account account) {
+    this->account = account;
+}
+
+void Connection::SetUsername(std::string username) {
+    this->username = username;
+}
+
+void Connection::SetPassword(std::string password) {
+    this->password = password;
+}
+
+Account Connection::GetAccount() {
+    return account;
+}

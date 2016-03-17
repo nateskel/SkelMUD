@@ -20,6 +20,8 @@ public:
     std::map<int, std::shared_ptr<Connection>> GetAllConnections();
     void EraseConnection(int index);
     Accounts GetAccounts();
+    void AddAccount(Account account);
+    void SaveAccounts(std::string filename);
 
 private:
     std::map<int, std::shared_ptr<Connection>> connections;

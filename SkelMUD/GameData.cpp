@@ -29,3 +29,11 @@ GameData::GameData() {
 Accounts GameData::GetAccounts() {
     return _accounts;
 }
+
+void GameData::AddAccount(Account account) {
+    _accounts.AddAccount(account);
+}
+
+void GameData::SaveAccounts(std::string filename) {
+    _accounts.SaveAccounts(filename);
+}

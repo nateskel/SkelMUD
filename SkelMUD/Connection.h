@@ -8,6 +8,7 @@
 #include <string>
 #include <list>
 #include "Network.h"
+#include "Account.h"
 
 class Connection {
 public:
@@ -22,6 +23,9 @@ private:
     std::string state;
     std::list<std::string> m_receive_buffer;
     std::string owner_ip;
+    Account account;
+    std::string username;
+    std::string password;
 
 public:
     Connection();
@@ -38,6 +42,12 @@ public:
     bool IsConnected();
     int GetID();
     void SetID(int connection_id);
+    Account GetAccount();
+    std::string GetUsername();
+    std::string GetPassword();
+    void SetAccount(Account account);
+    void SetUsername(std::string username);
+    void SetPassword(std::string password);
 };
 
 #endif //SKELMUD_CONNECTION_H

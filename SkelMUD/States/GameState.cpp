@@ -11,3 +11,7 @@
 void GameState::init(std::shared_ptr<Connection> connection) {
 
 }
+
+GameState::GameState(std::shared_ptr<GameData> data) {
+    game_data = data;
+}

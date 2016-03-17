@@ -10,9 +10,11 @@
 
 class UserNameState : public GameState {
 
+private:
+    void processUsername(std::shared_ptr<Connection> connection);
 public:
+    UserNameState(std::shared_ptr<GameData> data) : GameState(data) { }
     virtual void processInput(std::string input, std::shared_ptr<Connection> connection) override;
-    UserNameState(std::shared_ptr<GameData> data) : GameState(data) {  }
     virtual void init(std::shared_ptr<Connection> connection) override;
 };
 
