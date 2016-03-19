@@ -22,6 +22,7 @@ void Connection::Run() {
     ss << "Incoming connection from " << owner_ip;
     Logger::Debug(ss.str());
     connThread.detach();
+    health = 15;
     prompt_tick = 0;
     logged_in = false;
 }
@@ -169,4 +170,16 @@ bool Connection::IsLoggedIn() {
 
 void Connection::SetPrompt(std::string prompt) {
     m_prompt = prompt;
+}
+
+int Connection::GetHealth() {
+    if(health > 0)
+        --health;
+    else
+        health = 15;
+    return health;
+}
+
+void Connection::TickNow() {
+    prompt_tick = MAX_TICK + 1;
 }

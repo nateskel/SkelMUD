@@ -12,7 +12,9 @@ void Sender::SendAll(std::string data, std::map<int, std::shared_ptr<Connection>
     for(auto connection_entry : connection_map)
     {
         if(connection_entry.first != exclude)
-            connection_entry.second->AddOutput(data + connection_entry.second->GetPrompt());
+            connection_entry.second->AddOutput((data + "\r\n"));
+            connection_entry.second->TickNow();
+            //connection_entry.second->AddOutput(data + connection_entry.second->GetPrompt());
     }
 }
 

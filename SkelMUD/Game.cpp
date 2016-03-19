@@ -55,7 +55,7 @@ void Game::Start() {
             }
             if(connection->IsPromptTick()) {
                 std::shared_ptr<GameState> state = state_map[connection->GetState()];
-                Sender::Send(Format::SAVE + Format::FRONT_LINE + state->GetPrompt(connection) + Format::RESTORE,
+                Sender::Send(Format::SAVE + Format::UP + Format::FRONT_LINE + state->GetPrompt(connection) + Format::RESTORE,
                              connection);
             }
             std::string received = connection->GetNextReceived();

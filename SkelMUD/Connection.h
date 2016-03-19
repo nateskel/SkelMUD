@@ -30,6 +30,7 @@ private:
     int prompt_tick;
     std::string m_prompt;
     bool logged_in;
+    int health;
 
 public:
     Connection();
@@ -56,9 +57,11 @@ public:
     void SetPassword(std::string password);
     std::string GetPrompt();
     void SetPrompt(std::string prompt);
+    void TickNow();
     bool IsPromptTick();
     void SetLoggedIn(bool logged);
     bool IsLoggedIn();
+    int GetHealth();
 };
 
 #endif //SKELMUD_CONNECTION_H

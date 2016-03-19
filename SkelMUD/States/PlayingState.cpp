@@ -2,6 +2,7 @@
 // Created by nate on 11/22/15.
 //
 
+#include <sstream>
 #include "PlayingState.h"
 #include "../Tokenizer.h"
 #include "../Sender.h"
@@ -20,5 +21,8 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
 }
 
 std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
-    return Format::YELLOW + "<" + Format::BLUE + connection->GetUsername() + Format::YELLOW + "> ";
+    std::stringstream ss;
+    ss << Format::YELLOW << "<" + Format::BLUE << connection->GetUsername() << Format::YELLOW << "> ";
+    ss << Format::RED << "<" << connection->GetHealth() << "> \r\n";
+    return ss.str();
 }
