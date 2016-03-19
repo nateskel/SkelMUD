@@ -19,6 +19,7 @@ void UserNameState::processInput(std::string input, std::shared_ptr<Connection> 
         if(account.MatchPassword(input))
         {
             Sender::Send("Logged In!\r\n", connection);
+            connection->SetState("Playing");
         }
         else
         {

@@ -60,6 +60,11 @@ void Game::Start() {
             ss << "Received data (" << connection->GetIP() << "): " << received;
             Logger::Debug(ss.str());
             state_map[connection->GetState()]->processInput(received, connection);
+            if(connection->IsStateChanged())
+            {
+                state_map[connection->GetState()]->init(connection);
+                connection->ResetStateChanged();
+            }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -72,7 +77,7 @@ void Game::listenerThread() {
         DataSocket dataSocket = socket.Accept();
         auto connection = std::make_shared<Connection>(dataSocket);
         connection->SetState(USERNAME);
-        state_map[USERNAME]->init(connection);
+        // state_map[USERNAME]->init(connection);
         std::lock_guard<std::mutex> guard(Game::game_mutex);
         // TODO: connection_id temporary for debugging
         // TODO: eventually connection_id could increment beyond the size of int

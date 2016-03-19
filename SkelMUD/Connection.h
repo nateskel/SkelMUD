@@ -18,6 +18,7 @@ private:
     void connectionThread();
     DataSocket dataSocket;
     bool is_connected;
+    bool state_changed;
     int id;
     std::string m_send_buffer;
     std::string state;
@@ -40,6 +41,8 @@ public:
     std::string GetNextReceived();
     std::string GetIP();
     bool IsConnected();
+    bool IsStateChanged();
+    void ResetStateChanged();
     int GetID();
     void SetID(int connection_id);
     Account GetAccount();
@@ -48,6 +51,7 @@ public:
     void SetAccount(Account account);
     void SetUsername(std::string username);
     void SetPassword(std::string password);
+    std::string GetPrompt();
 };
 
 #endif //SKELMUD_CONNECTION_H

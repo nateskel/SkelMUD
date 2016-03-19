@@ -45,7 +45,6 @@ public:
 
 protected:
 private:
-    //std::map<SOCKET, std::shared_ptr<Connection>> m_connection_map;
 };
 
 #endif // SENDER_H

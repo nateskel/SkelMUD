@@ -9,6 +9,7 @@
 #include "Connection.h"
 #include "Logger.h"
 #include "Tokenizer.h"
+#include "Sender.h"
 
 void Connection::Run() {
     std::thread connThread(&Connection::connectionThread, this);
@@ -81,6 +82,7 @@ Connection::Connection() {
 
 void Connection::SetState(std::string connection_state) {
     state = connection_state;
+    state_changed = true;
 }
 
 std::string Connection::GetState() {
@@ -125,4 +127,16 @@ void Connection::SetPassword(std::string password) {
 
 Account Connection::GetAccount() {
     return account;
+}
+
+bool Connection::IsStateChanged() {
+    return state_changed;
+}
+
+void Connection::ResetStateChanged() {
+    state_changed = false;
+}
+
+std::string Connection::GetPrompt() {
+    return YELLOW;
 }

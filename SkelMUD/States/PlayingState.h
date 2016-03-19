@@ -13,6 +13,8 @@ public:
     virtual void processInput(std::string input, std::shared_ptr<Connection> connection) override;
 
     PlayingState(std::shared_ptr<GameData> data) : GameState(data) {  }
+
+    virtual void init(std::shared_ptr<Connection> connection) override;
 };
 
 
