@@ -22,6 +22,7 @@ public:
     Accounts GetAccounts();
     void AddAccount(Account account);
     void SaveAccounts(std::string filename);
+    std::map<int, std::shared_ptr<Connection>> GetLoggedInConnections();
 
 private:
     std::map<int, std::shared_ptr<Connection>> connections;

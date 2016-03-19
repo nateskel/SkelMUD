@@ -10,6 +10,9 @@
 #include "Logger.h"
 #include "Tokenizer.h"
 #include "Sender.h"
+#include "Format.h"
+
+#define MAX_TICK 100
 
 void Connection::Run() {
     std::thread connThread(&Connection::connectionThread, this);
@@ -19,6 +22,8 @@ void Connection::Run() {
     ss << "Incoming connection from " << owner_ip;
     Logger::Debug(ss.str());
     connThread.detach();
+    prompt_tick = 0;
+    logged_in = false;
 }
 
 void Connection::connectionThread() {
@@ -50,14 +55,14 @@ void Connection::AddOutput(std::string output) {
 void Connection::FlushOutput() {
     if (m_send_buffer == "")
         return;
-    m_send_buffer.append("\r\n");
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');
     int sent = dataSocket.Send(&output[0]);
     if (sent == -1) {
         is_connected = false;
     }
-    m_send_buffer = "";
+    m_send_buffer.clear();
+//    prompt_tick = MAX_TICK + 1;
 }
 
 void Connection::Close() {
@@ -138,5 +143,30 @@ void Connection::ResetStateChanged() {
 }
 
 std::string Connection::GetPrompt() {
-    return YELLOW;
+    return m_prompt;
+}
+
+bool Connection::IsPromptTick() {
+    if(prompt_tick > MAX_TICK)
+    {
+        prompt_tick = 0;
+        return true;
+    }
+    else
+    {
+        prompt_tick++;
+        return false;
+    }
+}
+
+void Connection::SetLoggedIn(bool logged) {
+    logged_in = logged;
+}
+
+bool Connection::IsLoggedIn() {
+    return logged_in;
+}
+
+void Connection::SetPrompt(std::string prompt) {
+    m_prompt = prompt;
 }

@@ -27,6 +27,9 @@ private:
     Account account;
     std::string username;
     std::string password;
+    int prompt_tick;
+    std::string m_prompt;
+    bool logged_in;
 
 public:
     Connection();
@@ -52,6 +55,10 @@ public:
     void SetUsername(std::string username);
     void SetPassword(std::string password);
     std::string GetPrompt();
+    void SetPrompt(std::string prompt);
+    bool IsPromptTick();
+    void SetLoggedIn(bool logged);
+    bool IsLoggedIn();
 };
 
 #endif //SKELMUD_CONNECTION_H

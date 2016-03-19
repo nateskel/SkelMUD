@@ -3,6 +3,8 @@
 #include "States/LoginState.h"
 #include "States/PlayingState.h"
 #include "States/UserNameState.h"
+#include "Sender.h"
+#include "Format.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -51,6 +53,11 @@ void Game::Start() {
                 Logger::Info(ss.str());
                 continue;
             }
+            if(connection->IsPromptTick()) {
+                std::shared_ptr<GameState> state = state_map[connection->GetState()];
+                Sender::Send(Format::SAVE + Format::FRONT_LINE + state->GetPrompt(connection) + Format::RESTORE,
+                             connection);
+            }
             std::string received = connection->GetNextReceived();
             Utils::RemoveEndline(received);
             connection->FlushOutput();
@@ -65,6 +72,8 @@ void Game::Start() {
                 state_map[connection->GetState()]->init(connection);
                 connection->ResetStateChanged();
             }
+            // Sender::Send("\r\n", connection);
+            Sender::Send(state_map[connection->GetState()]->GetPrompt(connection), connection);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -77,7 +86,9 @@ void Game::listenerThread() {
         DataSocket dataSocket = socket.Accept();
         auto connection = std::make_shared<Connection>(dataSocket);
         connection->SetState(USERNAME);
-        // state_map[USERNAME]->init(connection);
+        state_map[USERNAME]->init(connection);
+        connection->ResetStateChanged();
+        Sender::Send(connection->GetPrompt(), connection);
         std::lock_guard<std::mutex> guard(Game::game_mutex);
         // TODO: connection_id temporary for debugging
         // TODO: eventually connection_id could increment beyond the size of int

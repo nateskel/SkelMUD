@@ -38,12 +38,12 @@ void UserNameState::processInput(std::string input, std::shared_ptr<Connection> 
         //auto accounts = game_data->GetAccounts();
         game_data->AddAccount(account);
         game_data->SaveAccounts("/home/skelton/SkelMUD/SkelMUD/SkelMUD/Accounts.sml");
-        Sender::Send("Account created", connection);
+        Sender::Send("Account created\r\n", connection);
         connection->SetState("Playing");
     }
     else if(input == "y" or input == "Y")
     {
-        Sender::Send("Enter password for the account", connection);
+        Sender::Send("Enter password for the account\r\n", connection);
         connection->SetPassword("-1");
     }
     else
@@ -56,18 +56,19 @@ void UserNameState::processInput(std::string input, std::shared_ptr<Connection> 
 
 void UserNameState::init(std::shared_ptr<Connection> connection) {
     GameState::init(connection);
-    Sender::Send("Welcome to SkelMUD!\r\nPlease enter your username", connection);
+    Sender::Send("Welcome to SkelMUD!\r\nPlease enter your username\r\n", connection);
+    connection->SetPrompt(GetPrompt(connection));
 }
 
 void UserNameState::processUsername(std::shared_ptr<Connection> connection) {
     auto accounts = game_data->GetAccounts();
     if(accounts.IsAccount(connection->GetUsername()))
     {
-        Sender::Send("Password: ", connection);
+        Sender::Send("Password: \r\n", connection);
         connection->SetAccount(accounts.GetAccount(connection->GetUsername()));
     }
     else
     {
-        Sender::Send("No account found, would you like to make a new one? Y/N", connection);
+        Sender::Send("No account found, would you like to make a new one? Y/N\r\n", connection);
     }
 }

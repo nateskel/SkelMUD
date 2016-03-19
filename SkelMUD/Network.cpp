@@ -22,6 +22,9 @@ int ServerSocket::Initialize() {
 int ServerSocket::Listen() {
     m_listening = true;
     m_listen_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    int opt_val = 1;
+    int opt_val_length = sizeof(opt_val);
+    setsockopt(m_listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt_val, opt_val_length);
 
     sockaddr_in socket_address;
 

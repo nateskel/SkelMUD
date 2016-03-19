@@ -43,7 +43,7 @@ set(SOURCE_FILES
         SkelMUD/Skexml/Node.h
         SkelMUD/Skexml/SkexmlParser.cpp
         SkelMUD/Skexml/SkexmlParser.h
-        SkelMUD/Test/SkexmlTest.cpp SkelMUD/Test/SkexmlTest.h SkelMUD/States/UserNameState.cpp SkelMUD/States/UserNameState.h SkelMUD/Accounts.cpp SkelMUD/Accounts.h SkelMUD/Account.cpp SkelMUD/Account.h)
+        SkelMUD/Test/SkexmlTest.cpp SkelMUD/Test/SkexmlTest.h SkelMUD/States/UserNameState.cpp SkelMUD/States/UserNameState.h SkelMUD/Accounts.cpp SkelMUD/Accounts.h SkelMUD/Account.cpp SkelMUD/Account.h SkelMUD/Format.cpp SkelMUD/Format.h)
 
 add_executable(SkelMUD ${SOURCE_FILES} SkelMUD/SkelMUD.cpp)
 FIND_PACKAGE(Threads)

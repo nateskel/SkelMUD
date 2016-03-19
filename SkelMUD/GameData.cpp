@@ -18,6 +18,16 @@ std::map<int, std::shared_ptr<Connection>> GameData::GetAllConnections() {
     return connections;
 }
 
+std::map<int, std::shared_ptr<Connection>> GameData::GetLoggedInConnections() {
+    std::map<int, std::shared_ptr<Connection>> connection_map;
+    for(auto connection : connections)
+    {
+        if(connection.second->IsLoggedIn())
+            connection_map.insert(connection);
+    }
+    return connection_map;
+};
+
 void GameData::EraseConnection(int index) {
     connections.erase(index);
 }
