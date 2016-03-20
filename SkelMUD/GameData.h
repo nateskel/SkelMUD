@@ -13,9 +13,9 @@
 #include "Races/Races.h"
 #include "Classes/CharacterClasses.h"
 
-#define ACCOUNT_FILE "/home/nate/SkelMUD/SkelMUD/Accounts/Accounts.sml"
-#define RACE_FILE "/home/nate/SkelMUD/SkelMUD/Races/Races.sml"
-#define CLASS_FILE "/home/nate/SkelMUD/SkelMUD/Classes/Classes.sml"
+#define ACCOUNT_FILE "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Accounts/Accounts.sml"
+#define RACE_FILE "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Races/Races.sml"
+#define CLASS_FILE "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Classes/Classes.sml"
 
 class GameData {
 public:
@@ -26,6 +26,7 @@ public:
     void EraseConnection(int index);
     Accounts GetAccounts();
     Races GetRaces();
+    CharacterClasses GetClasses();
     void AddAccount(Account account);
     void SaveAccounts(std::string filename);
     std::map<int, std::shared_ptr<Connection>> GetLoggedInConnections();

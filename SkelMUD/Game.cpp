@@ -24,8 +24,10 @@ Game::Game() {
     //std::sort(DIRECTIONS.begin(), DIRECTIONS.end());
     isRunning = true;
     port = 4321;
+    Logger::Debug("Setting up GameData");
     data = std::make_shared<GameData>();
     connection_id = 0;
+    Logger::Debug("Initializing States");
     initStates();
 }
 

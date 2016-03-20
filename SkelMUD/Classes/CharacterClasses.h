@@ -16,6 +16,7 @@ private:
 public:
     void LoadClasses(std::string filename);
     void AddClass(CharacterClass character_class);
+    std::map<std::string, CharacterClass> GetClasses();
 };
 
 

@@ -30,3 +30,7 @@ void CharacterClasses::AddClass(CharacterClass character_class) {
     m_class_map[character_class.GetName()] = character_class;
 }
 
+std::map<std::string, CharacterClass> CharacterClasses::GetClasses() {
+    return m_class_map;
+}
+

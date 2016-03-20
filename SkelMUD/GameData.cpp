@@ -33,9 +33,11 @@ void GameData::EraseConnection(int index) {
 }
 
 GameData::GameData() {
+    Logger::Debug("Loading Resources");
     m_accounts.LoadAccounts(ACCOUNT_FILE);
     m_races.LoadRaces(RACE_FILE);
     m_classes.LoadClasses(CLASS_FILE);
+    Logger::Debug("Resources Loaded");
 }
 
 Accounts GameData::GetAccounts() {
@@ -50,8 +52,11 @@ void GameData::SaveAccounts(std::string filename) {
     m_accounts.SaveAccounts(filename);
 }
 
-
 Races GameData::GetRaces() {
     return m_races;
+}
+
+CharacterClasses GameData::GetClasses() {
+    return m_classes;
 }
 

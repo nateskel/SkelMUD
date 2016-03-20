@@ -64,13 +64,21 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
 }
 
 void CreateCharacterState::processChooseRace(const std::string &input, std::shared_ptr<Connection> connection) {
-    Sender::Send("Race Selected\r\nChoose a class\r\n", connection);
+    std::stringstream ss;
+    int count = 0;
+    auto char_classes = game_data->GetClasses().GetClasses();
+    for(auto char_class : char_classes) {
+        ss << ++count << " " << char_class.first << "\r\n";
+    }
+    ss << "Race Selected\r\nChoose a class\r\n";
+    Sender::Send(ss.str(), connection);
     m_state_map[connection->GetID()] = CHOOSE_CLASS;
 }
 
 void CreateCharacterState::processChooseClass(const std::string &input, std::shared_ptr<Connection> connection) {
-    Sender::Send("Class Selected\r\nStats Rolled, enter <R> to <R>eroll, or <A> to <A>ccept\r\n", connection);
-    m_state_map[connection->GetID()] = ROLL_STATS;
+    Sender::Send("Class Selected\r\n", connection);
+    //m_state_map[connection->GetID()] = ROLL_STATS;
+    connection->SetState("Playing");
 }
 
 void CreateCharacterState::processRollStats(const std::string &input, std::shared_ptr<Connection> connection) {
