@@ -109,6 +109,7 @@ void DataSocket::Close() {
 #ifdef WIN32
     closesocket(m_data_socket);
 #else
+    shutdown(m_data_socket, SHUT_RDWR);
     close(m_data_socket);
 #endif
 }
