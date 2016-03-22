@@ -34,3 +34,13 @@ std::map<std::string, CharacterClass> CharacterClasses::GetClasses() {
     return m_class_map;
 }
 
+std::map<int, CharacterClass> CharacterClasses::EnumerateClasses() {
+    auto classes = GetClasses();
+    std::map<int, CharacterClass> race_map;
+    int count = 0;
+    for(auto char_class : classes) {
+        count++;
+        race_map[count] = char_class.second;
+    }
+    return race_map;
+};

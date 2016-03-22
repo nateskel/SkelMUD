@@ -17,6 +17,8 @@ private:
         ROLL_STATS
     };
     std::map<int, int> m_state_map;
+    std::map<int, Race> m_race_map;
+    std::map<int, CharacterClass> m_class_map;
     void processSelectCharacter(const std::string &input, std::shared_ptr<Connection> connection);
     void processChooseRace(const std::string &input, std::shared_ptr<Connection> connection);
     void processChooseClass(const std::string &input, std::shared_ptr<Connection> connection);
@@ -24,7 +26,10 @@ private:
     std::string rollStats();
 
 public:
-    CreateCharacterState(std::shared_ptr<GameData> data) : GameState(data) { }
+    CreateCharacterState(std::shared_ptr<GameData> data) : GameState(data) {
+        m_race_map = data->GetRaces().EnumerateRaces();
+        m_class_map = data->GetClasses().EnumerateClasses();
+    }
     
     virtual void processInput(const std::string& input, std::shared_ptr<Connection> connection) override;
 

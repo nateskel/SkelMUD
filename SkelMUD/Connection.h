@@ -27,6 +27,8 @@ private:
     Account account;
     std::string username;
     std::string password;
+    std::string character_race;
+    std::string character_class;
     int prompt_tick;
     std::string m_prompt;
     bool logged_in;
@@ -63,6 +65,10 @@ public:
     void SetLoggedIn(bool logged);
     bool IsLoggedIn();
     int GetHealth();
+    const std::string &GetCharacterRace() const;
+    void SetCharacterRace(const std::string &character_race);
+    const std::string &GetCharacterClass() const;
+    void SetCharacterClass(const std::string &character_class);
 };
 
 #endif //SKELMUD_CONNECTION_H

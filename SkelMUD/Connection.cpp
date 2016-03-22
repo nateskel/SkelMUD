@@ -96,6 +96,8 @@ SOCKET Connection::GetSocket() {
 
 Connection::Connection() {
     state = "";
+    character_class = "";
+    character_race = "";
 }
 
 void Connection::SetState(std::string connection_state) {
@@ -194,4 +196,20 @@ int Connection::GetHealth() {
 
 void Connection::TickNow() {
     prompt_tick = MAX_TICK + 1;
+}
+
+const std::string &Connection::GetCharacterRace() const {
+    return character_race;
+}
+
+void Connection::SetCharacterRace(const std::string &character_race) {
+    Connection::character_race = character_race;
+}
+
+const std::string &Connection::GetCharacterClass() const {
+    return character_class;
+}
+
+void Connection::SetCharacterClass(const std::string &character_class) {
+    Connection::character_class = character_class;
 }

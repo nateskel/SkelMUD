@@ -15,6 +15,7 @@ public:
     void LoadRaces(std::string filename);
     void AddRace(Race race);
     std::map<std::string, Race> GetRaces();
+    std::map<int, Race> EnumerateRaces();
 };
 
 

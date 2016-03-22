@@ -31,3 +31,14 @@ void Races::AddRace(Race race) {
 std::map<std::string, Race> Races::GetRaces() {
     return m_race_map;
 }
+
+std::map<int, Race> Races::EnumerateRaces() {
+    auto races = GetRaces();
+    std::map<int, Race> race_map;
+    int count = 0;
+    for(auto race : races) {
+        count++;
+        race_map[count] = race.second;
+    }
+    return race_map;
+};

@@ -58,3 +58,13 @@ std::vector<std::string> Utils::GetFilenames(std::string path) {
 }
 
 #endif
+
+bool Utils::IsNumber(std::string entry) {
+    for(int i = 0; i < entry.length(); i++)
+    {
+        if(!isdigit((char)entry[i])) {
+            return false;
+        }
+    }
+    return true;
+}

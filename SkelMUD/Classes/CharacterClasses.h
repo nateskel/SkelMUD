@@ -17,6 +17,7 @@ public:
     void LoadClasses(std::string filename);
     void AddClass(CharacterClass character_class);
     std::map<std::string, CharacterClass> GetClasses();
+    std::map<int, CharacterClass> EnumerateClasses();
 };
 
 

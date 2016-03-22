@@ -5,6 +5,7 @@
 #include <sstream>
 #include "CreateCharacterState.h"
 #include "../Sender.h"
+#include "../Utils.h"
 
 void CreateCharacterState::processInput(const std::string& input, std::shared_ptr<Connection> connection) {
     std::string username = connection->GetUsername();
@@ -26,7 +27,6 @@ void CreateCharacterState::processInput(const std::string& input, std::shared_pt
             break;
         default:
             break;
-
     }
 }
 
@@ -48,10 +48,9 @@ std::string CreateCharacterState::GetPrompt(std::shared_ptr<Connection> connecti
 void CreateCharacterState::processSelectCharacter(const std::string &input, std::shared_ptr<Connection> connection) {
     if(input == "N" or input == "n") {
         std::stringstream ss;
-        int count = 0;
-        auto races = game_data->GetRaces().GetRaces();
-        for(auto race : races) {
-            ss << ++count << " " << race.first << "\r\n";
+        for(auto race : m_race_map)
+        {
+            ss << race.first << " " << race.second.getRace_name() << "\r\n";
         }
         ss << "Choose a race\r\n";
         Sender::Send(ss.str(), connection);
@@ -64,21 +63,55 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
 }
 
 void CreateCharacterState::processChooseRace(const std::string &input, std::shared_ptr<Connection> connection) {
-    std::stringstream ss;
-    int count = 0;
-    auto char_classes = game_data->GetClasses().GetClasses();
-    for(auto char_class : char_classes) {
-        ss << ++count << " " << char_class.first << "\r\n";
+    int choice = 0;
+
+    bool valid = Utils::IsNumber(input);
+    if(valid) {
+        choice = std::stoi(input);
+        if (choice < 1 or choice > m_race_map.size())
+            valid = false;
     }
-    ss << "Race Selected\r\nChoose a class\r\n";
-    Sender::Send(ss.str(), connection);
-    m_state_map[connection->GetID()] = CHOOSE_CLASS;
+    if(valid)
+    {
+        connection->SetCharacterRace(m_race_map[choice].getRace_name());
+        std::stringstream ss;
+        for(auto char_class : m_class_map)
+        {
+            ss << char_class.first << " " << char_class.second.GetName() << "\r\n";
+        }
+        ss << "Race Selected\r\nChoose a class\r\n";
+        Sender::Send(ss.str(), connection);
+        m_state_map[connection->GetID()] = CHOOSE_CLASS;
+    }
+    else {
+        Sender::Send("Invalid Selection\r\n", connection);
+        processSelectCharacter("N", connection);
+    }
 }
 
 void CreateCharacterState::processChooseClass(const std::string &input, std::shared_ptr<Connection> connection) {
-    Sender::Send("Class Selected\r\n", connection);
-    //m_state_map[connection->GetID()] = ROLL_STATS;
-    connection->SetState("Playing");
+    int choice = 0;
+    bool valid = Utils::IsNumber(input);
+    if(valid) {
+        choice = std::stoi(input);
+        if (choice < 1 or choice > m_class_map.size())
+            valid = false;
+    }
+    if(valid) {
+        connection->SetCharacterClass(m_class_map[choice].GetName());
+        Sender::Send("Class Selected\r\n", connection);
+        connection->SetState("Playing");
+    }
+    else {
+        std::stringstream ss;
+        ss << "Invalid Selection\r\n";
+        for (auto char_class : m_class_map) {
+            ss << char_class.first << " " << char_class.second.GetName() << "\r\n";
+        }
+        ss << "Choose a class\r\n";
+        Sender::Send(ss.str(), connection);
+        m_state_map[connection->GetID()] = CHOOSE_CLASS;
+    }
 }
 
 void CreateCharacterState::processRollStats(const std::string &input, std::shared_ptr<Connection> connection) {

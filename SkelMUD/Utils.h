@@ -10,6 +10,8 @@ public:
 
     static std::vector<std::string> GetFilenames(std::string path);
 
+    static bool IsNumber(std::string entry);
+
 protected:
 private:
 };
