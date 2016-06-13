@@ -25,6 +25,11 @@ void Node::AddAttribute(std::string name, std::string value) {
     _attributes[name] = value;
 }
 
+void Node::AddList(std::string name, std::string value) {
+    std::shared_ptr<Node> list_node = std::make_shared<Node>(name);
+    list_node->AddAttribute("List", value);
+    this->AddChild(list_node);
+}
 
 void Node::AddListAttribute(std::string name, std::string value) {
     if(_attributes.find(name) == _attributes.end()) {

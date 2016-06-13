@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <map>
+#include <string>
 
 class Node {
 public:
@@ -21,6 +22,7 @@ public:
     std::string GetAttribute(std::string attribute_name);
     void AddAttribute(std::string name, std::string value);
     void AddListAttribute(std::string name, std::string value);
+    void AddList(std::string name, std::string value);
     std::string GetName();
     void SetName(std::string name);
 

@@ -4,6 +4,7 @@
 
 #include "SkexmlParser.h"
 #include <iostream>
+#include <algorithm>
 #include "../Logger.h"
 
 std::shared_ptr<Node> SkexmlParser::Parse(std::string filename) {
@@ -31,19 +32,42 @@ void SkexmlParser::BuildSkeXML(std::string filename, std::shared_ptr<Node> node)
     std::ofstream file;
     file.open(filename);
     std::stringstream ss;
+    WriteNode(ss, node, file);
+    file << ss.str();
+    file.flush();
+    file.close();
 }
 
-void SkexmlParser::WriteNode(std::stringstream xml_string, std::shared_ptr<Node> node) {
+void SkexmlParser::WriteNode(std::stringstream &xml_string, std::shared_ptr<Node> node, std::ofstream &file) {
     std::string node_name = node->GetName();
     xml_string << "[" << node_name << "]" << "\r\n";
     std::string list = node->GetAttribute("List");
+    std::string list_attribute = std::string(list);
+    std::string replacement = "\r\n";
     if(list != "") {
-        auto pos = list.find(";");
+        unsigned long pos = list.find(";");
         while (pos != std::string::npos) {
-            list.replace(pos, 1, "\r\n");
+            list = list.replace(pos, 1, replacement);
             pos = list.find(";");
         }
+        xml_string << list << "\r\n";
     }
+    else {
+        std::map<std::string, std::string> attributes = node->GetAttributes();
+        for (auto &kv : attributes) {
+            std::string name = kv.first;
+            std::string value = kv.second;
+            xml_string << "[" << name << "]" << value << "[/" << name << "]" << "\r\n";
+        }
+    }
+    std::map<std::string, std::shared_ptr<Node>> children = node->GetChildren();
+    for(auto& kv : children)
+    {
+//        std::string name = kv.first;
+        std::shared_ptr<Node> value = kv.second;
+        WriteNode(xml_string, value, file);
+    }
+    xml_string << "[/" << node_name << "]" << "\r\n";
 }
 
 std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& file) {

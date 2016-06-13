@@ -9,6 +9,7 @@
 #include <memory>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include "Node.h"
 
 class SkexmlParser {
@@ -17,7 +18,8 @@ public:
     static void BuildSkeXML(std::string filename, std::shared_ptr<Node> node);
 private:
     static std::shared_ptr<Node> MakeNode(std::string name, std::ifstream& file);
-    static void SkexmlParser::WriteNode(std::stringstream xml_string, std::shared_ptr<Node> node);
+    static void WriteNode(std::stringstream &xml_string, std::shared_ptr<Node> node,
+                                        std::ofstream &file);
 
 };
 

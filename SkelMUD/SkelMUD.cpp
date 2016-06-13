@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Skexml/SkexmlParser.h"
 #include "Skexml/Node.h"
+#include "Test/SkexmlTest.h"
 
 int main() {
     Logger::SetOutputLevel(Logger::L_DEBUG);
@@ -10,8 +11,9 @@ int main() {
 //    Node asdf = *n;
 //    Node child = *asdf.GetChild("List_of_stuff");
 //    std::string test = child.GetAttribute("List");
-    Game game = Game();
-    Logger::Info("Starting...");
-    game.Start();
+    SkexmlTest::go();
+//    Game game = Game();
+//    Logger::Info("Starting...");
+//    game.Start();
     return 0;
 }
