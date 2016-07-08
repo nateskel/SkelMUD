@@ -3,19 +3,19 @@
 //
 
 #include "Accounts.h"
-#include "Skexml/SkexmlParser.h"
+#include "../Skexml/SkexmlParser.h"
 
 void Accounts::AddAccount(Account account) {
     _accounts[account.GetUsername()] = account;
 }
 
-void Accounts::AddAccount(std::string username, std::string password) {
-    Account account(username, password);
+void Accounts::AddAccount(std::string username, std::string password, int account_level) {
+    Account account(username, password, account_level);
     _accounts[username] = account;
 }
 
-void Accounts::AddAccount(std::string username, size_t password) {
-    Account account(username, password);
+void Accounts::AddAccount(std::string username, size_t password, int account_level) {
+    Account account(username, password, account_level);
     _accounts[username] = account;
 }
 
@@ -27,8 +27,9 @@ void Accounts::LoadAccounts(std::string filename) {
         std::shared_ptr<Node> child_node = child.second;
         std::string username = child_node->GetAttribute("Username");
         std::string password_string = child_node->GetAttribute("Password");
+        std::string account_level = child_node->GetAttribute("AccountLevel");
         size_t password = (size_t)atol(password_string.c_str());
-        AddAccount(username, password);
+        AddAccount(username, password, std::atoi(account_level.c_str()));
     }
 }
 
@@ -41,9 +42,11 @@ void Accounts::SaveAccounts(std::string filename) {
         account = account_tuple.second;
         std::string username = account.GetUsername();
         std::string password = std::to_string(account.GetPassword());
+        std::string account_level = std::to_string(account.GetAccountLevel());
         std::shared_ptr<Node> child = std::make_shared<Node>(username);
         child->AddAttribute("Username", username);
         child->AddAttribute("Password", password);
+        child->AddAttribute("AccountLevel", account_level);
         parent->AddChild(child);
     }
     SkexmlParser::BuildSkeXML(filename, parent);

@@ -4,6 +4,6 @@
 
 #include "TestState.h"
 
-void TestState::processInput(std::string input, std::shared_ptr<Connection> connection) {
+void TestState::processInput(const std::string &input, std::shared_ptr<Connection> connection) {
     connection->AddOutput("ASDF");
 }

@@ -14,8 +14,8 @@ private:
     std::map<std::string, Account> _accounts;
 public:
     void AddAccount(Account account);
-    void AddAccount(std::string username, std::string password);
-    void AddAccount(std::string username, size_t password);
+    void AddAccount(std::string username, std::string password, int account_level);
+    void AddAccount(std::string username, size_t password, int account_level);
     void LoadAccounts(std::string filename);
     void SaveAccounts(std::string filename);
     bool IsAccount(std::string username);

@@ -6,21 +6,21 @@
 #include "Logger.h"
 
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {
-    connections[connection->GetID()] = connection;
+    m_connections[connection->GetID()] = connection;
 
 }
 
 std::shared_ptr<Connection> GameData::GetConnection(int index) {
-    return connections[index];
+    return m_connections[index];
 }
 
 std::map<int, std::shared_ptr<Connection>> GameData::GetAllConnections() {
-    return connections;
+    return m_connections;
 }
 
 std::map<int, std::shared_ptr<Connection>> GameData::GetLoggedInConnections() {
     std::map<int, std::shared_ptr<Connection>> connection_map;
-    for(auto connection : connections)
+    for(auto connection : m_connections)
     {
         if(connection.second->IsLoggedIn())
             connection_map.insert(connection);
@@ -29,21 +29,29 @@ std::map<int, std::shared_ptr<Connection>> GameData::GetLoggedInConnections() {
 };
 
 void GameData::EraseConnection(int index) {
-    connections.erase(index);
+    m_connections.erase(index);
 }
 
 GameData::GameData() {
-    _accounts.LoadAccounts(ACCOUNT_FILE);
+    m_accounts.LoadAccounts(ACCOUNT_FILE);
+    m_races.LoadRaces(RACE_FILE);
+    m_classes.LoadClasses(CLASS_FILE);
 }
 
 Accounts GameData::GetAccounts() {
-    return _accounts;
+    return m_accounts;
 }
 
 void GameData::AddAccount(Account account) {
-    _accounts.AddAccount(account);
+    m_accounts.AddAccount(account);
 }
 
 void GameData::SaveAccounts(std::string filename) {
-    _accounts.SaveAccounts(filename);
+    m_accounts.SaveAccounts(filename);
 }
+
+
+Races GameData::GetRaces() {
+    return m_races;
+}
+

@@ -3,7 +3,7 @@
 //
 
 #include "Account.h"
-#include "Logger.h"
+#include "../Logger.h"
 
 void Account::SetUsername(std::string username) {
     _username = username;
@@ -16,6 +16,14 @@ void Account::SetPassword(std::string password) {
     _password = hashed_password;
 }
 
+void Account::SetAccountLevel(int level) {
+    _account_level = level;
+}
+
+int Account::GetAccountLevel() {
+    return _account_level;
+}
+
 std::string Account::GetUsername() {
     return _username;
 }
@@ -26,19 +34,26 @@ bool Account::MatchPassword(std::string password) {
     return hashed_password == _password;
 }
 
+std::string Account::GetCharacterList() {
+    return "";
+}
+
 Account::Account() {
     _username = "";
     _password = 0;
+    _account_level = NORMAL;
 }
 
-Account::Account(const std::string &username, const std::string &password) {
+Account::Account(const std::string &username, const std::string &password, int account_level) {
     _username = username;
     SetPassword(password);
+    _account_level = account_level;
 }
 
-Account::Account(const std::string &username, const size_t &password) {
+Account::Account(const std::string &username, const size_t &password, int account_level) {
     _username = username;
     _password = password;
+    _account_level = account_level;
 }
 
 size_t Account::GetPassword() {

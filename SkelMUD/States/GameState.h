@@ -14,7 +14,7 @@ class GameState {
 public:
     GameState() {};
     GameState(std::shared_ptr<GameData> data);// : game_data(data) {};
-    virtual void processInput(std::string input, std::shared_ptr<Connection> connection) = 0;
+    virtual void processInput(const std::string& input, std::shared_ptr<Connection> connection) = 0;
     virtual void init(std::shared_ptr<Connection> connection);
     virtual std::string GetPrompt(std::shared_ptr<Connection> connection);
 protected:

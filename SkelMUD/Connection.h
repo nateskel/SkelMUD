@@ -8,7 +8,7 @@
 #include <string>
 #include <list>
 #include "Network.h"
-#include "Account.h"
+#include "Accounts/Account.h"
 
 class Connection {
 public:
@@ -38,6 +38,7 @@ public:
     void Send(char* output);
     void AddOutput(std::string output);
     void FlushOutput();
+    void UpdatePrompt();
     void Close();
     void SetState(std::string connection_state);
     std::string GetState();

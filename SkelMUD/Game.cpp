@@ -1,10 +1,10 @@
 #include "Game.h"
 #include "File.h"
-#include "States/LoginState.h"
 #include "States/PlayingState.h"
-#include "States/UserNameState.h"
+#include "States/LoginState.h"
 #include "Sender.h"
 #include "Format.h"
+#include "States/CreateCharacterState.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -55,8 +55,11 @@ void Game::Start() {
             }
             if(connection->IsPromptTick()) {
                 std::shared_ptr<GameState> state = state_map[connection->GetState()];
-                Sender::Send(Format::SAVE + Format::UP + Format::FRONT_LINE + state->GetPrompt(connection) + Format::RESTORE,
-                             connection);
+                connection->SetPrompt(state->GetPrompt(connection));
+                Sender::UpdatePrompt(connection);
+                //Sender::Send(state->GetPrompt(connection), connection);
+//                Sender::Send(Format::SAVE + Format::UP + Format::FRONT_LINE + state->GetPrompt(connection) + Format::RESTORE,
+//                             connection);
             }
             std::string received = connection->GetNextReceived();
             Utils::RemoveEndline(received);
@@ -73,7 +76,7 @@ void Game::Start() {
                 connection->ResetStateChanged();
             }
             // Sender::Send("\r\n", connection);
-            Sender::Send(state_map[connection->GetState()]->GetPrompt(connection), connection);
+            // Sender::Send(state_map[connection->GetState()]->GetPrompt(connection), connection);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -88,7 +91,7 @@ void Game::listenerThread() {
         connection->SetState(USERNAME);
         state_map[USERNAME]->init(connection);
         connection->ResetStateChanged();
-        Sender::Send(connection->GetPrompt(), connection);
+        // Sender::Send(connection->GetPrompt(), connection);
         std::lock_guard<std::mutex> guard(Game::game_mutex);
         // TODO: connection_id temporary for debugging
         // TODO: eventually connection_id could increment beyond the size of int
@@ -100,6 +103,7 @@ void Game::listenerThread() {
 }
 
 void Game::initStates() {
-    state_map[USERNAME] = std::make_shared<UserNameState>(data);
+    state_map[USERNAME] = std::make_shared<LoginState>(data);
     state_map[PLAYING] = std::make_shared<PlayingState>(data);
+    state_map[CHARACTERCREATION] = std::make_shared<CreateCharacterState>(data);
 }

@@ -31,8 +31,6 @@ set(SOURCE_FILES
         SkelMUD/Utils.h
         SkelMUD/States/GameState.cpp
         SkelMUD/States/GameState.h
-        SkelMUD/States/LoginState.cpp
-        SkelMUD/States/LoginState.h
         SkelMUD/GameData.cpp
         SkelMUD/GameData.h
         SkelMUD/States/TestState.cpp
@@ -43,7 +41,28 @@ set(SOURCE_FILES
         SkelMUD/Skexml/Node.h
         SkelMUD/Skexml/SkexmlParser.cpp
         SkelMUD/Skexml/SkexmlParser.h
-        SkelMUD/Test/SkexmlTest.cpp SkelMUD/Test/SkexmlTest.h SkelMUD/States/UserNameState.cpp SkelMUD/States/UserNameState.h SkelMUD/Accounts.cpp SkelMUD/Accounts.h SkelMUD/Account.cpp SkelMUD/Account.h SkelMUD/Format.cpp SkelMUD/Format.h)
+        SkelMUD/Test/SkexmlTest.cpp
+        SkelMUD/Test/SkexmlTest.h
+        SkelMUD/States/LoginState.cpp
+        SkelMUD/States/LoginState.h
+        SkelMUD/Accounts/Accounts.cpp
+        SkelMUD/Accounts/Accounts.h
+        SkelMUD/Accounts/Account.cpp
+        SkelMUD/Accounts/Account.h
+        SkelMUD/Format.cpp
+        SkelMUD/Format.h
+        SkelMUD/States/CreateCharacterState.cpp
+        SkelMUD/States/CreateCharacterState.h
+        SkelMUD/Players.cpp
+        SkelMUD/Players.h
+        SkelMUD/Skills/Skill.cpp
+        SkelMUD/Skills/Skill.h
+        SkelMUD/Skills/Skills.cpp
+        SkelMUD/Skills/Skills.h
+        SkelMUD/Races/Race.cpp
+        SkelMUD/Races/Race.h
+        SkelMUD/Races/Races.cpp
+        SkelMUD/Races/Races.h SkelMUD/Classes/CharacterClass.cpp SkelMUD/Classes/CharacterClass.h SkelMUD/Classes/CharacterClasses.cpp SkelMUD/Classes/CharacterClasses.h)
 
 add_executable(SkelMUD ${SOURCE_FILES} SkelMUD/SkelMUD.cpp)
 FIND_PACKAGE(Threads)

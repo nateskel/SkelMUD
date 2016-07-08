@@ -41,6 +41,8 @@ public:
                                std::vector<int> targets,
                                std::string color);
 
+    static void UpdatePrompt(std::shared_ptr<Connection> connection);
+
 protected:
 private:
 };

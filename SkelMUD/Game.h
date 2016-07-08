@@ -12,16 +12,20 @@
 #include <map>
 #include <mutex>
 
-#define LOGIN "Login"
-#define USERNAME "Username"
-#define PLAYING "Playing"
+//#define LOGIN "Login"
+//#define USERNAME "Username"
+//#define PLAYING "Playing"
 
 class Game {
 public:
     Game();
     ~Game();
-
     void Start();
+
+    const std::string LOGIN = "Login";
+    const std::string USERNAME = "Username";
+    const std::string PLAYING = "Playing";
+    const std::string CHARACTERCREATION = "CharacterCreation";
 
 private:
     std::shared_ptr<GameData> data;

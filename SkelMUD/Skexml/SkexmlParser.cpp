@@ -10,17 +10,20 @@
 std::shared_ptr<Node> SkexmlParser::Parse(std::string filename) {
     std::string input = "";
     std::ifstream file;
-    bool valid = true;
+    bool valid = false;
     file.open(filename);
-    file >> input;
-    if(input.length() < 0)
-        valid = false;
-    else if(input.substr(0,1) != "[")
-        valid = false;
-    else if(input.find("]") == std::string::npos)
-        valid = false;
-    else if(input.length() - 1 > input.find("]"))
-        valid = false;
+    while(!valid and !file.eof()) {
+        file >> input;
+        if (input.length() < 0)
+            continue;
+        else if (input.substr(0, 1) != "[")
+            continue;
+        else if (input.find("]") == std::string::npos)
+            continue;
+        else if (input.length() - 1 > input.find("]"))
+            continue;
+        valid = true;
+    }
     if(!valid)
         return std::shared_ptr<Node>();
     std::string node_name = input.substr(1, input.length() - 2);

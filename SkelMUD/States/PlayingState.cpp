@@ -8,9 +8,11 @@
 #include "../Sender.h"
 #include "../Format.h"
 
-void PlayingState::processInput(std::string input, std::shared_ptr<Connection> connection) {
+void PlayingState::processInput(const std::string& input, std::shared_ptr<Connection> connection) {
     //std::string command = Tokenizer::GetFirstToken(input);
-
+    if(input == "quit")
+//        Sender::Send("Goodbye", connection);
+        connection->Close();
     Sender::SendAll("\r\n" + connection->GetUsername() + ": " + input + "\r\n", game_data->GetLoggedInConnections(), connection->GetSocket());
 }
 
