@@ -5,9 +5,14 @@
 #include "GameData.h"
 #include "Logger.h"
 
+const std::string GameData::ACCOUNT_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Accounts/Accounts.sml";
+const std::string GameData::RACE_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Races/Races.sml";
+const std::string GameData::CLASS_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Classes/Classes.sml";
+const std::string GameData::CHARACTER_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Characters/Characters.sml";
+
+
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {
     m_connections[connection->GetID()] = connection;
-
 }
 
 std::shared_ptr<Connection> GameData::GetConnection(int index) {
@@ -37,11 +42,16 @@ GameData::GameData() {
     m_accounts.LoadAccounts(ACCOUNT_FILE);
     m_races.LoadRaces(RACE_FILE);
     m_classes.LoadClasses(CLASS_FILE);
+    m_characters.LoadCharacters(CHARACTER_FILE);
     Logger::Debug("Resources Loaded");
 }
 
 Accounts GameData::GetAccounts() {
     return m_accounts;
+}
+
+Account GameData::GetAccount(std::string username) {
+    return m_accounts.GetAccount(username);
 }
 
 void GameData::AddAccount(Account account) {
@@ -60,3 +70,6 @@ CharacterClasses GameData::GetClasses() {
     return m_classes;
 }
 
+void GameData::AddCharacter(std::string username, std::string character) {
+    m_accounts.AddCharacter(username, character);
+}

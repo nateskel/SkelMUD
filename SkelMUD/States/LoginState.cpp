@@ -68,10 +68,10 @@ void LoginState::processNewPassword(const std::string &input, std::shared_ptr<Co
     Account account = connection->GetAccount();
     int connection_id = connection->GetID();
     //TODO: validate password
-    account.SetUsername(account.GetUsername());
+    account.SetUsername(connection->GetUsername());
     account.SetPassword(input);
     game_data->AddAccount(account);
-    game_data->SaveAccounts("/home/nate/SkelMUD/SkelMUD/Accounts.sml");
+    game_data->SaveAccounts(GameData::ACCOUNT_FILE);
     Sender::Send("Account created\r\n", connection);
     connection->SetState("CharacterCreation");
     m_state_map.erase(connection_id);

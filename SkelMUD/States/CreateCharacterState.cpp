@@ -25,6 +25,12 @@ void CreateCharacterState::processInput(const std::string& input, std::shared_pt
         case ROLL_STATS:
             processRollStats(input, connection);
             break;
+        case NAME_CHARACTER:
+            processNameCharacter(input, connection);
+            break;
+        case CONFIRM_CHARACTER:
+            processConfirmCharacter(input, connection);
+            break;
         default:
             break;
     }
@@ -37,8 +43,8 @@ void CreateCharacterState::init(std::shared_ptr<Connection> connection) {
     ss << "Choose a character or enter <N> to create a new character\r\n";
     Sender::Send(ss.str(), connection);
     int connection_id = connection->GetID();
-    if(m_state_map.find(connection_id) == m_state_map.end())
-        m_state_map[connection_id] = SELECT_CHARACTER;
+    //if(m_state_map.find(connection_id) == m_state_map.end())
+    m_state_map[connection_id] = SELECT_CHARACTER;
 }
 
 std::string CreateCharacterState::GetPrompt(std::shared_ptr<Connection> connection) {
@@ -99,8 +105,9 @@ void CreateCharacterState::processChooseClass(const std::string &input, std::sha
     }
     if(valid) {
         connection->SetCharacterClass(m_class_map[choice].GetName());
-        Sender::Send("Class Selected\r\n", connection);
-        connection->SetState("Playing");
+        Sender::Send("Class Selected\r\nEnter name for character\r\n", connection);
+        m_state_map[connection->GetID()] = NAME_CHARACTER;
+//        connection->SetState("Playing");
     }
     else {
         std::stringstream ss;
@@ -112,6 +119,32 @@ void CreateCharacterState::processChooseClass(const std::string &input, std::sha
         Sender::Send(ss.str(), connection);
         m_state_map[connection->GetID()] = CHOOSE_CLASS;
     }
+}
+
+void CreateCharacterState::processNameCharacter(const std::string &input, std::shared_ptr<Connection> connection) {
+    connection->SetCharacterName(input);
+    std::stringstream ss;
+    ss << "Name: " << connection->GetCharacterName();
+    ss << "\r\nRace: " << connection->GetCharacterRace();
+    ss << "\r\nClass: " << connection->GetCharacterClass();
+    ss << "\r\nCreate Character?\r\n";
+    Sender::Send(ss.str(), connection);
+    m_state_map[connection->GetID()] = CONFIRM_CHARACTER;
+}
+
+void CreateCharacterState::processConfirmCharacter(const std::string &input, std::shared_ptr<Connection> connection) {
+    if(input == "Y" or input == "y" or input == "Yes" or input == "yes") {
+        //connection->GetAccount().AddCharacter(connection->GetCharacterName());
+//        Accounts accounts = game_data->GetAccounts();
+//        Account account = accounts.GetAccount(connection->GetUsername());
+//        account.AddCharacter(connection->GetCharacterName());
+        game_data->AddCharacter(connection->GetUsername(), connection->GetCharacterName());
+
+        game_data->SaveAccounts(GameData::ACCOUNT_FILE);
+        connection->SetState("Playing");
+    }
+    else
+        init(connection);
 }
 
 void CreateCharacterState::processRollStats(const std::string &input, std::shared_ptr<Connection> connection) {

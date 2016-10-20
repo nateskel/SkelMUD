@@ -17,14 +17,14 @@ void PlayingState::processInput(const std::string& input, std::shared_ptr<Connec
 }
 
 void PlayingState::init(std::shared_ptr<Connection> connection) {
-    Sender::Send("Welcome to the chat, " + connection->GetUsername() + "\r\n", connection);
+    Sender::Send("Welcome to the chat, " + connection->GetCharacterName() + "\r\n", connection);
     connection->SetPrompt(GetPrompt(connection));
     connection->SetLoggedIn(true);
 }
 
 std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
     std::stringstream ss;
-    ss << Format::YELLOW << "<" + Format::BLUE << connection->GetUsername() << Format::YELLOW << "> ";
+    ss << Format::YELLOW << "<" + Format::BLUE << connection->GetCharacterName() << Format::YELLOW << "> ";
     ss << Format::RED << "<" << connection->GetHealth() << "> \r\n";
     return ss.str();
 }

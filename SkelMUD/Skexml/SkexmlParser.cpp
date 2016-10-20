@@ -25,7 +25,8 @@ std::shared_ptr<Node> SkexmlParser::Parse(std::string filename) {
         valid = true;
     }
     if(!valid)
-        return std::shared_ptr<Node>();
+        //return std::shared_ptr<Node>();
+        return std::make_shared<Node>("");
     std::string node_name = input.substr(1, input.length() - 2);
     std::shared_ptr<Node> node = MakeNode(node_name, file);
     return node;

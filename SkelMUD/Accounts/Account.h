@@ -7,12 +7,14 @@
 
 
 #include <string>
+#include <vector>
 
 class Account {
 private:
     std::string _username;
     int _account_level;
     size_t _password;
+    std::vector<std::string> m_characters;
 public:
     static const int RESTRICTED = 0;
     static const int TRIAL = 1;
@@ -31,6 +33,8 @@ public:
     int GetAccountLevel();
     bool MatchPassword(std::string password);
     std::string GetCharacterList();
+    void AddCharacter(std::string character);
+    std::vector<std::string> GetCharacters();
 };
 
 

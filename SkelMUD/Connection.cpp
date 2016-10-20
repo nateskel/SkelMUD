@@ -213,3 +213,11 @@ const std::string &Connection::GetCharacterClass() const {
 void Connection::SetCharacterClass(const std::string &character_class) {
     Connection::character_class = character_class;
 }
+
+const std::string &Connection::GetCharacterName() const {
+    return character_name;
+}
+
+void Connection::SetCharacterName(const std::string &character_name) {
+    Connection::character_name = character_name;
+}

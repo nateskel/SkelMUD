@@ -2,8 +2,8 @@
 #include "Utils.h"
 #include <algorithm>
 
-std::string Tokenizer::GetFirstToken(std::string &data, bool doPop) {
-    std::string::size_type n = data.find(' ');
+std::string Tokenizer::GetFirstToken(std::string &data, char delimiter, bool doPop) {
+    std::string::size_type n = data.find(delimiter);
     std::string output;
     if (n != std::string::npos) {
         output = data.substr(0, n);
@@ -21,6 +21,11 @@ std::string Tokenizer::GetFirstToken(std::string &data, bool doPop) {
     return output;
 }
 
+std::string Tokenizer::GetFirstToken(std::string & data, bool doPop) {
+    return GetFirstToken(data, doPop, ' ');
+}
+
+
 std::vector<std::string> Tokenizer::GetTokens(std::string &data, int number) {
     std::string result = GetFirstToken(data);
     std::vector<std::string> output;
@@ -30,20 +35,24 @@ std::vector<std::string> Tokenizer::GetTokens(std::string &data, int number) {
         GetTokens(data, number);
     }
     return output;
-
 }
 
 std::vector<std::string> Tokenizer::GetAllTokens(std::string data) {
     std::vector<std::string> output;
-    return GetAllTokens(data, output);
+    return GetAllTokens(data, ' ', output);
 }
 
-std::vector<std::string> Tokenizer::GetAllTokens(std::string data, std::vector<std::string> &output) {
-    std::string result = GetFirstToken(data);
+std::vector<std::string> Tokenizer::GetAllTokens(std::string data, char delimiter) {
+    std::vector<std::string> output;
+    return GetAllTokens(data, delimiter, output);
+}
+
+std::vector<std::string> Tokenizer::GetAllTokens(std::string data, char delimiter, std::vector<std::string> &output) {
+    std::string result = GetFirstToken(data, delimiter, true);
     if (result != "")
         output.push_back(result);
     if (data != "")
-        return GetAllTokens(data, output);
+        return GetAllTokens(data, delimiter, output);
     return output;
 }
 

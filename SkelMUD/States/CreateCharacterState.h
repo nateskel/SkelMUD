@@ -14,7 +14,9 @@ private:
         SELECT_CHARACTER,
         CHOOSE_RACE,
         CHOOSE_CLASS,
-        ROLL_STATS
+        ROLL_STATS,
+        NAME_CHARACTER,
+        CONFIRM_CHARACTER
     };
     std::map<int, int> m_state_map;
     std::map<int, Race> m_race_map;
@@ -22,7 +24,9 @@ private:
     void processSelectCharacter(const std::string &input, std::shared_ptr<Connection> connection);
     void processChooseRace(const std::string &input, std::shared_ptr<Connection> connection);
     void processChooseClass(const std::string &input, std::shared_ptr<Connection> connection);
+    void processNameCharacter(const std::string &input, std::shared_ptr<Connection> connection);
     void processRollStats(const std::string &input, std::shared_ptr<Connection> connection);
+    void processConfirmCharacter(const std::string &input, std::shared_ptr<Connection> connection);
     std::string rollStats();
 
 public:

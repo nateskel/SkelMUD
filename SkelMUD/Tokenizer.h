@@ -6,11 +6,15 @@
 
 class Tokenizer {
 public:
+    static std::string GetFirstToken(std::string &data, char delimiter, bool doPop);
+
     static std::string GetFirstToken(std::string &data, bool doPop);
 
     static std::string GetFirstToken(std::string &data);
 
     static std::vector<std::string> GetTokens(std::string &data, int number);
+
+    static std::vector<std::string> GetAllTokens(std::string data, char delimiter);
 
     static std::vector<std::string> GetAllTokens(std::string data);
 
@@ -22,7 +26,7 @@ public:
 
 protected:
 private:
-    static std::vector<std::string> GetAllTokens(std::string data, std::vector<std::string> &output);
+    static std::vector<std::string> GetAllTokens(std::string data, char delimiter, std::vector<std::string> &output);
 };
 
 #endif // TOKENIZER_H

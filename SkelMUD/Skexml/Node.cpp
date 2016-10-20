@@ -6,6 +6,7 @@
 
 Node::Node() {
     _parent = nullptr;
+    _name = "";
 }
 
 std::shared_ptr<Node> Node::GetChild(std::string child_name) {

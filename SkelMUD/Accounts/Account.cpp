@@ -59,3 +59,11 @@ Account::Account(const std::string &username, const size_t &password, int accoun
 size_t Account::GetPassword() {
     return _password;
 }
+
+void Account::AddCharacter(std::string character) {
+    m_characters.push_back(character);
+}
+
+std::vector<std::string> Account::GetCharacters() {
+    return m_characters;
+}

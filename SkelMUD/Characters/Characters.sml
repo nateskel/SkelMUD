@@ -1,0 +1,6 @@
+[Characters]
+[Tokel]
+[Race]Human[/Race]
+[Class]Pilot[/Class]
+[/Tokel]
+[/Characters]
