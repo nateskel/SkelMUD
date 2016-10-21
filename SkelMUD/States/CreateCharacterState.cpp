@@ -64,16 +64,23 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
     }
     else {
         // validate entry
+        auto characters = game_data->GetAccount(connection->GetUsername()).GetCharacters();
         int selection = 0;
         if(Utils::IsNumber(input))
             selection = atoi(input.c_str());
-        std::string character = game_data->GetAccount(connection->GetUsername()).GetCharacters()[selection - 1];
-        Player player = game_data->GetPlayer(character);
-        connection->SetCharacterName(player.GetPlayerName());
-        connection->SetCharacterClass(player.GetPlayerClass());
-        connection->SetCharacterRace(player.GetPlayerRace());
-        Sender::Send("Character Selected\r\n", connection);
-        connection->SetState("Playing");
+        if(selection < 1 or selection > characters.size())
+        {
+            Sender::Send("Invalid Selection", connection);
+        }
+        else {
+            std::string character = characters[selection - 1];
+            Player player = game_data->GetPlayer(character);
+            connection->SetCharacterName(player.GetPlayerName());
+            connection->SetCharacterClass(player.GetPlayerClass());
+            connection->SetCharacterRace(player.GetPlayerRace());
+            Sender::Send("Character Selected\r\n", connection);
+            connection->SetState("Playing");
+        }
     }
 }
 
