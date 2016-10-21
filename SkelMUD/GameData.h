@@ -29,11 +29,13 @@ public:
     void EraseConnection(int index);
     Accounts GetAccounts();
     Account GetAccount(std::string username);
-    void AddCharacter(std::string username, std::string character);
+    void AddCharacter(std::string username, Player character);
+    Player GetPlayer(std::string name);
     Races GetRaces();
     CharacterClasses GetClasses();
     void AddAccount(Account account);
     void SaveAccounts(std::string filename);
+    void SaveCharacters(std::string filename);
     std::map<int, std::shared_ptr<Connection>> GetLoggedInConnections();
 
 private:

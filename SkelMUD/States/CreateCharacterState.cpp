@@ -64,7 +64,16 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
     }
     else {
         // validate entry
+        int selection = 0;
+        if(Utils::IsNumber(input))
+            selection = atoi(input.c_str());
+        std::string character = game_data->GetAccount(connection->GetUsername()).GetCharacters()[selection - 1];
+        Player player = game_data->GetPlayer(character);
+        connection->SetCharacterName(player.GetPlayerName());
+        connection->SetCharacterClass(player.GetPlayerClass());
+        connection->SetCharacterRace(player.GetPlayerRace());
         Sender::Send("Character Selected\r\n", connection);
+        connection->SetState("Playing");
     }
 }
 
@@ -134,12 +143,9 @@ void CreateCharacterState::processNameCharacter(const std::string &input, std::s
 
 void CreateCharacterState::processConfirmCharacter(const std::string &input, std::shared_ptr<Connection> connection) {
     if(input == "Y" or input == "y" or input == "Yes" or input == "yes") {
-        //connection->GetAccount().AddCharacter(connection->GetCharacterName());
-//        Accounts accounts = game_data->GetAccounts();
-//        Account account = accounts.GetAccount(connection->GetUsername());
-//        account.AddCharacter(connection->GetCharacterName());
-        game_data->AddCharacter(connection->GetUsername(), connection->GetCharacterName());
-
+        Player player(0, connection->GetCharacterName(), connection->GetCharacterClass(), connection->GetCharacterRace());
+        game_data->AddCharacter(connection->GetUsername(), player);
+        game_data->SaveCharacters(GameData::CHARACTER_FILE);
         game_data->SaveAccounts(GameData::ACCOUNT_FILE);
         connection->SetState("Playing");
     }

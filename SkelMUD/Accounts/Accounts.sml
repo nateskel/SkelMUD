@@ -1,8 +1,11 @@
 [Accounts]
 [Nate]
 [AccountLevel]2[/AccountLevel]
-[Characters]Test;[/Characters]
 [Password]6072375419398818283[/Password]
 [Username]Nate[/Username]
+[Characters]
+Tokel
+Notleks
+[/Characters]
 [/Nate]
 [/Accounts]

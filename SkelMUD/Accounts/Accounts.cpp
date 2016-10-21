@@ -32,13 +32,20 @@ void Accounts::LoadAccounts(std::string filename) {
         std::string password_string = child_node->GetAttribute("Password");
         std::string account_level = child_node->GetAttribute("AccountLevel");
         auto characters = child_node->GetChild("Characters");
+        std::vector<std::string> char_list;
         if(characters != nullptr) {
             auto list = characters->GetAttribute("List");
             if (list.length() > 0)
-                m_characters = Tokenizer::GetAllTokens(list, ';');
+                char_list = Tokenizer::GetAllTokens(list, ';');
         }
         size_t password = (size_t)atol(password_string.c_str());
-        AddAccount(username, password, std::atoi(account_level.c_str()));
+        Account account(username, password, std::atoi(account_level.c_str()));
+        for(auto char_string: char_list)
+        {
+            account.AddCharacter(char_string);
+        }
+//        AddAccount(username, password, std::atoi(account_level.c_str()));
+        AddAccount(account);
     }
 }
 
@@ -53,16 +60,15 @@ void Accounts::SaveAccounts(std::string filename) {
         std::string password = std::to_string(account.GetPassword());
         std::string account_level = std::to_string(account.GetAccountLevel());
         std::shared_ptr<Node> child = std::make_shared<Node>(username);
-        //std::shared_ptr<Node> list_child = std::make_shared<Node>("Characters");
+        std::shared_ptr<Node> list_child = std::make_shared<Node>("Characters");
         child->AddAttribute("Username", username);
         child->AddAttribute("Password", password);
         child->AddAttribute("AccountLevel", account_level);
         std::stringstream ss;
         auto characters = account.GetCharacters();
         for(auto character : characters)
-            ss << character << ";";
-        child->AddListAttribute("Characters", ss.str());
-        //child->AddChild(list_child);
+            list_child->AddListAttribute("List", character);
+        child->AddChild(list_child);
         parent->AddChild(child);
     }
     SkexmlParser::BuildSkeXML(filename, parent);

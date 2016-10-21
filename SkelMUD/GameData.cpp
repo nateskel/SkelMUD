@@ -5,10 +5,10 @@
 #include "GameData.h"
 #include "Logger.h"
 
-const std::string GameData::ACCOUNT_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Accounts/Accounts.sml";
-const std::string GameData::RACE_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Races/Races.sml";
-const std::string GameData::CLASS_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Classes/Classes.sml";
-const std::string GameData::CHARACTER_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Characters/Characters.sml";
+const std::string GameData::ACCOUNT_FILE = "/home/nate/SkelMUD/SkelMUD/Accounts/Accounts.sml";
+const std::string GameData::RACE_FILE = "/home/nate/SkelMUD/SkelMUD/Races/Races.sml";
+const std::string GameData::CLASS_FILE = "/home/nate/SkelMUD/SkelMUD/Classes/Classes.sml";
+const std::string GameData::CHARACTER_FILE = "/home/nate/SkelMUD/SkelMUD/Characters/Characters.sml";
 
 
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {
@@ -62,6 +62,10 @@ void GameData::SaveAccounts(std::string filename) {
     m_accounts.SaveAccounts(filename);
 }
 
+void GameData::SaveCharacters(std::string filename) {
+    m_characters.SaveCharacters(filename);
+}
+
 Races GameData::GetRaces() {
     return m_races;
 }
@@ -70,6 +74,11 @@ CharacterClasses GameData::GetClasses() {
     return m_classes;
 }
 
-void GameData::AddCharacter(std::string username, std::string character) {
-    m_accounts.AddCharacter(username, character);
+void GameData::AddCharacter(std::string username, Player player) {
+    m_characters.AddCharacter(player);
+    m_accounts.AddCharacter(username, player.GetPlayerName());
+}
+
+Player GameData::GetPlayer(std::string name) {
+    return m_characters.GetCharacters()[name];
 }

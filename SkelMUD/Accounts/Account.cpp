@@ -2,6 +2,7 @@
 // Created by skelton on 3/17/16.
 //
 
+#include <sstream>
 #include "Account.h"
 #include "../Logger.h"
 
@@ -35,7 +36,12 @@ bool Account::MatchPassword(std::string password) {
 }
 
 std::string Account::GetCharacterList() {
-    return "";
+    std::stringstream ss;
+    int count = 0;
+    for(auto char_name: m_characters) {
+        ss << ++count << " " << char_name << "\r\n";
+    }
+    return ss.str();
 }
 
 Account::Account() {

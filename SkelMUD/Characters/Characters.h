@@ -14,6 +14,7 @@ private:
     std::map<std::string, Player> m_character_map;
 public:
     void LoadCharacters(std::string filename);
+    void SaveCharacters(std::string filename);
     void AddCharacter(Player player);
     std::map<std::string, Player> GetCharacters();
     std::map<int, Player> EnumerateCharacters();
