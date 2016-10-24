@@ -37,6 +37,18 @@ void Node::AddList(std::string name, std::string value) {
     this->AddChild(list_node);
 }
 
+void Node::AddList(std::string name, std::vector<std::string> attribute_list) {
+    std::shared_ptr<Node> list_node = std::make_shared<Node>(name, true);
+    std::string list_string = "";
+    for(auto item: attribute_list) {
+//        list_node->AddListAttribute("List", item);
+        list_string.append(item);
+        list_string.append(";");
+    }
+    list_node->AddAttribute("List", list_string);
+    this->AddChild(list_node);
+}
+
 void Node::AddListAttribute(std::string name, std::string value) {
     if(_attributes.find(name) == _attributes.end()) {
         _attributes[name] = value;

@@ -5,6 +5,7 @@
 #include "../Skexml/SkexmlParser.h"
 #include "../Skexml/Node.h"
 #include "SkexmlTest.h"
+#include <vector>
 
 void SkexmlTest::go()
 {
@@ -12,6 +13,8 @@ void SkexmlTest::go()
     node->AddAttribute("AnAttribute", "First");
     node->AddAttribute("AnotherAttribute", "Second");
     node->AddList("ListOfThings", "One;Two;Three");
+    std::vector<std::string> vector_list = {"Four", "Five", "Six"};
+    node->AddList("List2", vector_list);
     std::shared_ptr<Node> childNode = std::make_shared<Node>("ChildNode");
     std::shared_ptr<Node> childNode2 = std::make_shared<Node>("ChildNode2");
     childNode->AddAttribute("ChildAttribute", "CHILD");
@@ -26,6 +29,8 @@ void SkexmlTest::go()
     std::shared_ptr<Node> out_node = SkexmlParser::Parse("/home/skelton/SkelMUD/SkelMUD/SkelMUD/Skexml/sample.sml");
     Node final = *out_node;
     Node child2 = *final.GetChild("ChildNode2");
+    Node test = *final.GetChild("List2");
+    auto more_items = final.GetListAttribute("List2");
     auto list_items = final.GetListAttribute("ListOfThings");
     int x = 1;
 }

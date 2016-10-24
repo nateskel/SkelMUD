@@ -15,7 +15,6 @@ std::shared_ptr<Node> SkexmlParser::Parse(std::string filename) {
     bool valid = false;
     file.open(filename);
     while(!valid and !file.eof()) {
-//        file >> input;
         std::getline(file, input);
         Utils::RemoveEndline(input);
         std::string test = input;
@@ -30,7 +29,6 @@ std::shared_ptr<Node> SkexmlParser::Parse(std::string filename) {
         valid = true;
     }
     if(!valid)
-        //return std::shared_ptr<Node>();
         return std::make_shared<Node>("");
     std::string node_name = input.substr(1, input.length() - 2);
     std::shared_ptr<Node> node = MakeNode(node_name, file);
@@ -51,13 +49,7 @@ void SkexmlParser::WriteNode(std::stringstream &xml_string, std::shared_ptr<Node
     std::string node_name = node->GetName();
     xml_string << "[" << node_name << "]" << "\r\n";
     std::string list = node->GetAttribute("List");
-    //std::string list_attribute = std::string(list);
-    std::string replacement = "\r\n";
     if(list != "") {
-//        unsigned long pos = list.find(";");
-//        while (pos != std::string::npos) {
-//            list = list.replace(pos, 1, replacement);
-//            pos = list.find(";");
         auto items = Tokenizer::GetAllTokens(list, ';');
         for(auto item : items)
         {
@@ -75,7 +67,6 @@ void SkexmlParser::WriteNode(std::stringstream &xml_string, std::shared_ptr<Node
     std::map<std::string, std::shared_ptr<Node>> children = node->GetChildren();
     for(auto& kv : children)
     {
-//        std::string name = kv.first;
         std::shared_ptr<Node> value = kv.second;
         WriteNode(xml_string, value, file);
     }
@@ -87,7 +78,6 @@ std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& fi
     std::string child_name = "";
     Logger::Debug(name);
     std::string input = "";
-//    file >> input;
     std::getline(file, input);
     Utils::RemoveEndline(input);
     while(!file.eof())
@@ -98,11 +88,10 @@ std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& fi
             while((input.length() < 2 or input.substr(0,2) != "[/") and !file.eof())
             {
                 node->AddListAttribute("List", input);
-//                file >> input;
                 std::getline(file, input);
                 Utils::RemoveEndline(input);
             }
-            if(file.eof())
+            if(file.eof() or (input.length() > 1 and input.substr(0,2) == "[/"))
                 return node;
         }
         else if(input.length() - 1 > input.find("]")) {
@@ -116,7 +105,6 @@ std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& fi
             child_name = input.substr(1, input.length() - 2);
             node->AddChild(MakeNode(child_name, file));
         }
-//        file >> input;
         std::getline(file, input);
         Utils::RemoveEndline(input);
     }
