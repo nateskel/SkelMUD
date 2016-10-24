@@ -4,7 +4,6 @@
 
 #include "Accounts.h"
 #include "../Skexml/SkexmlParser.h"
-#include "../Tokenizer.h"
 
 void Accounts::AddAccount(Account account) {
     m_accounts[account.GetUsername()] = account;
@@ -53,15 +52,12 @@ void Accounts::SaveAccounts(std::string filename) {
         std::string password = std::to_string(account.GetPassword());
         std::string account_level = std::to_string(account.GetAccountLevel());
         std::shared_ptr<Node> child = std::make_shared<Node>(username);
-        std::shared_ptr<Node> list_child = std::make_shared<Node>("Characters");
         child->AddAttribute("Username", username);
         child->AddAttribute("Password", password);
         child->AddAttribute("AccountLevel", account_level);
         std::stringstream ss;
         auto characters = account.GetCharacters();
-        for(auto character : characters)
-            list_child->AddListAttribute("List", character);
-        child->AddChild(list_child);
+        child->AddList("Characters", characters);
         parent->AddChild(child);
     }
     SkexmlParser::BuildSkeXML(filename, parent);

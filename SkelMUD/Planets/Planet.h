@@ -47,6 +47,8 @@ public:
 
     bool ChangeRoom(int old_room, int new_room, int player_id);
 
+    std::vector<std::shared_ptr<Room>> GetRooms();
+
     std::string GetName();
 
     int GetID();

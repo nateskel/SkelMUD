@@ -41,7 +41,6 @@ void Node::AddList(std::string name, std::vector<std::string> attribute_list) {
     std::shared_ptr<Node> list_node = std::make_shared<Node>(name, true);
     std::string list_string = "";
     for(auto item: attribute_list) {
-//        list_node->AddListAttribute("List", item);
         list_string.append(item);
         list_string.append(";");
     }

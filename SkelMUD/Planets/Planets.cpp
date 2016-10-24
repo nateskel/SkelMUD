@@ -77,3 +77,30 @@ std::map<int, std::shared_ptr<Planet>> Planets::EnumeratePlanets() {
     }
     return planet_map;
 };
+
+void Planets::SavePlanet(int planet_id) {
+    SavePlanet(*m_planet_map[planet_id]);
+}
+
+void Planets::SavePlanet(Planet planet) {
+    std::string filename = GameData::PLANET_PATH + planet.GetName() + ".sml";
+    std::shared_ptr<Node> planet_node = std::make_shared<Node>(planet.GetName());
+    for(auto room: planet.GetRooms()) {
+        std::shared_ptr<Node> room_node = std::make_shared<Node>(std::to_string(room->GetID()));
+        room_node->AddAttribute("ShortDescription", room->GetShortDescription());
+        room_node->AddAttribute("LongDescription", room->GetLongDescription());
+        AddDirectionAttribute("North", room->GetNorth(), room_node);
+        AddDirectionAttribute("South", room->GetSouth(), room_node);
+        AddDirectionAttribute("East", room->GetEast(), room_node);
+        AddDirectionAttribute("West", room->GetWest(), room_node);
+        planet_node->AddChild(room_node);
+    }
+    SkexmlParser::BuildSkeXML(filename, planet_node);
+}
+
+void Planets::AddDirectionAttribute(std::string direction, int room_id_dest, std::shared_ptr<Node> room_node) {
+    if(room_id_dest != -1)
+    {
+        room_node->AddAttribute(direction, std::to_string(room_id_dest));
+    }
+}

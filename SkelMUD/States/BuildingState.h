@@ -20,6 +20,7 @@ public:
         m_cmd_map["setlong"] = &CmdSetLongDesc;
         m_cmd_map["setshort"] = &CmdSetShortDesc;
         m_cmd_map["play"] = &CmdPlay;
+        m_cmd_map["saveplanet"] = &CmdSavePlanet;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -36,6 +37,8 @@ public:
                              std::shared_ptr<GameData> game_data);
     static void CmdPlay(const std::string& input, std::shared_ptr<Connection> connection,
                                 std::shared_ptr<GameData> game_data);
+    static void CmdSavePlanet(const std::string& input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
 };
 
 #endif //SKELMUD_BUILDINGSTATE_H

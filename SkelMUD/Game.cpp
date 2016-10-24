@@ -18,11 +18,6 @@
 #endif
 
 Game::Game() {
-//    // List of possible directional commands. Used to determine if entered command is a direction
-//    DIRECTIONS = {"NORTH", "N", "SOUTH", "S", "EAST", "E", "WEST", "W", "NORTHEAST", "NE", "NORTHWEST",
-//                  "NW", "SOUTHEAST", "SE", "SOUTHWEST", "SW", "UP", "U", "DOWN", "D"};
-    // Presort the list for later use of binary_search
-    //std::sort(DIRECTIONS.begin(), DIRECTIONS.end());
     isRunning = true;
     port = 4321;
     Logger::Debug("Setting up GameData");

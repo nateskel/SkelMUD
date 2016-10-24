@@ -22,7 +22,6 @@ std::string BuildingState::GetPrompt(std::shared_ptr<Connection> connection) {
     return ss.str();
 }
 
-
 void BuildingState::CmdBuildRoom(const std::string &input, std::shared_ptr<Connection> connection,
                                  std::shared_ptr<GameData> game_data) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
@@ -39,6 +38,7 @@ void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection
     auto room = planet->GetRoom(player->GetRoomID());
     std::string input_string = std::string(input);
     std::string direction_string = Tokenizer::GetFirstToken(input_string);
+    direction_string = Tokenizer::LowerCase(direction_string);
     std::string destination_id_string = Tokenizer::GetFirstToken(input_string);
     std::string both_string = Tokenizer::GetFirstToken(input_string);
     int destination_id = std::atoi(destination_id_string.c_str());
@@ -67,7 +67,6 @@ void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection
             break;
         default:
             Sender::Send("Unable to link room\r\n", connection);
-
             break;
     }
 }
@@ -81,7 +80,6 @@ void BuildingState::CmdGetRoomID(const std::string &input, std::shared_ptr<Conne
     ss << "Room ID is " << player->GetRoomID() << Format::NL;
     Sender::Send(ss.str(), connection);
 }
-
 
 void BuildingState::CmdSetLongDesc(const std::string &input, std::shared_ptr<Connection> connection,
                                    std::shared_ptr<GameData> game_data) {
@@ -99,16 +97,24 @@ void BuildingState::CmdSetShortDesc(const std::string &input, std::shared_ptr<Co
     room->SetShortDesc(input);
 }
 
-
 void BuildingState::CmdPlay(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
     connection->SetState("Playing");
 }
 
+void BuildingState::CmdSavePlanet(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto planet = game_data->GetPlanet(game_data->GetPlayer(connection->GetCharacterName())->GetPlanetID());
+    game_data->SavePlanet(planet->GetID());
+}
 
 std::map<std::string, PlayingState::Direction> BuildingState::m_direction_map = {
         {"n", Direction::NORTH},
+        {"north", Direction::NORTH},
         {"s", Direction::SOUTH},
+        {"south", Direction::SOUTH},
         {"e", Direction::EAST},
-        {"w", Direction::WEST}
+        {"east", Direction::EAST},
+        {"w", Direction::WEST},
+        {"west", Direction::WEST}
 };

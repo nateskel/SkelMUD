@@ -113,6 +113,10 @@ bool Planet::ChangeRoom(int old_room, int new_room, int player_id) {
     return true;
 }
 
+std::vector<std::shared_ptr<Room>> Planet::GetRooms() {
+    return m_rooms;
+}
+
 Room::Room() {
     m_id = 0;
     m_long_description = "Basic Room <Long>";

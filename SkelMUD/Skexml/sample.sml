@@ -11,6 +11,11 @@
 [ThisIsAttribute]ASDF[/ThisIsAttribute]
 [/ChildNode3]
 [/ChildNode2]
+[List2]
+Four
+Five
+Six
+[/List2]
 [ListOfThings]
 One
 Two
