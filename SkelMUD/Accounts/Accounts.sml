@@ -6,6 +6,15 @@
 [Characters]
 Tokel
 Notleks
+Blaaarg
 [/Characters]
 [/Nate]
+[xako]
+[AccountLevel]2[/AccountLevel]
+[Password]9001837111234845553[/Password]
+[Username]xako[/Username]
+[Characters]
+Okax
+[/Characters]
+[/xako]
 [/Accounts]

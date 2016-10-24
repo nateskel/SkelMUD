@@ -1,23 +1,23 @@
 #include "Planet.h"
 
-Planet::Planet() {
-
-}
-
-Planet::~Planet() {
-
-}
-
-void Planet::AddRoom(Room* room) {
+void Planet::AddRoom(std::shared_ptr<Room> room) {
     m_rooms.push_back(room);
 }
 
-Room* Planet::GetRoom(int id) {
+std::shared_ptr<Room> Planet::GetRoom(int id) {
     return m_rooms[id];
 }
 
 void Planet::SetName(std::string name) {
     m_planet_name = name;
+}
+
+std::string Planet::GetName() {
+    return m_planet_name;
+}
+
+int Planet::GetID() {
+    return m_planet_id;
 }
 
 bool Planet::MoveNorth(int room_id, int player_id) {
@@ -101,7 +101,7 @@ bool Planet::MoveDown(int room_id, int player_id) {
 }
 
 void Planet::ChangeRoom(int old_room, int new_room, int player_id) {
-    Player* player = m_rooms[old_room]->GetPlayer(player_id);
+    std::shared_ptr<Player> player = m_rooms[old_room]->GetPlayer(player_id);
     player->SetRoomID(new_room);
     m_rooms[old_room]->RemovePlayer(player_id);
     m_rooms[new_room]->AddPlayer(player);
@@ -141,11 +141,11 @@ Room::~Room() {
 
 }
 
-void Room::AddPlayer(Player* player) {
+void Room::AddPlayer(std::shared_ptr<Player> player) {
     m_player_map[player->GetID()] = player;
 }
 
-Player* Room::GetPlayer(int id) {
+std::shared_ptr<Player> Room::GetPlayer(int id) {
     return m_player_map[id];
 }
 
@@ -155,7 +155,7 @@ void Room::RemovePlayer(int id) {
 
 std::vector<int> Room::GetPlayers() {
     std::vector<int> output;
-    for (std::map<int, Player*>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
+    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
         output.push_back(it->first);
     }
     return output;
@@ -163,7 +163,7 @@ std::vector<int> Room::GetPlayers() {
 
 std::vector<int> Room::GetPlayerIDs(int exclude) {
     std::vector<int> output;
-    for (std::map<int, Player*>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
+    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
         if (it->first != exclude)
             output.push_back(it->first);
     }

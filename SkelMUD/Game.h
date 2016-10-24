@@ -4,7 +4,7 @@
 #include "Connection.h"
 #include "Player.h"
 #include "TextProcessor.h"
-#include "Planet.h"
+#include "Planets/Planet.h"
 #include "Utils.h"
 #include "Logger.h"
 #include "States/GameState.h"

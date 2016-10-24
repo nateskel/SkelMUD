@@ -26,6 +26,10 @@ int Player::GetID() {
     return m_player_id;
 }
 
+void Player::SetID(int id) {
+    m_player_id = id;
+}
+
 const std::string &Player::GetPlayerName() const {
     return m_name;
 }

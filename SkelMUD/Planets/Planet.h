@@ -1,22 +1,27 @@
 #ifndef PLANET_H
 #define PLANET_H
 
-#include "Player.h"
+#include "../Player.h"
 #include "Planet.h"
 #include <map>
+#include <memory>
 #include <vector>
 
 class Room;
 
 class Planet {
 public:
-    Planet();
+    Planet() { };
+    Planet(std::string name, int id, int x, int y, int z) : m_planet_name(name), m_planet_id(id) {
+        coordinates.x = x;
+        coordinates.y = y;
+        coordinates.z = z;
+    };
+    ~Planet() { };
 
-    ~Planet();
+    void AddRoom(std::shared_ptr<Room> room);
 
-    void AddRoom(Room* room);
-
-    Room* GetRoom(int id);
+    std::shared_ptr<Room> GetRoom(int id);
 
     bool MoveNorth(int room_id, int player_id);
 
@@ -40,6 +45,10 @@ public:
 
     void SetName(std::string name);
 
+    std::string GetName();
+
+    int GetID();
+
     struct Coordinates {
         int x;
         int y;
@@ -50,7 +59,8 @@ public:
 protected:
 private:
     std::string m_planet_name;
-    std::vector<Room*> m_rooms;
+    int m_planet_id;
+    std::vector<std::shared_ptr<Room>> m_rooms;
 
     void ChangeRoom(int old_room, int new_room, int player_id);
 };
@@ -76,9 +86,9 @@ public:
 
     void RemovePlayer(int id);
 
-    void AddPlayer(Player* player);
+    void AddPlayer(std::shared_ptr<Player> player);
 
-    Player* GetPlayer(int id);
+    std::shared_ptr<Player> GetPlayer(int id);
 
     std::vector<int> GetPlayers();
 
@@ -123,9 +133,7 @@ private:
     int m_southeast;
     int m_up;
     int m_down;
-    std::map<int, Player*> m_player_map;
+    std::map<int, std::shared_ptr<Player>> m_player_map;
 };
-
-Planet* BuildPlanet();
 
 #endif // PLANET_H

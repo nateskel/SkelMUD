@@ -74,10 +74,10 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
         }
         else {
             std::string character = characters[selection - 1];
-            Player player = game_data->GetPlayer(character);
-            connection->SetCharacterName(player.GetPlayerName());
-            connection->SetCharacterClass(player.GetPlayerClass());
-            connection->SetCharacterRace(player.GetPlayerRace());
+            std::shared_ptr<Player> player = game_data->GetPlayer(character);
+            connection->SetCharacterName(player->GetPlayerName());
+            connection->SetCharacterClass(player->GetPlayerClass());
+            connection->SetCharacterRace(player->GetPlayerRace());
             Sender::Send("Character Selected\r\n", connection);
             connection->SetState("Playing");
         }
@@ -150,7 +150,8 @@ void CreateCharacterState::processNameCharacter(const std::string &input, std::s
 
 void CreateCharacterState::processConfirmCharacter(const std::string &input, std::shared_ptr<Connection> connection) {
     if(input == "Y" or input == "y" or input == "Yes" or input == "yes") {
-        Player player(0, connection->GetCharacterName(), connection->GetCharacterClass(), connection->GetCharacterRace());
+        std::shared_ptr<Player> player = std::make_shared<Player>(0, connection->GetCharacterName(),
+                                                                  connection->GetCharacterClass(), connection->GetCharacterRace());
         game_data->AddCharacter(connection->GetUsername(), player);
         game_data->SaveCharacters(GameData::CHARACTER_FILE);
         game_data->SaveAccounts(GameData::ACCOUNT_FILE);

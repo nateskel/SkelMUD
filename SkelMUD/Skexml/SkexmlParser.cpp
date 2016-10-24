@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "../Logger.h"
 #include "../Tokenizer.h"
+#include "../Utils.h"
 
 std::shared_ptr<Node> SkexmlParser::Parse(std::string filename) {
     std::string input = "";
@@ -14,7 +15,10 @@ std::shared_ptr<Node> SkexmlParser::Parse(std::string filename) {
     bool valid = false;
     file.open(filename);
     while(!valid and !file.eof()) {
-        file >> input;
+//        file >> input;
+        std::getline(file, input);
+        Utils::RemoveEndline(input);
+        std::string test = input;
         if (input.length() < 0)
             continue;
         else if (input.substr(0, 1) != "[")
@@ -59,9 +63,6 @@ void SkexmlParser::WriteNode(std::stringstream &xml_string, std::shared_ptr<Node
         {
             xml_string << item << "\r\n";
         }
-        //xml_string << list << "\r\n";
-        auto test = xml_string.str();
-        int x = 1;
     }
     else {
         std::map<std::string, std::string> attributes = node->GetAttributes();
@@ -86,7 +87,9 @@ std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& fi
     std::string child_name = "";
     Logger::Debug(name);
     std::string input = "";
-    file >> input;
+//    file >> input;
+    std::getline(file, input);
+    Utils::RemoveEndline(input);
     while(!file.eof())
     {
         if(input.length() > 1 and input.substr(0,2) == "[/")
@@ -95,7 +98,9 @@ std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& fi
             while((input.length() < 2 or input.substr(0,2) != "[/") and !file.eof())
             {
                 node->AddListAttribute("List", input);
-                file >> input;
+//                file >> input;
+                std::getline(file, input);
+                Utils::RemoveEndline(input);
             }
             if(file.eof())
                 return node;
@@ -111,7 +116,9 @@ std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& fi
             child_name = input.substr(1, input.length() - 2);
             node->AddChild(MakeNode(child_name, file));
         }
-        file >> input;
+//        file >> input;
+        std::getline(file, input);
+        Utils::RemoveEndline(input);
     }
     return node;
 }

@@ -6,18 +6,19 @@
 #define SKELMUD_CHARACTERS_H
 
 #include <map>
+#include <memory>
 #include "../Player.h"
 
 class Characters {
 
 private:
-    std::map<std::string, Player> m_character_map;
+    std::map<std::string, std::shared_ptr<Player>> m_character_map;
 public:
     void LoadCharacters(std::string filename);
     void SaveCharacters(std::string filename);
-    void AddCharacter(Player player);
-    std::map<std::string, Player> GetCharacters();
-    std::map<int, Player> EnumerateCharacters();
+    void AddCharacter(std::shared_ptr<Player> player);
+    std::map<std::string, std::shared_ptr<Player>> GetCharacters();
+    std::map<int, std::shared_ptr<Player>> EnumerateCharacters();
 };
 
 

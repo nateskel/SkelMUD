@@ -7,24 +7,175 @@
 #include "../Tokenizer.h"
 #include "../Sender.h"
 #include "../Format.h"
+#include "../Logger.h"
 
 void PlayingState::processInput(const std::string& input, std::shared_ptr<Connection> connection) {
-    //std::string command = Tokenizer::GetFirstToken(input);
+    std::string input_string = input;
+    std::string command = Tokenizer::GetFirstToken(input_string);
+    command = Tokenizer::LowerCase(command);
+    if(m_cmd_map.find(command) != m_cmd_map.end())
+        m_cmd_map[command](input_string, connection, game_data);
     if(input == "quit")
-//        Sender::Send("Goodbye", connection);
         connection->Close();
-    Sender::SendAll("\r\n" + connection->GetUsername() + ": " + input + "\r\n", game_data->GetLoggedInConnections(), connection->GetSocket());
 }
 
 void PlayingState::init(std::shared_ptr<Connection> connection) {
     Sender::Send("Welcome to the chat, " + connection->GetCharacterName() + "\r\n", connection);
     connection->SetPrompt(GetPrompt(connection));
     connection->SetLoggedIn(true);
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    player->SetID(connection->GetID());
+    game_data->GetPlanet(0)->GetRoom(0)->AddPlayer(player);
+    //TODO: set proper planet id
+    player->SetPlanetID(0);
+    player->SetRoomID(0);
+    CmdLook("", connection, game_data);
+    std::stringstream ss;
+    ss << connection->GetCharacterName() << " has logged in!\r\n";
+    Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), connection->GetSocket());
 }
 
 std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
     std::stringstream ss;
     ss << Format::YELLOW << "<" + Format::BLUE << connection->GetCharacterName() << Format::YELLOW << "> ";
     ss << Format::RED << "<" << connection->GetHealth() << "> \r\n";
+    return ss.str();
+}
+
+void PlayingState::CmdHelp(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data)
+{
+    Sender::Send("'chat' to chat\r\n'tell <character>' to direct tell\r\n'online' to see who is online\r\n", connection);
+}
+
+void PlayingState::CmdTell(const std::string &input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data) {
+    std::string input_string = input;
+    std::string target = Tokenizer::GetFirstToken(input_string);
+    auto target_connection = game_data->GetConnection(target);
+    if(target_connection == nullptr) {
+        Sender::Send("That person does not exist\r\n", connection);
+    }
+    else {
+        std::stringstream ss;
+        ss << Format::BLUE << Format::BOLD << connection->GetCharacterName() << " tells you: " <<
+                Format::MAGENTA << input_string << "\r\n";
+        Sender::Send(ss.str(), game_data->GetConnection(target));
+    }
+}
+
+void PlayingState::CmdChat(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    std::string input_string = input;
+    std::stringstream ss;
+    ss << Format::CYAN << Format::BOLD << connection->GetCharacterName() << " chats: " << Format::MAGENTA <<
+            input_string << "\r\n";
+    Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), connection->GetSocket());
+}
+
+void PlayingState::CmdOnline(const std::string &input, std::shared_ptr<Connection> connection,
+                             std::shared_ptr<GameData> game_data) {
+    std::stringstream ss;
+    ss << Format::BOLD << Format::YELLOW << "Players Online:\r\n" << Format::BLUE;
+    for(auto conn: game_data->GetLoggedInConnections()) {
+        ss << conn.second->GetCharacterName() << "\r\n";
+    }
+    Sender::Send(ss.str(), connection);
+}
+
+void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    auto room = planet->GetRoom(player->GetRoomID());
+    std::stringstream ss;
+    ss << "Directions:\r\n" << GetValidDirections(*room) << "\r\n";
+    ss << room->GetShortDescription() << "\r\n" << room->GetLongDescription() << "\r\n";
+    Sender::Send(ss.str(), connection);
+}
+
+void PlayingState::CmdNorth(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    Move(connection, game_data, Direction::NORTH);
+}
+
+void PlayingState::CmdSouth(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    Move(connection, game_data, Direction::SOUTH);
+}
+
+void PlayingState::CmdEast(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    Move(connection, game_data, Direction::EAST);
+}
+
+void PlayingState::CmdWest(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    Move(connection, game_data, Direction::WEST);
+}
+
+void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
+                        Direction direction) {
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    int room_id = player->GetRoomID();
+    int player_id = player->GetID();
+    bool success = false;
+    std::string arrive_string = "";
+    std::string depart_string = "";
+    int departed_room = 0;
+    switch(direction) {
+        case NORTH:
+            departed_room = player->GetRoomID();
+            success = planet->MoveNorth(room_id, player_id);
+            arrive_string = "south";
+            depart_string = "north";
+            break;
+        case SOUTH:
+            departed_room = player->GetRoomID();
+            success = planet->MoveSouth(room_id, player_id);
+            arrive_string = "north";
+            depart_string = "south";
+            break;
+        case EAST:
+            departed_room = player->GetRoomID();
+            success = planet->MoveEast(room_id, player_id);
+            arrive_string = "west";
+            depart_string = "east";
+            break;
+        case WEST:
+            departed_room = player->GetRoomID();
+            success = planet->MoveWest(room_id, player_id);
+            arrive_string = "east";
+            depart_string = "west";
+            break;
+        default:
+            Logger::Error("Unhandled Direction");
+    }
+    if(success) {
+        std::stringstream departed_ss;
+        std::stringstream arrived_ss;
+        std::string player_name = player->GetPlayerName();
+        departed_ss << player_name << " has left to the " << depart_string << "\r\n";
+        arrived_ss << player_name << " has arrived from the " << arrive_string << "\r\n";
+        Sender::SendToMultiple(departed_ss.str(), game_data->GetAllConnections(),
+                               planet->GetRoom(departed_room)->GetPlayers());
+        Sender::SendToMultiple(arrived_ss.str(), game_data->GetAllConnections(),
+                               planet->GetRoom(player->GetRoomID())->GetPlayers());
+        CmdLook("", connection, game_data);
+    }
+    else
+        Sender::Send("Can't go that way!\r\n", connection);
+}
+
+std::string PlayingState::GetValidDirections(Room &room) {
+    std::stringstream ss;
+    if(room.GetNorth() != -1)
+        ss << "north ";
+    if(room.GetSouth() != -1)
+        ss << "south ";
+    if(room.GetEast() != -1)
+        ss << "east ";
+    if(room.GetWest() != -1)
+        ss << "west ";
+    ss << "\r\n";
     return ss.str();
 }

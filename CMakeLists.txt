@@ -16,8 +16,8 @@ set(SOURCE_FILES
         SkelMUD/Logger.h
         SkelMUD/Network.cpp
         SkelMUD/Network.h
-        SkelMUD/Planet.cpp
-        SkelMUD/Planet.h
+        SkelMUD/Planets/Planet.cpp
+        SkelMUD/Planets/Planet.h
         SkelMUD/Player.cpp
         SkelMUD/Player.h
         SkelMUD/Sender.cpp
@@ -62,7 +62,7 @@ set(SOURCE_FILES
         SkelMUD/Races/Race.cpp
         SkelMUD/Races/Race.h
         SkelMUD/Races/Races.cpp
-        SkelMUD/Races/Races.h SkelMUD/Classes/CharacterClass.cpp SkelMUD/Classes/CharacterClass.h SkelMUD/Classes/CharacterClasses.cpp SkelMUD/Classes/CharacterClasses.h SkelMUD/Characters/Characters.cpp SkelMUD/Characters/Characters.h)
+        SkelMUD/Races/Races.h SkelMUD/Classes/CharacterClass.cpp SkelMUD/Classes/CharacterClass.h SkelMUD/Classes/CharacterClasses.cpp SkelMUD/Classes/CharacterClasses.h SkelMUD/Characters/Characters.cpp SkelMUD/Characters/Characters.h SkelMUD/Planets/Planets.cpp SkelMUD/Planets/Planets.h)
 
 add_executable(SkelMUD ${SOURCE_FILES} SkelMUD/SkelMUD.cpp)
 FIND_PACKAGE(Threads)

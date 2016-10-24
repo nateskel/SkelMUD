@@ -17,7 +17,7 @@ void Characters::LoadCharacters(std::string filename) {
         std::shared_ptr<Node> child_node = child.second;
         std::string char_class = child_node->GetAttribute("Class");
         std::string race = child_node->GetAttribute("Race");
-        Player character = Player(count, character_name, char_class, race);
+        std::shared_ptr<Player> character = std::make_shared<Player>(count, character_name, char_class, race);
         count++;
         AddCharacter(character);
     }
@@ -29,26 +29,26 @@ void Characters::SaveCharacters(std::string filename) {
     for(auto character: m_character_map)
     {
         std::string character_name = character.first;
-        Player player = character.second;
+        std::shared_ptr<Player> player = character.second;
         std::shared_ptr<Node> child = std::make_shared<Node>(character_name);
-        child->AddAttribute("Class", player.GetPlayerClass());
-        child->AddAttribute("Race", player.GetPlayerRace());
+        child->AddAttribute("Class", player->GetPlayerClass());
+        child->AddAttribute("Race", player->GetPlayerRace());
         parent->AddChild(child);
     }
     SkexmlParser::BuildSkeXML(filename, parent);
 }
 
-void Characters::AddCharacter(Player player) {
-    m_character_map[player.GetName()] = player;
+void Characters::AddCharacter(std::shared_ptr<Player> player) {
+    m_character_map[player->GetName()] = player;
 }
 
-std::map<std::string, Player> Characters::GetCharacters() {
+std::map<std::string, std::shared_ptr<Player>> Characters::GetCharacters() {
     return m_character_map;
 }
 
-std::map<int, Player> Characters::EnumerateCharacters() {
+std::map<int, std::shared_ptr<Player>> Characters::EnumerateCharacters() {
     auto characters = GetCharacters();
-    std::map<int, Player> character_map;
+    std::map<int, std::shared_ptr<Player>> character_map;
     int count = 0;
     for(auto character : characters) {
         count++;

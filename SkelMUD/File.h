@@ -2,7 +2,7 @@
 #define FILE_H
 
 #include "Connection.h"
-#include "Planet.h"
+#include "Planets/Planet.h"
 #include <string>
 #include <fstream>
 #include <vector>

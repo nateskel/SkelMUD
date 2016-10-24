@@ -2,7 +2,9 @@
 #define PLAYER_H
 
 #include "Entity.h"
+//#include "Planets/Planet.h"
 #include <string>
+#include <memory>
 
 class Player : public Entity {
 public:
@@ -13,6 +15,8 @@ public:
     Player(int player_id, std::string player_name);
 
     int GetID();
+
+    void SetID(int id);
 
     const std::string &GetPlayerName() const;
 
@@ -25,7 +29,6 @@ public:
     const std::string &GetPlayerRace() const;
 
     void SetPlayerRace(const std::string &race);
-
 
 protected:
     int m_player_id;

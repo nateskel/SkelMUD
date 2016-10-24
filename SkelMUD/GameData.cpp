@@ -9,10 +9,12 @@ const std::string GameData::ACCOUNT_FILE = "/home/nate/SkelMUD/SkelMUD/Accounts/
 const std::string GameData::RACE_FILE = "/home/nate/SkelMUD/SkelMUD/Races/Races.sml";
 const std::string GameData::CLASS_FILE = "/home/nate/SkelMUD/SkelMUD/Classes/Classes.sml";
 const std::string GameData::CHARACTER_FILE = "/home/nate/SkelMUD/SkelMUD/Characters/Characters.sml";
+const std::string GameData::PLANET_PATH = "/home/nate/SkelMUD/SkelMUD/Planets/";
+const std::string GameData::PLANET_FILE = PLANET_PATH + "Planets.sml";
 
 
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {
-    m_connections[connection->GetID()] = connection;
+    m_connections[connection->GetSocket()] = connection;
 }
 
 std::shared_ptr<Connection> GameData::GetConnection(int index) {
@@ -43,6 +45,7 @@ GameData::GameData() {
     m_races.LoadRaces(RACE_FILE);
     m_classes.LoadClasses(CLASS_FILE);
     m_characters.LoadCharacters(CHARACTER_FILE);
+    m_planets.LoadPlanets(PLANET_FILE);
     Logger::Debug("Resources Loaded");
 }
 
@@ -74,11 +77,29 @@ CharacterClasses GameData::GetClasses() {
     return m_classes;
 }
 
-void GameData::AddCharacter(std::string username, Player player) {
+void GameData::AddCharacter(std::string username, std::shared_ptr<Player> player) {
     m_characters.AddCharacter(player);
-    m_accounts.AddCharacter(username, player.GetPlayerName());
+    m_accounts.AddCharacter(username, player->GetPlayerName());
 }
 
-Player GameData::GetPlayer(std::string name) {
+std::shared_ptr<Player> GameData::GetPlayer(std::string name) {
     return m_characters.GetCharacters()[name];
+}
+
+std::shared_ptr<Connection> GameData::GetConnection(std::string character_name) {
+    for(auto connection: m_connections) {
+        if(connection.second->GetCharacterName() == character_name) {
+            return connection.second;
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<Planet> GameData::GetPlanet(int ID) {
+    return m_planets.GetPlanets()[ID];
+}
+
+std::shared_ptr<Planet> GameData::GetPlanet(std::string name) {
+    //return m_planets.GetPlanets()[name];
+    return nullptr;
 }

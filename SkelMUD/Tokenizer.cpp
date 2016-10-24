@@ -21,8 +21,8 @@ std::string Tokenizer::GetFirstToken(std::string &data, char delimiter, bool doP
     return output;
 }
 
-std::string Tokenizer::GetFirstToken(std::string & data, bool doPop) {
-    return GetFirstToken(data, doPop, ' ');
+std::string Tokenizer::GetFirstToken(std::string& data, bool doPop) {
+    return GetFirstToken(data, ' ', doPop);
 }
 
 
