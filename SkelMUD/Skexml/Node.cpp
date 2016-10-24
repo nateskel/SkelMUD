@@ -3,13 +3,18 @@
 //
 
 #include "Node.h"
+#include "../Tokenizer.h"
 
 Node::Node() {
     _parent = nullptr;
     _name = "";
+    _is_list = false;
 }
 
 std::shared_ptr<Node> Node::GetChild(std::string child_name) {
+    auto node = _children[child_name];
+    if(node->IsList())
+        return nullptr;
     return _children[child_name];
 }
 
@@ -27,7 +32,7 @@ void Node::AddAttribute(std::string name, std::string value) {
 }
 
 void Node::AddList(std::string name, std::string value) {
-    std::shared_ptr<Node> list_node = std::make_shared<Node>(name);
+    std::shared_ptr<Node> list_node = std::make_shared<Node>(name, true);
     list_node->AddAttribute("List", value);
     this->AddChild(list_node);
 }
@@ -62,4 +67,10 @@ std::string Node::GetAttribute(std::string attribute_name) {
         return _attributes[attribute_name];
     else
         return "";
+}
+
+std::vector<std::string> Node::GetListAttribute(std::string attribute_name) {
+    auto node = _children[attribute_name];
+    std::string list_attribute = node->GetAttribute("List");
+    return Tokenizer::GetAllTokens(list_attribute, ';');
 }

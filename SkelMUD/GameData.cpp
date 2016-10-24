@@ -5,11 +5,11 @@
 #include "GameData.h"
 #include "Logger.h"
 
-const std::string GameData::ACCOUNT_FILE = "/home/nate/SkelMUD/SkelMUD/Accounts/Accounts.sml";
-const std::string GameData::RACE_FILE = "/home/nate/SkelMUD/SkelMUD/Races/Races.sml";
-const std::string GameData::CLASS_FILE = "/home/nate/SkelMUD/SkelMUD/Classes/Classes.sml";
-const std::string GameData::CHARACTER_FILE = "/home/nate/SkelMUD/SkelMUD/Characters/Characters.sml";
-const std::string GameData::PLANET_PATH = "/home/nate/SkelMUD/SkelMUD/Planets/";
+const std::string GameData::ACCOUNT_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Accounts/Accounts.sml";
+const std::string GameData::RACE_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Races/Races.sml";
+const std::string GameData::CLASS_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Classes/Classes.sml";
+const std::string GameData::CHARACTER_FILE = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Characters/Characters.sml";
+const std::string GameData::PLANET_PATH = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Planets/";
 const std::string GameData::PLANET_FILE = PLANET_PATH + "Planets.sml";
 
 

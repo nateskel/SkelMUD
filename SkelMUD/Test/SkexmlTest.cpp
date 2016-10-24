@@ -22,8 +22,10 @@ void SkexmlTest::go()
     node->AddChild(childNode);
     node->AddChild(childNode2);
     childNode2->AddChild(childNode3);
-    SkexmlParser::BuildSkeXML("/home/nate/SkelMUD/SkelMUD/Skexml/sample.sml", node);
-    std::shared_ptr<Node> out_node = SkexmlParser::Parse("/home/nate/SkelMUD/SkelMUD/Skexml/sample.sml");
+    SkexmlParser::BuildSkeXML("/home/skelton/SkelMUD/SkelMUD/SkelMUD/Skexml/sample.sml", node);
+    std::shared_ptr<Node> out_node = SkexmlParser::Parse("/home/skelton/SkelMUD/SkelMUD/SkelMUD/Skexml/sample.sml");
     Node final = *out_node;
     Node child2 = *final.GetChild("ChildNode2");
+    auto list_items = final.GetListAttribute("ListOfThings");
+    int x = 1;
 }
