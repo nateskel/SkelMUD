@@ -14,14 +14,13 @@ public:
         NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST, UP, DOWN
     } direction;
 
-    virtual void processInput(const std::string& input, std::shared_ptr<Connection> connection) override;
-
     PlayingState(std::shared_ptr<GameData> data) : GameState(data) {
         m_cmd_map["help"] = &CmdHelp;
         m_cmd_map["tell"] = &CmdTell;
         m_cmd_map["chat"] = &CmdChat;
         m_cmd_map["online"] = &CmdOnline;
         m_cmd_map["look"] = &CmdLook;
+        m_cmd_map["l"] = &CmdLook;
         m_cmd_map["north"] = &CmdNorth;
         m_cmd_map["n"] = &CmdNorth;
         m_cmd_map["south"] = &CmdSouth;
@@ -30,10 +29,11 @@ public:
         m_cmd_map["e"] = &CmdEast;
         m_cmd_map["west"] = &CmdWest;
         m_cmd_map["w"] = &CmdWest;
+        m_cmd_map["build"] = &CmdBuild;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
-
+    virtual void processInput(const std::string& input, std::shared_ptr<Connection> connection) override;
     virtual std::string GetPrompt(std::shared_ptr<Connection> connection) override;
     static void CmdHelp(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdTell(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
@@ -44,9 +44,10 @@ public:
     static void CmdSouth(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdEast(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdWest(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
+    static void CmdBuild(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
+    static void CmdGoto(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
 
-
-private:
+protected:
     std::map<std::string, void(*)(const std::string&, std::shared_ptr<Connection>,
                                   std::shared_ptr<GameData>)> m_cmd_map;
     static void Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,

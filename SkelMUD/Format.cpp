@@ -18,7 +18,7 @@ const std::string Format::CYAN = "\33[36m";
 const std::string Format::WHITE = "\33[37m";
 
 const std::string Format::UP = "\33[1A";
-
+const std::string Format::NL = "\r\n";
 const std::string Format::FRONT_LINE = "\33[G";
 const std::string Format::ERASE = "\33[2K";
 

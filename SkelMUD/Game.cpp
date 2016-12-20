@@ -5,6 +5,7 @@
 #include "Sender.h"
 #include "Format.h"
 #include "States/CreateCharacterState.h"
+#include "States/BuildingState.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -108,4 +109,5 @@ void Game::initStates() {
     state_map[USERNAME] = std::make_shared<LoginState>(data);
     state_map[PLAYING] = std::make_shared<PlayingState>(data);
     state_map[CHARACTERCREATION] = std::make_shared<CreateCharacterState>(data);
+    state_map[BUILDING] = std::make_shared<BuildingState>(data);
 }

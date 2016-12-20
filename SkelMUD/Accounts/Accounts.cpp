@@ -31,20 +31,13 @@ void Accounts::LoadAccounts(std::string filename) {
         std::string username = child_node->GetAttribute("Username");
         std::string password_string = child_node->GetAttribute("Password");
         std::string account_level = child_node->GetAttribute("AccountLevel");
-        auto characters = child_node->GetChild("Characters");
-        std::vector<std::string> char_list;
-        if(characters != nullptr) {
-            auto list = characters->GetAttribute("List");
-            if (list.length() > 0)
-                char_list = Tokenizer::GetAllTokens(list, ';');
-        }
+        auto characters = child_node->GetListAttribute("Characters");
         size_t password = (size_t)atol(password_string.c_str());
         Account account(username, password, std::atoi(account_level.c_str()));
-        for(auto char_string: char_list)
+        for(auto char_string: characters)
         {
             account.AddCharacter(char_string);
         }
-//        AddAccount(username, password, std::atoi(account_level.c_str()));
         AddAccount(account);
     }
 }

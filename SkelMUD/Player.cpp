@@ -2,15 +2,17 @@
 #include "Logger.h"
 
 Player::Player() : Entity() {
-    m_room_id = 0;
+    m_room_id = 1;
     m_planet_id = 0;
+    m_visible = true;
 }
 
 Player::Player(int player_id, std::string player_name) {
-    m_room_id = 0;
+    m_room_id = 1;
     m_planet_id = 0;
     m_player_id = player_id;
     m_name = player_name;
+    m_visible = true;
 }
 
 Player::Player(int player_id, std::string player_name, std::string player_class, std::string player_race) : Entity() {
@@ -18,8 +20,9 @@ Player::Player(int player_id, std::string player_name, std::string player_class,
     m_name = player_name;
     m_class = player_class;
     m_race = player_race;
-    m_room_id = 0;
+    m_room_id = 1;
     m_planet_id = 0;
+    m_visible = true;
 }
 
 int Player::GetID() {
@@ -52,4 +55,12 @@ const std::string &Player::GetPlayerClass() const {
 
 void Player::SetPlayerClass(const std::string &character_class) {
     m_class = character_class;
+}
+
+bool Player::IsVisible() {
+    return m_visible;
+}
+
+void Player::SetVisible(const bool visible) {
+    m_visible = visible;
 }

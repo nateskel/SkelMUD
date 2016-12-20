@@ -18,6 +18,7 @@
 class GameData {
 
 public:
+    static const std::string BASE_PATH;
     static const std::string ACCOUNT_FILE;
     static const std::string RACE_FILE;
     static const std::string CLASS_FILE;

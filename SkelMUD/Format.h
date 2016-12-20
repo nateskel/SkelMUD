@@ -23,7 +23,7 @@ public:
     static const std::string WHITE;
 
     static const std::string UP;
-
+    static const std::string NL;
     static const std::string FRONT_LINE;
     static const std::string ERASE;
 

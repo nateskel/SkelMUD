@@ -8,6 +8,7 @@
 #include "../Sender.h"
 #include "../Format.h"
 #include "../Logger.h"
+#include "../Utils.h"
 
 void PlayingState::processInput(const std::string& input, std::shared_ptr<Connection> connection) {
     std::string input_string = input;
@@ -20,7 +21,9 @@ void PlayingState::processInput(const std::string& input, std::shared_ptr<Connec
 }
 
 void PlayingState::init(std::shared_ptr<Connection> connection) {
-    Sender::Send("Welcome to the chat, " + connection->GetCharacterName() + "\r\n", connection);
+    std::stringstream ss;
+    ss << "Welcome to SkelMUD, " << connection->GetCharacterName() << "!" << Format::NL;
+    Sender::Send(ss.str(), connection);
     connection->SetPrompt(GetPrompt(connection));
     connection->SetLoggedIn(true);
     auto player = game_data->GetPlayer(connection->GetCharacterName());
@@ -30,7 +33,9 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
     player->SetPlanetID(0);
     player->SetRoomID(0);
     CmdLook("", connection, game_data);
-    std::stringstream ss;
+    ss.str(std::string());
+    ss.clear();
+    // std::stringstream ss;
     ss << connection->GetCharacterName() << " has logged in!\r\n";
     Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), connection->GetSocket());
 }
@@ -87,8 +92,13 @@ void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection>
     auto planet = game_data->GetPlanet(player->GetPlanetID());
     auto room = planet->GetRoom(player->GetRoomID());
     std::stringstream ss;
-    ss << "Directions:\r\n" << GetValidDirections(*room) << "\r\n";
-    ss << room->GetShortDescription() << "\r\n" << room->GetLongDescription() << "\r\n";
+    ss << room->GetShortDescription() << Format::NL << room->GetLongDescription() << Format::NL << Format::NL;
+    ss << Format::BOLD <<  Format::CYAN << "Directions:" << Format::NL << GetValidDirections(*room) << Format::NL
+       << Format::RESET;
+    auto other_players = room->GetVisiblePlayerNames(connection->GetID());
+    for(auto other_player: other_players) {
+        ss << Format::BOLD << Format::BLUE << other_player << " is here." << Format::RESET << Format::NL;
+    }
     Sender::Send(ss.str(), connection);
 }
 
@@ -151,19 +161,25 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
             Logger::Error("Unhandled Direction");
     }
     if(success) {
-        std::stringstream departed_ss;
-        std::stringstream arrived_ss;
-        std::string player_name = player->GetPlayerName();
-        departed_ss << player_name << " has left to the " << depart_string << "\r\n";
-        arrived_ss << player_name << " has arrived from the " << arrive_string << "\r\n";
-        Sender::SendToMultiple(departed_ss.str(), game_data->GetAllConnections(),
-                               planet->GetRoom(departed_room)->GetPlayers());
-        Sender::SendToMultiple(arrived_ss.str(), game_data->GetAllConnections(),
-                               planet->GetRoom(player->GetRoomID())->GetPlayers());
+        if(game_data->GetPlayer(connection->GetCharacterName())->IsVisible()) {
+            std::stringstream departed_ss;
+            std::stringstream arrived_ss;
+            std::string player_name = player->GetPlayerName();
+            departed_ss << player_name << " has left to the " << depart_string << "\r\n";
+            arrived_ss << player_name << " has arrived from the " << arrive_string << "\r\n";
+            Sender::SendToMultiple(departed_ss.str(), game_data->GetLoggedInConnections(),
+                                   planet->GetRoom(departed_room)->GetVisiblePlayers());
+            Sender::SendToMultiple(arrived_ss.str(), game_data->GetLoggedInConnections(),
+                                   planet->GetRoom(player->GetRoomID())->GetVisiblePlayers(connection->GetID()));
+        }
         CmdLook("", connection, game_data);
     }
     else
         Sender::Send("Can't go that way!\r\n", connection);
+}
+
+void PlayingState::CmdBuild(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data) {
+    connection->SetState("Building");
 }
 
 std::string PlayingState::GetValidDirections(Room &room) {
@@ -178,4 +194,23 @@ std::string PlayingState::GetValidDirections(Room &room) {
         ss << "west ";
     ss << "\r\n";
     return ss.str();
+}
+
+void PlayingState::CmdGoto(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    std::string input_string = std::string(input);
+    std::string room_number_string = Tokenizer::GetFirstToken(input_string);
+    int newroom = 0;
+    if(Utils::IsNumber(room_number_string)) {
+        newroom = std::atoi(room_number_string.c_str());
+    }
+
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    if(planet->ChangeRoom(player->GetRoomID(), newroom, player->GetID())) {
+        CmdLook("", connection, game_data);
+    }
+    else {
+        Sender::Send("Room does not exist!\r\n", connection);
+    }
 }

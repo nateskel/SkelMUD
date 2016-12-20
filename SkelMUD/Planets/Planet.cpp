@@ -1,7 +1,10 @@
 #include "Planet.h"
 
-void Planet::AddRoom(std::shared_ptr<Room> room) {
+unsigned long Planet::AddRoom(std::shared_ptr<Room> room) {
     m_rooms.push_back(room);
+    u_long room_id = m_rooms.size() - 1;
+    room->SetID((int)room_id);
+    return room_id;
 }
 
 std::shared_ptr<Room> Planet::GetRoom(int id) {
@@ -100,29 +103,35 @@ bool Planet::MoveDown(int room_id, int player_id) {
     return true;
 }
 
-void Planet::ChangeRoom(int old_room, int new_room, int player_id) {
+bool Planet::ChangeRoom(int old_room, int new_room, int player_id) {
+    if(new_room > m_rooms.size())
+        return false;
     std::shared_ptr<Player> player = m_rooms[old_room]->GetPlayer(player_id);
     player->SetRoomID(new_room);
     m_rooms[old_room]->RemovePlayer(player_id);
     m_rooms[new_room]->AddPlayer(player);
+    return true;
 }
 
 Room::Room() {
-
+    m_id = 0;
+    m_long_description = "Basic Room <Long>";
+    m_short_description = "Basic Room <Short>";
+    m_north = -1;
+    m_south = -1;
+    m_east = -1;
+    m_west = -1;
+    m_northeast = -1;
+    m_northwest = -1;
+    m_southeast = -1;
+    m_southwest = -1;
+    m_up = -1;
+    m_down = -1;
 }
 
-Room::Room(std::string long_desc,
-           std::string short_desc,
-           int n,
-           int s,
-           int e,
-           int w,
-           int ne,
-           int nw,
-           int se,
-           int sw,
-           int u,
-           int d) {
+Room::Room(std::string long_desc, std::string short_desc, int n, int s, int e, int w, int ne, int nw, int se,
+           int sw, int u, int d) {
+    m_id = 0;
     m_long_description = long_desc;
     m_short_description = short_desc;
     m_north = n;
@@ -153,6 +162,24 @@ void Room::RemovePlayer(int id) {
     m_player_map.erase(id);
 }
 
+std::vector<int> Room::GetVisiblePlayers() {
+    std::vector<int> output;
+    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
+        if(it->second->IsVisible())
+            output.push_back(it->first);
+    }
+    return output;
+}
+
+std::vector<int> Room::GetVisiblePlayers(int exclude) {
+    std::vector<int> output;
+    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
+        if (it->first != exclude and it->second->IsVisible())
+            output.push_back(it->first);
+    }
+    return output;
+}
+
 std::vector<int> Room::GetPlayers() {
     std::vector<int> output;
     for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
@@ -161,11 +188,29 @@ std::vector<int> Room::GetPlayers() {
     return output;
 }
 
-std::vector<int> Room::GetPlayerIDs(int exclude) {
+std::vector<int> Room::GetPlayers(int exclude) {
     std::vector<int> output;
     for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
         if (it->first != exclude)
             output.push_back(it->first);
+    }
+    return output;
+}
+
+std::vector<std::string> Room::GetVisiblePlayerNames(int exclude) {
+    std::vector<std::string> output;
+    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
+        if (it->first != exclude and it->second->IsVisible())
+            output.push_back(it->second->GetPlayerName());
+    }
+    return output;
+}
+
+std::vector<std::string> Room::GetPlayerNames(int exclude) {
+    std::vector<std::string> output;
+    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
+        if (it->first != exclude)
+            output.push_back(it->second->GetPlayerName());
     }
     return output;
 }
@@ -217,3 +262,65 @@ int Room::GetUp() {
 int Room::GetDown() {
     return m_down;
 }
+
+
+void Room::SetNorth(int north) {
+    m_north = north;
+}
+
+void Room::SetSouth(int south) {
+    m_south = south;
+}
+
+void Room::SetEast(int east) {
+    m_east = east;
+}
+
+void Room::SetWest(int west) {
+    m_west = west;
+}
+
+void Room::SetNortheast(int ne) {
+    m_northeast = ne;
+}
+
+void Room::SetNorthwest(int nw) {
+    m_northwest = nw;
+}
+
+void Room::SetSoutheast(int se) {
+    m_southeast = se;
+}
+
+void Room::SetSouthwest(int sw) {
+    m_southwest = sw;
+}
+
+void Room::SetUp(int up) {
+    m_up = up;
+}
+
+void Room::SetDown(int down) {
+    m_down = down;
+}
+
+
+int Room::GetID() {
+    return m_id;
+}
+
+void Room::SetID(int id) {
+    m_id = id;
+}
+
+
+void Room::SetLongDesc(std::string long_desc) {
+    m_long_description = long_desc;
+}
+
+void Room::SetShortDesc(std::string short_desc) {
+    m_short_description = short_desc;
+}
+
+
+

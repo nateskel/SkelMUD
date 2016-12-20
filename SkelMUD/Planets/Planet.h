@@ -19,7 +19,7 @@ public:
     };
     ~Planet() { };
 
-    void AddRoom(std::shared_ptr<Room> room);
+    unsigned long AddRoom(std::shared_ptr<Room> room);
 
     std::shared_ptr<Room> GetRoom(int id);
 
@@ -45,6 +45,8 @@ public:
 
     void SetName(std::string name);
 
+    bool ChangeRoom(int old_room, int new_room, int player_id);
+
     std::string GetName();
 
     int GetID();
@@ -61,26 +63,14 @@ private:
     std::string m_planet_name;
     int m_planet_id;
     std::vector<std::shared_ptr<Room>> m_rooms;
-
-    void ChangeRoom(int old_room, int new_room, int player_id);
 };
 
 class Room {
 public:
     Room();
 
-    Room(std::string long_desc,
-         std::string short_desc,
-         int n,
-         int s,
-         int e,
-         int w,
-         int ne,
-         int nw,
-         int se,
-         int sw,
-         int u,
-         int d);
+    Room(std::string long_desc, std::string short_desc, int n, int s, int e, int w, int ne, int nw, int se,
+             int sw, int u, int d);
 
     ~Room();
 
@@ -90,9 +80,17 @@ public:
 
     std::shared_ptr<Player> GetPlayer(int id);
 
+    std::vector<int> GetVisiblePlayers();
+
+    std::vector<int> GetVisiblePlayers(int exclude);
+
     std::vector<int> GetPlayers();
 
-    std::vector<int> GetPlayerIDs(int exclude);
+    std::vector<int> GetPlayers(int exclude);
+
+    std::vector<std::string> GetVisiblePlayerNames(int exclude);
+
+    std::vector<std::string> GetPlayerNames(int exclude);
 
     std::string GetLongDescription();
 
@@ -117,6 +115,34 @@ public:
     int GetUp();
 
     int GetDown();
+
+    int GetID();
+
+    void SetNorth(int north);
+
+    void SetSouth(int south);
+
+    void SetEast(int east);
+
+    void SetWest(int west);
+
+    void SetNortheast(int ne);
+
+    void SetNorthwest(int nw);
+
+    void SetSoutheast(int se);
+
+    void SetSouthwest(int sw);
+
+    void SetUp(int up);
+
+    void SetDown(int down);
+
+    void SetID(int id);
+
+    void SetLongDesc(std::string long_desc);
+
+    void SetShortDesc(std::string short_desc);
 
 protected:
 private:

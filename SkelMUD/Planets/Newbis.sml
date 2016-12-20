@@ -1,6 +1,6 @@
 [Newbis]
 [0]
-[ShortDescription]Start Room[/Short Description]
+[ShortDescription]Start Room[/ShortDescription]
 [LongDescription]This is the starting area[/LongDescription]
 [North]1[/North]
 [/0]

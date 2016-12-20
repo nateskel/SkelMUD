@@ -26,6 +26,7 @@ public:
     const std::string USERNAME = "Username";
     const std::string PLAYING = "Playing";
     const std::string CHARACTERCREATION = "CharacterCreation";
+    const std::string BUILDING = "Building";
 
 private:
     std::shared_ptr<GameData> data;
