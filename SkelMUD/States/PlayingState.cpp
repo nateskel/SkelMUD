@@ -14,10 +14,12 @@ void PlayingState::processInput(const std::string& input, std::shared_ptr<Connec
     std::string input_string = input;
     std::string command = Tokenizer::GetFirstToken(input_string);
     command = Tokenizer::LowerCase(command);
-    if(m_cmd_map.find(command) != m_cmd_map.end())
-        m_cmd_map[command](input_string, connection, game_data);
     if(input == "quit")
         connection->Close();
+    if(m_cmd_map.find(command) != m_cmd_map.end())
+        m_cmd_map[command](input_string, connection, game_data);
+    else
+        Sender::Send("Unrecognized command!\r\n", connection);
 }
 
 void PlayingState::init(std::shared_ptr<Connection> connection) {
@@ -178,7 +180,10 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
 }
 
 void PlayingState::CmdBuild(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data) {
-    connection->SetState("Building");
+    if(connection->GetAccount().GetAccountLevel() > Account::NORMAL)
+        connection->SetState("Building");
+    else
+        Sender::Send("Not Authorized to enter build mode\r\n", connection);
 }
 
 std::string PlayingState::GetValidDirections(Room &room) {
