@@ -35,7 +35,6 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
     CmdLook("", connection, game_data);
     ss.str(std::string());
     ss.clear();
-    // std::stringstream ss;
     ss << connection->GetCharacterName() << " has logged in!\r\n";
     Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), connection->GetSocket());
 }

@@ -28,6 +28,15 @@ void BuildingState::CmdBuildRoom(const std::string &input, std::shared_ptr<Conne
     auto planet = game_data->GetPlanet(player->GetPlanetID());
     std::shared_ptr<Room> room = std::make_shared<Room>();
     u_long room_num = planet->AddRoom(room);
+    if(input.length() > 0)
+    {
+        std::string input_string = std::string(input);
+        std::stringstream ss;
+        ss << Tokenizer::GetFirstToken(input_string) << " ";
+        ss << room_num << " ";
+        ss << input_string;
+        CmdLink(ss.str(), connection, game_data);
+    }
     CmdGoto(std::to_string(room_num), connection, game_data);
 }
 
