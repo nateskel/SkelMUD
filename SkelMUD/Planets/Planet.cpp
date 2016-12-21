@@ -7,8 +7,17 @@ unsigned long Planet::AddRoom(std::shared_ptr<Room> room) {
     return room_id;
 }
 
+void Planet::DeleteRoom(int room_id) {
+    if(room_id <= m_rooms.size()) {
+        m_rooms.erase(m_rooms.begin() + room_id);
+    }
+}
+
 std::shared_ptr<Room> Planet::GetRoom(int id) {
-    return m_rooms[id];
+    if(id <= m_rooms.size())
+        return m_rooms[id];
+    else
+        return nullptr;
 }
 
 void Planet::SetName(std::string name) {

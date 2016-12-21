@@ -21,6 +21,8 @@ public:
 
     unsigned long AddRoom(std::shared_ptr<Room> room);
 
+    void DeleteRoom(int room_id);
+
     std::shared_ptr<Room> GetRoom(int id);
 
     bool MoveNorth(int room_id, int player_id);

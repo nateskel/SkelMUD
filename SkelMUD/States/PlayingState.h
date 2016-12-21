@@ -30,6 +30,7 @@ public:
         m_cmd_map["west"] = &CmdWest;
         m_cmd_map["w"] = &CmdWest;
         m_cmd_map["build"] = &CmdBuild;
+        m_cmd_map["goto"] = &CmdGoto;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
