@@ -8,6 +8,7 @@
 #include "../GameData.h"
 #include "../Utils.h"
 #include "../Tokenizer.h"
+#include <algorithm>
 
 void Planets::LoadPlanets(std::string filename) {
     std::shared_ptr<Node> planet_node = SkexmlParser::Parse(filename);
@@ -38,7 +39,12 @@ std::shared_ptr<Planet> Planets::BuildPlanet(std::string filename, int id, int x
         int east = -1;
         int west = -1;
         auto room_node = child.second;
-        std::string long_desc = room_node->GetAttribute("LongDescription");
+        auto long_desc_list = room_node->GetListAttribute("LongDescription");
+        std::stringstream ss;
+        for(auto item: long_desc_list) {
+            ss << item << "\r\n";
+        }
+        std::string long_desc = ss.str();
         std::string short_desc = room_node->GetAttribute("ShortDescription");
         std::string north_string = room_node->GetAttribute("North");
         std::string south_string = room_node->GetAttribute("South");
@@ -88,7 +94,8 @@ void Planets::SavePlanet(Planet planet) {
     for(auto room: planet.GetRooms()) {
         std::shared_ptr<Node> room_node = std::make_shared<Node>(std::to_string(room->GetID()));
         room_node->AddAttribute("ShortDescription", room->GetShortDescription());
-        room_node->AddAttribute("LongDescription", room->GetLongDescription());
+        auto long_desc = Tokenizer::GetAllTokens(room->GetLongDescription(), '\n');
+        room_node->AddList("LongDescription", long_desc);
         AddDirectionAttribute("North", room->GetNorth(), room_node);
         AddDirectionAttribute("South", room->GetSouth(), room_node);
         AddDirectionAttribute("East", room->GetEast(), room_node);

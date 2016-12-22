@@ -12,6 +12,7 @@ const std::string GameData::CLASS_FILE = BASE_PATH + "Classes/Classes.sml";
 const std::string GameData::CHARACTER_FILE = BASE_PATH + "Characters/Characters.sml";
 const std::string GameData::PLANET_PATH = BASE_PATH + "Planets/";
 const std::string GameData::PLANET_FILE = PLANET_PATH + "Planets.sml";
+const std::string GameData::CONFIG_FILE = BASE_PATH + "Config/config.sml";
 
 
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {
@@ -47,6 +48,7 @@ GameData::GameData() {
     m_classes.LoadClasses(CLASS_FILE);
     m_characters.LoadCharacters(CHARACTER_FILE);
     m_planets.LoadPlanets(PLANET_FILE);
+    m_configuration.LoadConfig(CONFIG_FILE);
     Logger::Debug("Resources Loaded");
 }
 
@@ -111,4 +113,8 @@ Planets& GameData::GetPlanets() {
 
 void GameData::SavePlanet(int id) {
     m_planets.SavePlanet(id);
+}
+
+Configuration& GameData::GetConfiguration() {
+    return m_configuration;
 }

@@ -10,7 +10,7 @@ Blaaarg
 [/Characters]
 [/Nate]
 [xako]
-[AccountLevel]2[/AccountLevel]
+[AccountLevel]4[/AccountLevel]
 [Password]9001837111234845553[/Password]
 [Username]xako[/Username]
 [Characters]

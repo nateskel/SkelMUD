@@ -14,6 +14,7 @@
 #include "Classes/CharacterClasses.h"
 #include "Characters/Characters.h"
 #include "Planets/Planets.h"
+#include "Config/Configuration.h"
 
 class GameData {
 
@@ -25,6 +26,7 @@ public:
     static const std::string CHARACTER_FILE;
     static const std::string PLANET_PATH;
     static const std::string PLANET_FILE;
+    static const std::string CONFIG_FILE;
 
     GameData();
     void AddConnection(std::shared_ptr<Connection> connection);
@@ -46,6 +48,7 @@ public:
     std::shared_ptr<Planet> GetPlanet(int ID);
     std::shared_ptr<Planet> GetPlanet(std::string name);
     Planets& GetPlanets();
+    Configuration& GetConfiguration();
 
 private:
     std::map<int, std::shared_ptr<Connection>> m_connections;
@@ -54,6 +57,7 @@ private:
     CharacterClasses m_classes;
     Characters m_characters;
     Planets m_planets;
+    Configuration m_configuration;
 };
 
 

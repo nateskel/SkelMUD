@@ -19,9 +19,8 @@
 
 Game::Game() {
     isRunning = true;
-    port = 4321;
     Logger::Debug("Setting up GameData");
-    data = std::make_shared<GameData>();
+    m_game_data = std::make_shared<GameData>();
     connection_id = 0;
     Logger::Debug("Initializing States");
     initStates();
@@ -38,14 +37,14 @@ void Game::Start() {
     listener.detach();
     std::list<int> disconnected;
     while(isRunning) {
-        std::map<int, std::shared_ptr<Connection>> connection_map = data->GetAllConnections();
+        std::map<int, std::shared_ptr<Connection>> connection_map = m_game_data->GetAllConnections();
         for(auto connection_map_entry : connection_map)
         {
             std::lock_guard<std::mutex> lock(Game::game_mutex);
             std::shared_ptr<Connection> connection = connection_map_entry.second;
             if(!connection->IsConnected())
             {
-                data->EraseConnection(connection->GetID());
+                m_game_data->EraseConnection(connection->GetID());
                 std::stringstream ss;
                 ss << connection->GetIP() << " has disconnected (connection dropped)";
                 Logger::Info(ss.str());
@@ -81,7 +80,7 @@ void Game::Start() {
 }
 
 void Game::listenerThread() {
-    ServerSocket socket(port);
+    ServerSocket socket(m_game_data->GetConfiguration().GetPort());
     socket.Listen();
     while(isRunning) {
         DataSocket dataSocket = socket.Accept();
@@ -95,14 +94,14 @@ void Game::listenerThread() {
         // TODO: eventually connection_id could increment beyond the size of int
         connection->SetID(connection->GetSocket());
         ++connection_id;
-        data->AddConnection(connection);
+        m_game_data->AddConnection(connection);
         connection->Run();
     }
 }
 
 void Game::initStates() {
-    state_map[USERNAME] = std::make_shared<LoginState>(data);
-    state_map[PLAYING] = std::make_shared<PlayingState>(data);
-    state_map[CHARACTERCREATION] = std::make_shared<CreateCharacterState>(data);
-    state_map[BUILDING] = std::make_shared<BuildingState>(data);
+    state_map[USERNAME] = std::make_shared<LoginState>(m_game_data);
+    state_map[PLAYING] = std::make_shared<PlayingState>(m_game_data);
+    state_map[CHARACTERCREATION] = std::make_shared<CreateCharacterState>(m_game_data);
+    state_map[BUILDING] = std::make_shared<BuildingState>(m_game_data);
 }

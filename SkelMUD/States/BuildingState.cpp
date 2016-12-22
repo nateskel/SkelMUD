@@ -7,12 +7,13 @@
 #include "../Format.h"
 #include "../Sender.h"
 #include "../Tokenizer.h"
+#include <algorithm>
 
 void BuildingState::init(std::shared_ptr<Connection> connection) {
     Sender::Send("Build Mode\r\n", connection);
     connection->SetPrompt(GetPrompt(connection));
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    player->SetVisible(false);
+//    auto player = game_data->GetPlayer(connection->GetCharacterName());
+//    player->SetVisible(false);
     CmdLook("", connection, game_data);
 }
 
@@ -46,13 +47,24 @@ void BuildingState::CmdDeleteRoom(const std::string &input, std::shared_ptr<Conn
     auto planet = game_data->GetPlanet(player->GetPlanetID());
     auto room = planet->GetRoom(player->GetRoomID());
     auto rooms = planet->GetRooms();
-    int room_id = -1;
+    int room_id;
     int room_delete_id = room->GetID();
+
+    // not allowed to delete room 0
+    if(room_delete_id == 0) {
+        Sender::Send("Cannot delete room 0!\n", connection);
+        return;
+    }
     CmdUnlink("north both", connection, game_data);
     CmdUnlink("south both", connection, game_data);
     CmdUnlink("east both", connection, game_data);
     CmdUnlink("west both", connection, game_data);
     for(auto room_to_update: rooms) {
+        int room_update_id = room_to_update->GetID();
+        if(room_update_id > room_delete_id)
+        {
+            room_to_update->SetID(room_update_id - 1);
+        }
         room_id = room_to_update->GetNorth();
         if(room_id > room_delete_id) {
            room_to_update->SetNorth(room_id - 1);
@@ -70,8 +82,10 @@ void BuildingState::CmdDeleteRoom(const std::string &input, std::shared_ptr<Conn
             room_to_update->SetWest(room_id - 1);
         }
     }
+    for(auto logged_in_conn: game_data->GetLoggedInConnections()) {
+        CmdGoto("0", logged_in_conn.second, game_data);
+    }
     planet->DeleteRoom(room_delete_id);
-    CmdGoto("0", connection, game_data);
 }
 
 void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection> connection,
@@ -85,6 +99,11 @@ void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection
     std::string destination_id_string = Tokenizer::GetFirstToken(input_string);
     std::string both_string = Tokenizer::GetFirstToken(input_string);
     int destination_id = std::atoi(destination_id_string.c_str());
+
+    // don't process if destination doesn't exist
+    if(destination_id >= planet->GetRooms().size())
+        return;
+
     auto destination_room = planet->GetRoom(destination_id);
     Direction direction = BuildingState::m_direction_map[direction_string];
     switch (direction) {
@@ -119,7 +138,7 @@ void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connecti
     auto player = game_data->GetPlayer(connection->GetCharacterName());
     auto planet = game_data->GetPlanet(player->GetPlanetID());
     auto room = planet->GetRoom(player->GetRoomID());
-    int room_id = -1;
+    int room_id;
     std::string input_string = std::string(input);
     std::string direction_string = Tokenizer::GetFirstToken(input_string);
     direction_string = Tokenizer::LowerCase(direction_string);
@@ -159,7 +178,7 @@ void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connecti
             room->SetWest(-1);
             break;
         default:
-            Sender::Send("Unable to unlink room\r\n", connection);
+            Sender::Send("Unable to unlink room\n", connection);
             break;
     }
 }
@@ -177,7 +196,9 @@ void BuildingState::CmdSetLongDesc(const std::string &input, std::shared_ptr<Con
     auto player = game_data->GetPlayer(connection->GetCharacterName());
     auto planet = game_data->GetPlanet(player->GetPlanetID());
     auto room = planet->GetRoom(player->GetRoomID());
-    room->SetLongDesc(input);
+    std::string input_string(input);
+    std::replace(input_string.begin(), input_string.end(), ';', '\n');
+    room->SetLongDesc(input_string);
 }
 
 void BuildingState::CmdSetShortDesc(const std::string &input, std::shared_ptr<Connection> connection,

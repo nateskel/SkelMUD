@@ -49,6 +49,7 @@ std::vector<std::string> Tokenizer::GetAllTokens(std::string data, char delimite
 
 std::vector<std::string> Tokenizer::GetAllTokens(std::string data, char delimiter, std::vector<std::string> &output) {
     std::string result = GetFirstToken(data, delimiter, true);
+    Utils::RemoveEndline(result);
     if (result != "")
         output.push_back(result);
     if (data != "")
