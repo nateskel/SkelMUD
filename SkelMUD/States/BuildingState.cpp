@@ -120,7 +120,6 @@ void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connecti
     auto planet = game_data->GetPlanet(player->GetPlanetID());
     auto room = planet->GetRoom(player->GetRoomID());
     int room_id = -1;
-    std::shared_ptr<Room> destination_room;
     std::string input_string = std::string(input);
     std::string direction_string = Tokenizer::GetFirstToken(input_string);
     direction_string = Tokenizer::LowerCase(direction_string);

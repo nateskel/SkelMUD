@@ -1,4 +1,6 @@
+#include <sstream>
 #include "Planet.h"
+#include "../Logger.h"
 
 unsigned long Planet::AddRoom(std::shared_ptr<Room> room) {
     m_rooms.push_back(room);
@@ -8,8 +10,10 @@ unsigned long Planet::AddRoom(std::shared_ptr<Room> room) {
 }
 
 void Planet::DeleteRoom(int room_id) {
+    Logger::Debug(std::to_string(m_rooms.size()));
     if(room_id <= m_rooms.size()) {
         m_rooms.erase(m_rooms.begin() + room_id);
+        Logger::Debug(std::to_string(m_rooms.size()));
     }
 }
 
@@ -113,7 +117,7 @@ bool Planet::MoveDown(int room_id, int player_id) {
 }
 
 bool Planet::ChangeRoom(int old_room, int new_room, int player_id) {
-    if(new_room > m_rooms.size())
+    if(new_room >= m_rooms.size())
         return false;
     std::shared_ptr<Player> player = m_rooms[old_room]->GetPlayer(player_id);
     player->SetRoomID(new_room);
