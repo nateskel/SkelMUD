@@ -102,6 +102,12 @@ void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection>
     for(auto other_player: other_players) {
         ss << Format::BOLD << Format::BLUE << other_player << " is here." << Format::RESET << Format::NL;
     }
+    if(room->IsLandable()) {
+        ss << "Ships:" << Format::NL;
+        for (auto ship_id: room->GetShipIDs()) {
+            ss << game_data->GetShip(ship_id)->GetShipName() << Format::NL;
+        }
+    }
     Sender::Send(ss.str(), connection);
 }
 
@@ -198,7 +204,7 @@ std::string PlayingState::GetValidDirections(Room &room) {
         ss << "east ";
     if(room.GetWest() != -1)
         ss << "west ";
-    ss << "\r\n";
+    ss << "\n";
     return ss.str();
 }
 

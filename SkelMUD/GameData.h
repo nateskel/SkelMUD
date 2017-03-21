@@ -15,6 +15,7 @@
 #include "Characters/Characters.h"
 #include "Planets/Planets.h"
 #include "Config/Configuration.h"
+#include "Ships/Ships.h"
 
 class GameData {
 
@@ -26,6 +27,8 @@ public:
     static const std::string CHARACTER_FILE;
     static const std::string PLANET_PATH;
     static const std::string PLANET_FILE;
+    static const std::string SHIP_PATH;
+    static const std::string SHIP_FILE;
     static const std::string CONFIG_FILE;
 
     GameData();
@@ -43,11 +46,15 @@ public:
     void SaveAccounts(std::string filename);
     void SaveCharacters(std::string filename);
     void SavePlanet(int id);
+    void SaveShip(int id);
     std::map<int, std::shared_ptr<Connection>> GetLoggedInConnections();
     std::shared_ptr<Connection> GetConnection(std::string character_name);
     std::shared_ptr<Planet> GetPlanet(int ID);
+    std::shared_ptr<Ship> GetShip(int ID);
     std::shared_ptr<Planet> GetPlanet(std::string name);
     Planets& GetPlanets();
+    Ships& GetShips();
+    std::vector<std::string> GetShipNames();
     Configuration& GetConfiguration();
 
 private:
@@ -57,6 +64,7 @@ private:
     CharacterClasses m_classes;
     Characters m_characters;
     Planets m_planets;
+    Ships m_ships;
     Configuration m_configuration;
 };
 

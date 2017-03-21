@@ -1,4 +1,12 @@
 [Accounts]
+[Bob]
+[AccountLevel]2[/AccountLevel]
+[Password]5150675580572863158[/Password]
+[Username]Bob[/Username]
+[Characters]
+Blugga
+[/Characters]
+[/Bob]
 [Nate]
 [AccountLevel]4[/AccountLevel]
 [Password]6072375419398818283[/Password]

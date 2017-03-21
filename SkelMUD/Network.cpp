@@ -63,8 +63,6 @@ DataSocket ServerSocket::Accept() {
     memset(&buff, 0, sizeof(buff));
     DataSocket dataSocket(data_socket);
     dataSocket.SetIP(inet_ntop(AF_INET, &socket_address.sin_addr, buff, INET_ADDRSTRLEN));
-    // std::shared_ptr<DataSocket> dataSocket (new DataSocket(data_socket));
-    // std::shared_ptr<DataSocket> dataSocket = std::make_shared<DataSocket>(data_socket);
     return dataSocket;
 }
 

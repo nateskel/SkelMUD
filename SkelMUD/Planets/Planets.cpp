@@ -19,10 +19,12 @@ void Planets::LoadPlanets(std::string filename) {
         std::string planet_id = child.second->GetAttribute("ID");
         std::string coords = child.second->GetAttribute("Coordinates");
         auto coords_list = Tokenizer::GetAllTokens(coords, ',');
-        // TODO: validation (fix this mess in general)
         int id = atoi(planet_id.c_str());
-        std::shared_ptr<Planet> planet = BuildPlanet(GameData::PLANET_PATH + planet_name + ".sml", atoi(coords_list[0].c_str()),
-                                    id, atoi(coords_list[1].c_str()), atoi(coords_list[2].c_str()));
+        std::shared_ptr<Planet> planet = BuildPlanet(GameData::PLANET_PATH + planet_name + ".sml", id,
+                                                     atoi(coords_list[0].c_str()),
+                                                     atoi(coords_list[1].c_str()),
+                                                     atoi(coords_list[2].c_str()));
+
         AddPlanet(planet);
     }
 }
@@ -31,37 +33,7 @@ std::shared_ptr<Planet> Planets::BuildPlanet(std::string filename, int id, int x
     std::shared_ptr<Node> planet_node = SkexmlParser::Parse(filename);
     std::string planet_name = planet_node->GetName();
     std::shared_ptr<Planet> planet = std::make_shared<Planet>(planet_name, id, x, y, z);
-    auto children = planet_node->GetChildren();
-    for(auto child: children)
-    {
-        int north = -1;
-        int south = -1;
-        int east = -1;
-        int west = -1;
-        auto room_node = child.second;
-        auto long_desc_list = room_node->GetListAttribute("LongDescription");
-        std::stringstream ss;
-        for(auto item: long_desc_list) {
-            ss << item << "\r\n";
-        }
-        std::string long_desc = ss.str();
-        std::string short_desc = room_node->GetAttribute("ShortDescription");
-        std::string north_string = room_node->GetAttribute("North");
-        std::string south_string = room_node->GetAttribute("South");
-        std::string east_string = room_node->GetAttribute("East");
-        std::string west_string = room_node->GetAttribute("West");
-        if(Utils::IsNumber(north_string))
-            north = atoi(north_string.c_str());
-        if(Utils::IsNumber(south_string))
-            south = atoi(south_string.c_str());
-        if(Utils::IsNumber(east_string))
-            east = atoi(east_string.c_str());
-        if(Utils::IsNumber(west_string))
-            west = atoi(west_string.c_str());
-        std::shared_ptr<Room> room = std::make_shared<Room>(long_desc, short_desc, north, south, east, west, -1, -1, -1,
-                                                            -1, -1, -1);
-        planet->AddRoom(room);
-    }
+    AreaManager::BuildArea(planet_node, planet);
     return planet;
 }
 
@@ -91,23 +63,6 @@ void Planets::SavePlanet(int planet_id) {
 void Planets::SavePlanet(Planet planet) {
     std::string filename = GameData::PLANET_PATH + planet.GetName() + ".sml";
     std::shared_ptr<Node> planet_node = std::make_shared<Node>(planet.GetName());
-    for(auto room: planet.GetRooms()) {
-        std::shared_ptr<Node> room_node = std::make_shared<Node>(std::to_string(room->GetID()));
-        room_node->AddAttribute("ShortDescription", room->GetShortDescription());
-        auto long_desc = Tokenizer::GetAllTokens(room->GetLongDescription(), '\n');
-        room_node->AddList("LongDescription", long_desc);
-        AddDirectionAttribute("North", room->GetNorth(), room_node);
-        AddDirectionAttribute("South", room->GetSouth(), room_node);
-        AddDirectionAttribute("East", room->GetEast(), room_node);
-        AddDirectionAttribute("West", room->GetWest(), room_node);
-        planet_node->AddChild(room_node);
-    }
+    AreaManager::BuildRoomNodes(planet, planet_node);
     SkexmlParser::BuildSkeXML(filename, planet_node);
-}
-
-void Planets::AddDirectionAttribute(std::string direction, int room_id_dest, std::shared_ptr<Node> room_node) {
-    if(room_id_dest != -1)
-    {
-        room_node->AddAttribute(direction, std::to_string(room_id_dest));
-    }
 }

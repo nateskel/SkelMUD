@@ -1,0 +1,7 @@
+[Ships]
+[TestShip1]
+[ID]0[/ID]
+[Health]100[/Health]
+[Shield]100[/Shield]
+[/TestShip1]
+[/Ships]
