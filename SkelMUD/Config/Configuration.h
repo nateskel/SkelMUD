@@ -11,6 +11,7 @@
 class Configuration {
 private:
     int m_port;
+    std::string m_data_directory;
 public:
     void LoadConfig(std::string filename);
     void LoadConfig();
