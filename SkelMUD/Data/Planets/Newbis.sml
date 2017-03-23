@@ -3,6 +3,7 @@
 [Landing]1[/Landing]
 [Ships]
 0
+1
 [/Ships]
 [North]1[/North]
 [ShortDescription]Start Room[/ShortDescription]

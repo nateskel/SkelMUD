@@ -3,7 +3,6 @@
 //
 
 #include "Ship.h"
-#include "../Areas/Area.h"
 
 
 std::string Ship::GetShipName() {

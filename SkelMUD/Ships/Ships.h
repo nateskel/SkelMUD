@@ -13,7 +13,7 @@ private:
     std::map<int, std::shared_ptr<Ship>> m_ship_map;
 public:
     void LoadShips(std::string filename);
-    std::shared_ptr<Ship> BuildShip(std::string filename, int id, int health, int shields);
+    std::shared_ptr<Ship> BuildShip(std::string filename, int id, std::string ship_name, int health, int shields);
     void AddShip(std::shared_ptr<Ship> ship);
     std::map<int, std::shared_ptr<Ship>> GetShips();
     std::map<int, std::shared_ptr<Ship>> EnumerateShips();
