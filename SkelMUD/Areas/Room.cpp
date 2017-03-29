@@ -47,21 +47,31 @@ Room::~Room() {
 
 }
 
-void Room::AddShip(int ship_id) {
-    m_ships.push_back(ship_id);
+void Room::AddShipID(int ship_id) {
+    m_ship_ids.push_back(ship_id);
 }
 
-int Room::GetShip(int id) {
-    return m_ships[id];
+
+void Room::PopulateShips(Ships &ships) {
+    auto all_ships = ships.GetShips();
+    for(auto ship_id: m_ship_ids) {
+        m_ships[ship_id] = all_ships[ship_id];
+    }
 }
 
 
 std::vector<int> Room::GetShipIDs() {
+    return m_ship_ids;
+}
+
+
+std::map<int, std::shared_ptr<Ship>> Room::GetShips() {
     return m_ships;
 }
 
-void Room::AddShips(std::vector<int> ship_ids) {
-    m_ships.insert(m_ships.end(), ship_ids.begin(), ship_ids.end());
+
+void Room::AddShipIDs(std::vector<int> ship_ids) {
+    m_ship_ids.insert(m_ship_ids.end(), ship_ids.begin(), ship_ids.end());
 }
 
 

@@ -19,13 +19,21 @@ public:
     Ship(std::string name, int id, int health, int shields) : Area(name, id) {
         m_max_health = health;
         m_max_shields = shields;
+        m_hatch = false;
     };
 
     std::string GetShipName();
 
+    void OpenHatch();
+
+    void CloseHatch();
+
+    bool IsHatchOpen();
+
 private:
     int m_max_health;
     int m_max_shields;
+    bool m_hatch;
     std::vector<int> cockpits;
     std::map<int, Turret> turrets;
 };

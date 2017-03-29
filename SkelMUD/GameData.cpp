@@ -5,7 +5,7 @@
 #include "GameData.h"
 #include "Logger.h"
 
-const std::string GameData::BASE_PATH = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Data/";
+const std::string GameData::BASE_PATH = "/home/nate/SkelMUD/SkelMUD/Data/";
 const std::string GameData::ACCOUNT_FILE = BASE_PATH + "Accounts.sml";
 const std::string GameData::RACE_FILE = BASE_PATH + "Races.sml";
 const std::string GameData::CLASS_FILE = BASE_PATH + "Classes.sml";
@@ -59,6 +59,7 @@ GameData::GameData() {
     m_ships.LoadShips(SHIP_FILE);
     Logger::Debug("Ships Loaded");
     m_configuration.LoadConfig(CONFIG_FILE);
+    m_planets.PopulateShips(m_ships);
     Logger::Debug("Resources Loaded");
 }
 

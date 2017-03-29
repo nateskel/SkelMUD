@@ -8,3 +8,17 @@
 std::string Ship::GetShipName() {
     return m_area_name;
 }
+
+
+void Ship::OpenHatch() {
+    m_hatch = true;
+}
+
+void Ship::CloseHatch() {
+    m_hatch = false;
+}
+
+bool Ship::IsHatchOpen() {
+    return m_hatch;
+}
+

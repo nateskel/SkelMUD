@@ -53,6 +53,8 @@ public:
 
     int GetID();
 
+    void PopulateShips(Ships &ships);
+
 protected:
     std::string m_area_name;
     int m_area_id;

@@ -104,8 +104,8 @@ void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection>
     }
     if(room->IsLandable()) {
         ss << "Ships:" << Format::NL;
-        for (auto ship_id: room->GetShipIDs()) {
-            ss << game_data->GetShip(ship_id)->GetShipName() << Format::NL;
+        for (auto ship: room->GetShips()) {
+            ss << ship.second->GetShipName() << Format::NL;
         }
     }
     Sender::Send(ss.str(), connection);
@@ -224,5 +224,60 @@ void PlayingState::CmdGoto(const std::string &input, std::shared_ptr<Connection>
     }
     else {
         Sender::Send("Room does not exist!\n", connection);
+    }
+}
+
+
+void PlayingState::CmdOpen(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    std::string data = input;
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    int room_id = player->GetRoomID();
+    auto room = planet->GetRoom(room_id);
+    bool found = false;
+    std::string ship_name = Tokenizer::GetFirstToken(data);
+    for(auto ship: room->GetShips()) {
+        if(ship.second->GetShipName() == ship_name) {
+            found = true;
+            if(!ship.second->IsHatchOpen()) {
+                Sender::Send("Opened hatch\n", connection);
+                ship.second->OpenHatch();
+            }
+            else {
+                Sender::Send("Hatch is already open\n", connection);
+            }
+            break;
+        }
+    }
+    if(!found) {
+        Sender::Send("That ship is not here!\n", connection);
+    }
+}
+
+void PlayingState::CmdClose(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    std::string data = input;
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    int room_id = player->GetRoomID();
+    auto room = planet->GetRoom(room_id);
+    bool found = false;
+    std::string ship_name = Tokenizer::GetFirstToken(data);
+    for(auto ship: room->GetShips()) {
+        if(ship.second->GetShipName() == ship_name) {
+            found = true;
+            if(ship.second->IsHatchOpen()) {
+                Sender::Send("Closed hatch\n", connection);
+                ship.second->CloseHatch();
+            }
+            else {
+                Sender::Send("Hatch is already closed\n", connection);
+            }
+            break;
+        }
+    }
+    if(!found) {
+        Sender::Send("That ship is not here!\n", connection);
     }
 }

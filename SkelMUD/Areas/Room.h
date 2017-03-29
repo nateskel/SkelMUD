@@ -8,9 +8,12 @@
 #include <vector>
 #include <map>
 #include "../Player.h"
+//#include "../Ships/Ships.h"
 //#include "../Ships/Ship.h"
 
 class Ship;
+
+class Ships;
 
 class Room {
 public:
@@ -39,7 +42,8 @@ private:
     int m_down;
     LandingLevel m_landing_level;
     std::map<int, std::shared_ptr<Player>> m_player_map;
-    std::vector<int> m_ships;
+    std::vector<int> m_ship_ids;
+    std::map<int, std::shared_ptr<Ship>> m_ships;
 
 public:
     Room();
@@ -61,13 +65,15 @@ public:
 
     void RemoveShip(int ship_id);
 
-    void AddShip(int ship_id);
+    void AddShipID(int ship_id);
 
-    void AddShips(std::vector<int> ship_ids);
+    void AddShipIDs(std::vector<int> ship_ids);
 
-    int GetShip(int ship_id);
+    void PopulateShips(Ships &ships);
 
     std::vector<int> GetShipIDs();
+
+    std::map<int, std::shared_ptr<Ship>> GetShips();
 
     void RemovePlayer(int id);
 

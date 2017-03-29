@@ -31,6 +31,8 @@ public:
         m_cmd_map["w"] = &CmdWest;
         m_cmd_map["build"] = &CmdBuild;
         m_cmd_map["goto"] = &CmdGoto;
+        m_cmd_map["open"] = &CmdOpen;
+        m_cmd_map["close"] = &CmdClose;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -47,6 +49,8 @@ public:
     static void CmdWest(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdBuild(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdGoto(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
+    static void CmdOpen(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
+    static void CmdClose(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
 
 protected:
     std::map<std::string, void(*)(const std::string&, std::shared_ptr<Connection>,

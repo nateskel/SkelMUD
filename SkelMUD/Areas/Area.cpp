@@ -5,6 +5,7 @@
 #include <sstream>
 #include "Area.h"
 #include "../Logger.h"
+#include "../Ships/Ships.h"
 
 unsigned long Area::AddRoom(std::shared_ptr<Room> room) {
     m_rooms.push_back(room);
@@ -135,4 +136,9 @@ std::vector<std::shared_ptr<Room>> Area::GetRooms() {
 }
 
 
+void Area::PopulateShips(Ships &ships) {
+    for(auto room: m_rooms) {
+        room->PopulateShips(ships);
+    }
+}
 

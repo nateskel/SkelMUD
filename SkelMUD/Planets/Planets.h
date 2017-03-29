@@ -22,6 +22,7 @@ public:
     std::map<int, std::shared_ptr<Planet>> EnumeratePlanets();
     void SavePlanet(int planet_id);
     void SavePlanet(Planet planet);
+    void PopulateShips(Ships &ships);
 };
 
 #endif //SKELMUD_PLANETS_H

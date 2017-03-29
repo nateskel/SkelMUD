@@ -59,7 +59,7 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
         else {
             room->SetLandingLevel(m_landing_level_map[landing_level]);
             for (auto ship: ships) {
-                room->AddShip(atoi(ship.c_str()));
+                room->AddShipID(atoi(ship.c_str()));
             }
         }
         area->AddRoom(room);
