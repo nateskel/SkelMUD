@@ -38,8 +38,11 @@ void Connection::connectionThread() {
             perror("Error: ");
         }
         else {
-            std::string string_data = std::string(buffer);
-            m_receive_buffer.push_back(string_data);
+            auto commands = Tokenizer::GetAllTokens(buffer, '\n');
+            for(auto command: commands) {
+                std::string string_data = std::string(command);
+                m_receive_buffer.push_back(string_data);
+            }
         }
     }
     Close();
