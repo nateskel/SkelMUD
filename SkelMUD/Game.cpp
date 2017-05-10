@@ -44,6 +44,12 @@ void Game::Start() {
             std::shared_ptr<Connection> connection = connection_map_entry.second;
             if(!connection->IsConnected())
             {
+                if(connection->IsLoggedIn()) {
+                    auto player = m_game_data->GetPlayer(connection->GetCharacterName());
+                    m_game_data->GetRoom(player->GetLocationID(),
+                                         player->GetRoomID(),
+                                         player->IsInShip())->RemovePlayer(player->GetID());
+                }
                 m_game_data->EraseConnection(connection->GetID());
                 std::stringstream ss;
                 ss << connection->GetIP() << " has disconnected (connection dropped)";

@@ -32,10 +32,8 @@ void Connection::connectionThread() {
     while(is_connected) {
         memset(buffer, 0, sizeof(buffer));
         int result = dataSocket.Receive(buffer);
-        Logger::Debug("Receive result: " + std::to_string(result));
         if(result <= 0) {
             is_connected = false;
-            perror("Error: ");
         }
         else {
             auto commands = Tokenizer::GetAllTokens(buffer, '\n');
