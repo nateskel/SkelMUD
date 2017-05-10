@@ -8,10 +8,9 @@
 #include <vector>
 #include <map>
 #include "../Areas/Area.h"
+#include "../Utils.h"
 
 class Turret;
-
-//class Area;
 
 class Ship : public Area {
 public:
@@ -22,6 +21,10 @@ public:
         m_hatch = false;
         m_planet_id = 0;
         m_room_id = 0;
+        m_in_space = false;
+        m_coordinates.x = 0;
+        m_coordinates.y = 0;
+        m_coordinates.z = 0;
     };
 
     std::string GetShipName();
@@ -42,14 +45,26 @@ public:
 
     int GetRoomId();
 
+    bool IsInSpace();
+
+    void SetInSpace(bool in_space);
+
+    void SetCoordinates(int x, int y, int z);
+
+    void SetCoordinates(Utils::Coordinates coords);
+
+    Utils::Coordinates GetCoordinates();
+
 private:
     int m_planet_id;
     int m_room_id;
     int m_max_health;
     int m_max_shields;
     bool m_hatch;
+    bool m_in_space;
     std::map<int, bool> m_cockpits;
     std::map<int, Turret> m_turrets;
+    Utils::Coordinates m_coordinates;
 };
 
 class Turret {

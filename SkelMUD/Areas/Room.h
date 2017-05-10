@@ -44,6 +44,7 @@ private:
     std::map<int, std::shared_ptr<Player>> m_player_map;
     std::vector<int> m_ship_ids;
     std::map<int, std::shared_ptr<Ship>> m_ships;
+    bool m_is_cockpit;
 
 public:
     Room();
@@ -62,6 +63,10 @@ public:
          int d);
 
     ~Room();
+
+    bool IsCockpit();
+
+    void SetIsCockpit(bool is_cockpit);
 
     void RemoveShip(int ship_id);
 

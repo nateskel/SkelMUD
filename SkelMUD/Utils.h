@@ -12,6 +12,12 @@ public:
 
     static bool IsNumber(std::string entry);
 
+    struct Coordinates {
+        int x;
+        int y;
+        int z;
+    };
+
 protected:
 private:
 };

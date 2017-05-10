@@ -21,8 +21,10 @@ void PlayingState::processInput(const std::string& input, std::shared_ptr<Connec
                            player->GetRoomID(),
                            player->IsInShip())->RemovePlayer(player->GetID());
     }
-    if(m_cmd_map.find(command) != m_cmd_map.end())
+    if(m_cmd_map.find(command) != m_cmd_map.end()) {
         m_cmd_map[command](input_string, connection, game_data);
+        connection->SetPrompt(GetPrompt(connection));
+    }
     else
         Sender::Send("Unrecognized command!\n", connection);
 }
@@ -51,6 +53,17 @@ std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
     std::stringstream ss;
     ss << Format::YELLOW << "<" + Format::BLUE << connection->GetCharacterName() << Format::YELLOW << "> ";
     ss << Format::RED << "<" << connection->GetHealth() << "> \n";
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    Logger::Debug("Character name: " + player->GetPlayerName());
+    if (player->IsInShip()) {
+        Logger::Debug("In Ship");
+        auto ship = game_data->GetShip(player->GetShipID());
+        if (ship->IsInSpace()) {
+            Logger::Debug("In Space");
+            Utils::Coordinates coordinates = ship->GetCoordinates();
+            ss << Format::CYAN << "<x: " << coordinates.x << " y: " << coordinates.y << " z: " << coordinates.z << "> \n";
+        }
+    }
     return ss.str();
 }
 
@@ -371,18 +384,27 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
 
 void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
-    std::string data = input;
     auto player = game_data->GetPlayer(connection->GetCharacterName());
     if(player->IsInShip()) {
         auto ship = game_data->GetShip(player->GetLocationID());
         if(player->GetRoomID() == 0) {
             if(ship->IsHatchOpen()) {
                 auto room = ship->GetRoom(player->GetRoomID());
+                std::stringstream exit_ss;
+                exit_ss << player->GetPlayerName() << " left the ship\n";
+                Sender::SendToMultiple(exit_ss.str(), game_data->GetLoggedInConnections(),
+                                       room->GetVisiblePlayers(connection->GetID()));
                 room->RemovePlayer(player->GetID());
                 player->SetInShip(false);
-                game_data->GetRoom(ship->GetPlanetId(),
+                room = game_data->GetRoom(ship->GetPlanetId(),
                                    ship->GetRoomId(),
-                                   false)->AddPlayer(player);
+                                   false);
+                room->AddPlayer(player);
+                std::stringstream ss;
+                std::string ship_name = ship->GetName();
+                ss << player->GetPlayerName() << " got out of ship " << ship_name << "\n";
+                Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
+                                       room->GetVisiblePlayers(connection->GetID()));
                 CmdLook("", connection, game_data);
             }
             else {
@@ -396,4 +418,35 @@ void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection
     else {
         Sender::Send("Not in a vehicle\n", connection);
     }
+}
+
+void PlayingState::CmdTakeOff(const std::string &input, std::shared_ptr<Connection> connection,
+                              std::shared_ptr<GameData> game_data) {
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    if(player->IsInShip()) {
+        auto room = game_data->GetRoom(player->GetLocationID(),
+                                       player->GetRoomID(),
+                                       true);
+        if(room->IsCockpit()) {
+            // TODO: Skill check
+            auto ship = game_data->GetShip(player->GetShipID());
+            if(!ship->IsHatchOpen()) {
+                if(!ship->IsInSpace()) {
+                    Sender::Send("The ship lurches as it ascends into space\n", connection);
+                    auto planet = game_data->GetPlanet(player->GetPlanetID());
+                    ship->SetCoordinates(planet->GetCoordinates());
+                    ship->SetInSpace(true);
+                    planet->GetRoom(0)->RemoveShip(ship->GetID());
+                }
+                else
+                    Sender::Send("Ship is already in space\n", connection);
+            }
+            else
+                Sender::Send("Hatch is open\n", connection);
+        }
+        else
+            Sender::Send("Not at a cockpit or control console\n", connection);
+    }
+    else
+        Sender::Send("Not in a ship\n", connection);
 }

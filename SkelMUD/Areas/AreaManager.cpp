@@ -34,6 +34,7 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
         std::string east_string = room_node->GetAttribute("East");
         std::string west_string = room_node->GetAttribute("West");
         std::string hatch = room_node->GetAttribute("Hatch");
+        std::string cockpit = room_node->GetAttribute("Cockpit");
         if(Utils::IsNumber(north_string))
             north = atoi(north_string.c_str());
         if(Utils::IsNumber(south_string))
@@ -54,6 +55,9 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
                                                             -1,
                                                             -1,
                                                             -1);
+        Logger::Debug("Cockpit: " + cockpit);
+        if(cockpit == "True")
+            room->SetIsCockpit(true);
         if(landing_level == "") {
             room->SetLandingLevel(Room::LandingLevel::NONE);
         }

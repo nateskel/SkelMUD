@@ -35,6 +35,7 @@ public:
         m_cmd_map["close"] = &CmdClose;
         m_cmd_map["enter"] = &CmdEnter;
         m_cmd_map["leave"] = &CmdLeave;
+        m_cmd_map["launch"] = &CmdTakeOff;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -55,6 +56,8 @@ public:
     static void CmdClose(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdEnter(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdLeave(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
+    static void CmdTakeOff(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data);
 
 protected:
     std::map<std::string, void(*)(const std::string&, std::shared_ptr<Connection>,

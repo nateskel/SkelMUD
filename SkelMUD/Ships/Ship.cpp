@@ -9,7 +9,6 @@ std::string Ship::GetShipName() {
     return m_area_name;
 }
 
-
 void Ship::OpenHatch() {
     m_hatch = true;
 }
@@ -42,3 +41,24 @@ void Ship::SetPlanetId(int planet_id) {
     m_planet_id = planet_id;
 }
 
+bool Ship::IsInSpace() {
+    return m_in_space;
+}
+
+void Ship::SetInSpace(bool in_space) {
+    m_in_space = in_space;
+}
+
+void Ship::SetCoordinates(Utils::Coordinates coords) {
+    m_coordinates = coords;
+}
+
+void Ship::SetCoordinates(int x, int y, int z) {
+    m_coordinates.x = x;
+    m_coordinates.y = y;
+    m_coordinates.z = z;
+}
+
+Utils::Coordinates Ship::GetCoordinates() {
+    return m_coordinates;
+}

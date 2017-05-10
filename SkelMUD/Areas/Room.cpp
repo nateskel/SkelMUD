@@ -23,6 +23,7 @@ Room::Room() {
     m_up = -1;
     m_down = -1;
     m_landing_level = NONE;
+    m_is_cockpit = false;
 }
 
 Room::Room(std::string long_desc, std::string short_desc, int n, int s, int e, int w, int ne, int nw, int se,
@@ -41,16 +42,24 @@ Room::Room(std::string long_desc, std::string short_desc, int n, int s, int e, i
     m_up = u;
     m_down = d;
     m_landing_level = NONE;
+    m_is_cockpit = false;
 }
 
 Room::~Room() {
 
 }
 
+void Room::SetIsCockpit(bool is_cockpit) {
+    m_is_cockpit = is_cockpit;
+}
+
+bool Room::IsCockpit() {
+    return m_is_cockpit;
+}
+
 void Room::AddShipID(int ship_id) {
     m_ship_ids.push_back(ship_id);
 }
-
 
 void Room::PopulateShips(Ships &ships, int area_id) {
     auto all_ships = ships.GetShips();
@@ -62,21 +71,17 @@ void Room::PopulateShips(Ships &ships, int area_id) {
     }
 }
 
-
 std::vector<int> Room::GetShipIDs() {
     return m_ship_ids;
 }
-
 
 std::map<int, std::shared_ptr<Ship>> Room::GetShips() {
     return m_ships;
 }
 
-
 void Room::AddShipIDs(std::vector<int> ship_ids) {
     m_ship_ids.insert(m_ship_ids.end(), ship_ids.begin(), ship_ids.end());
 }
-
 
 void Room::RemoveShip(int id) {
 

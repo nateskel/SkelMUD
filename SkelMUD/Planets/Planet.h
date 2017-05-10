@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include "../Areas/Area.h"
+#include "../Utils.h"
 
 class Room;
 
@@ -18,18 +19,13 @@ public:
         m_coordinates.z = z;
     };
 
-    struct Coordinates {
-        int x;
-        int y;
-        int z;
-    } m_coordinates;
-
     void SetCoordinates(int x, int y, int z);
 
-    Coordinates GetCoordinates();
+    Utils::Coordinates GetCoordinates();
 
 protected:
 private:
+    Utils::Coordinates m_coordinates;
 };
 
 #endif // PLANET_H
