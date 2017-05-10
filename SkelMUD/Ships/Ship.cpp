@@ -22,3 +22,7 @@ bool Ship::IsHatchOpen() {
     return m_hatch;
 }
 
+void Ship::AddCockpit(int room_num) {
+    m_cockpits[room_num] = true;
+}
+

@@ -18,5 +18,6 @@ There is a hatch here
 [LongDescription]
 Control the ship from here
 [/LongDescription]
+[/Cockpit]True[Cockpit]
 [/1]
 [/TestShip1]

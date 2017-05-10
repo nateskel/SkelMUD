@@ -1,23 +1,2 @@
 TODO:
-- Complete File I/O
-- Account management
-- Character Creation
-- Player Skills
-- Combat engine
-- Items
-- Inventory
-- NPCs
-- MOBs
-- Ships
-- Space flight
-- Space combat
-- New architecture for processing commands
-    - Modular system that allows registering a command with a function
-    - Easier to read and expand
-- Update room transition code
-    - Timer logic
-    - Command based transitions (ie "Press button")
-
-4/19/2015:
-	
-Command processing architecture rewritten.
+Update this

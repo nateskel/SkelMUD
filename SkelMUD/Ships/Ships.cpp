@@ -34,6 +34,17 @@ std::shared_ptr<Ship> Ships::BuildShip(std::string filename, int id, std::string
     std::shared_ptr<Node> ship_node = SkexmlParser::Parse(filename);
     std::shared_ptr<Ship> ship = std::make_shared<Ship>(ship_name, id, health, shields);
     AreaManager::BuildArea(ship_node, ship);
+    auto children = ship_node->GetChildren();
+    int count = 0;
+    for(auto child: children)
+    {
+        auto node = child.second;
+        std::string cockpit = node->GetAttribute("Cockpit");
+        if(cockpit == "True") {
+            ship->AddCockpit(count);
+        }
+        ++count;
+    }
     return ship;
 }
 

@@ -25,7 +25,7 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
         for(auto item: long_desc_list) {
             ss << item << "\r\n";
         }
-        std::string long_desc = ss.str();3
+        std::string long_desc = ss.str();
         std::string short_desc = room_node->GetAttribute("ShortDescription");
         std::string landing_level = room_node->GetAttribute("Landing");
         auto ships = room_node->GetListAttribute("Ships");

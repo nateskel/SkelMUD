@@ -30,12 +30,14 @@ public:
 
     bool IsHatchOpen();
 
+    void AddCockpit(int room_num);
+
 private:
     int m_max_health;
     int m_max_shields;
     bool m_hatch;
-    std::vector<int> cockpits;
-    std::map<int, Turret> turrets;
+    std::map<int, bool> m_cockpits;
+    std::map<int, Turret> m_turrets;
 };
 
 class Turret {
