@@ -23,6 +23,8 @@ void Area::DeleteRoom(int room_id) {
 }
 
 std::shared_ptr<Room> Area::GetRoom(int id) {
+    Logger::Debug("Room size");
+    Logger::Debug(std::to_string(m_rooms.size()));
     if(id <= m_rooms.size())
         return m_rooms[id];
     else

@@ -51,10 +51,11 @@ public:
     std::shared_ptr<Connection> GetConnection(std::string character_name);
     std::shared_ptr<Planet> GetPlanet(int ID);
     std::shared_ptr<Ship> GetShip(int ID);
+    std::shared_ptr<Room> GetRoom(int AreaID, int RoomID, bool is_ship);
     std::shared_ptr<Planet> GetPlanet(std::string name);
     Planets& GetPlanets();
     Ships& GetShips();
-    std::vector<std::string> GetShipNames();
+    //std::vector<std::string> GetShipNames();
     Configuration& GetConfiguration();
 
 private:

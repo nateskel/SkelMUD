@@ -19,9 +19,19 @@ public:
 
     int GetPlanetID();
 
+    void SetShipID(int ship_id);
+
+    int GetShipID();
+
     void SetRoomID(int room_id);
 
     int GetRoomID();
+
+    int GetLocationID();
+
+    bool IsInShip();
+
+    void SetInShip(bool in_ship);
 
     void SetHP(int hp);
 
@@ -49,7 +59,9 @@ public:
 
 protected:
     std::string m_name;
+    bool m_in_ship;
     int m_planet_id;
+    int m_ship_id;
     int m_room_id;
     int m_max_hp;
     int m_hp;
