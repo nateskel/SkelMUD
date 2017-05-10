@@ -28,21 +28,18 @@ int Entity::GetPlanetID() {
 }
 
 void Entity::SetShipID(int ship_id) {
-    Logger::Info("Ship ID" + std::to_string(ship_id));
     m_ship_id = ship_id;
 }
 
 int Entity::GetShipID() {
-    return m_planet_id;
+    return m_ship_id;
 }
 
 int Entity::GetLocationID() {
-    if(IsInShip()) {
+    if(IsInShip())
         return m_ship_id;
-    }
-    else {
+    else
         return m_planet_id;
-    }
 }
 
 bool Entity::IsInShip() {

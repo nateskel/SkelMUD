@@ -69,7 +69,7 @@ public:
 
     void AddShipIDs(std::vector<int> ship_ids);
 
-    void PopulateShips(Ships &ships);
+    void PopulateShips(Ships &ships, int area_id);
 
     std::vector<int> GetShipIDs();
 

@@ -51,7 +51,7 @@ std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
 
 void PlayingState::CmdHelp(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data)
 {
-    Sender::Send("'chat' to chat\r\n'tell <character>' to direct tell\r\n'online' to see who is online\n", connection);
+    Sender::Send("'chat' to chat\n'tell <character>' to direct tell\n'online' to see who is online\n", connection);
 }
 
 void PlayingState::CmdTell(const std::string &input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data) {
@@ -235,26 +235,46 @@ void PlayingState::CmdOpen(const std::string &input, std::shared_ptr<Connection>
                            std::shared_ptr<GameData> game_data) {
     std::string data = input;
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
-    int room_id = player->GetRoomID();
-    auto room = planet->GetRoom(room_id);
-    bool found = false;
-    std::string ship_name = Tokenizer::GetFirstToken(data);
-    for(auto ship: room->GetShips()) {
-        if(ship.second->GetShipName() == ship_name) {
-            found = true;
-            if(!ship.second->IsHatchOpen()) {
+    if(player->IsInShip()) {
+        auto ship = game_data->GetShip(player->GetShipID());
+        if(player->GetRoomID() == 0) {
+            if(!ship->IsHatchOpen()) {
+                ship->OpenHatch();
                 Sender::Send("Opened hatch\n", connection);
-                ship.second->OpenHatch();
             }
             else {
-                Sender::Send("Hatch is already open\n", connection);
+                Sender::Send("Hatch already open\n", connection);
             }
-            break;
+        }
+        else {
+            Sender::Send("No hatch here\n", connection);
         }
     }
-    if(!found) {
-        Sender::Send("That ship is not here!\n", connection);
+    else {
+        //auto planet = game_data->GetPlanet(player->GetPlanetID());
+        auto room = game_data->GetRoom(player->GetLocationID(),
+                                       player->GetRoomID(),
+                                       false);
+        //int room_id = player->GetRoomID();
+        //auto room = planet->GetRoom(room_id);
+        bool found = false;
+        std::string ship_name = Tokenizer::GetFirstToken(data);
+        for (auto ship: room->GetShips()) {
+            if (ship.second->GetShipName() == ship_name) {
+                found = true;
+                if (!ship.second->IsHatchOpen()) {
+                    Sender::Send("Opened hatch\n", connection);
+                    ship.second->OpenHatch();
+                }
+                else {
+                    Sender::Send("Hatch is already open\n", connection);
+                }
+                break;
+            }
+        }
+        if (!found) {
+            Sender::Send("That ship is not here!\n", connection);
+        }
     }
 }
 
@@ -262,26 +282,44 @@ void PlayingState::CmdClose(const std::string &input, std::shared_ptr<Connection
                            std::shared_ptr<GameData> game_data) {
     std::string data = input;
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
-    int room_id = player->GetRoomID();
-    auto room = planet->GetRoom(room_id);
-    bool found = false;
-    std::string ship_name = Tokenizer::GetFirstToken(data);
-    for(auto ship: room->GetShips()) {
-        if(ship.second->GetShipName() == ship_name) {
-            found = true;
-            if(ship.second->IsHatchOpen()) {
+    if(player->IsInShip()) {
+        Logger::Debug("Ship ID: " + std::to_string(player->GetShipID()));
+        auto ship = game_data->GetShip(player->GetShipID());
+        if(player->GetRoomID() == 0) {
+            if(ship->IsHatchOpen()) {
+                ship->CloseHatch();
                 Sender::Send("Closed hatch\n", connection);
-                ship.second->CloseHatch();
             }
             else {
-                Sender::Send("Hatch is already closed\n", connection);
+                Sender::Send("Hatch already closed\n", connection);
             }
-            break;
+        }
+        else {
+            Sender::Send("No hatch here\n", connection);
         }
     }
-    if(!found) {
-        Sender::Send("That ship is not here!\n", connection);
+    else {
+        auto room = game_data->GetRoom(player->GetLocationID(),
+                                       player->GetRoomID(),
+                                       player->IsInShip());
+        bool found = false;
+        std::string ship_name = Tokenizer::GetFirstToken(data);
+        for (auto ship: room->GetShips()) {
+            if (ship.second->GetShipName() == ship_name) {
+                found = true;
+                if (ship.second->IsHatchOpen()) {
+                    Sender::Send("Closed hatch\n", connection);
+                    ship.second->CloseHatch();
+                }
+                else {
+                    Sender::Send("Hatch is already closed\n", connection);
+                }
+                break;
+            }
+        }
+        if (!found) {
+            Sender::Send("That ship is not here!\n", connection);
+        }
     }
 }
 
@@ -298,14 +336,21 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
         if(ship.second->GetShipName() == ship_name) {
             found = true;
             if(ship.second->IsHatchOpen()) {
+                std::stringstream ss;
+                ss << player->GetPlayerName() << " entered ship " << ship_name << "\n";
+                Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
+                                       room->GetVisiblePlayers(connection->GetID()));
                 room->RemovePlayer(player->GetID());
-                Room temp = *ship.second->GetRoom(0);
-                ship.second->GetRoom(0)->AddPlayer(player);
+                auto ship_room = ship.second->GetRoom(0);
+                ship_room->AddPlayer(player);
                 player->SetShipID(ship.second->GetID());
+                Logger::Debug("Enter Ship ID: " + std::to_string(ship.second->GetID()));
                 player->SetInShip(true);
                 player->SetRoomID(0);
-                Player tempp = *player;
-                Connection conn = *connection;
+                std::stringstream enter_ss;
+                enter_ss << player->GetPlayerName() << " entered the ship\n";
+                Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
+                                       ship_room->GetVisiblePlayers(connection->GetID()));
                 CmdLook("", connection, game_data);
             }
             else {
@@ -325,7 +370,23 @@ void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection
     auto player = game_data->GetPlayer(connection->GetCharacterName());
     if(player->IsInShip()) {
         auto ship = game_data->GetShip(player->GetLocationID());
-        if(ship->I)
+        if(player->GetRoomID() == 0) {
+            if(ship->IsHatchOpen()) {
+                auto room = ship->GetRoom(player->GetRoomID());
+                room->RemovePlayer(player->GetID());
+                player->SetInShip(false);
+                game_data->GetRoom(ship->GetPlanetId(),
+                                   ship->GetRoomId(),
+                                   false)->AddPlayer(player);
+                CmdLook("", connection, game_data);
+            }
+            else {
+                Sender::Send("Hatch is closed\n", connection);
+            }
+        }
+        else {
+            Sender::Send("No hatch here\n", connection);
+        }
     }
     else {
         Sender::Send("Not in a vehicle\n", connection);

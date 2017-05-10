@@ -34,6 +34,7 @@ public:
         m_cmd_map["open"] = &CmdOpen;
         m_cmd_map["close"] = &CmdClose;
         m_cmd_map["enter"] = &CmdEnter;
+        m_cmd_map["leave"] = &CmdLeave;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;

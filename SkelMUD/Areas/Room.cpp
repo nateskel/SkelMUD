@@ -52,10 +52,13 @@ void Room::AddShipID(int ship_id) {
 }
 
 
-void Room::PopulateShips(Ships &ships) {
+void Room::PopulateShips(Ships &ships, int area_id) {
     auto all_ships = ships.GetShips();
     for(auto ship_id: m_ship_ids) {
-        m_ships[ship_id] = all_ships[ship_id];
+        auto ship = all_ships[ship_id];
+        ship->SetPlanetId(area_id);
+        ship->SetRoomId(m_id);
+        m_ships[ship_id] = ship;
     }
 }
 

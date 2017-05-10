@@ -26,3 +26,19 @@ void Ship::AddCockpit(int room_num) {
     m_cockpits[room_num] = true;
 }
 
+int Ship::GetRoomId() {
+    return m_room_id;
+}
+
+void Ship::SetRoomId(int room_id) {
+    m_room_id = room_id;
+}
+
+int Ship::GetPlanetId() {
+    return m_planet_id;
+}
+
+void Ship::SetPlanetId(int planet_id) {
+    m_planet_id = planet_id;
+}
+

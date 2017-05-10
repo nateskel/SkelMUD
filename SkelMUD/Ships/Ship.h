@@ -20,6 +20,8 @@ public:
         m_max_health = health;
         m_max_shields = shields;
         m_hatch = false;
+        m_planet_id = 0;
+        m_room_id = 0;
     };
 
     std::string GetShipName();
@@ -32,7 +34,17 @@ public:
 
     void AddCockpit(int room_num);
 
+    void SetPlanetId(int planet_id);
+
+    int GetPlanetId();
+
+    void SetRoomId(int room_id);
+
+    int GetRoomId();
+
 private:
+    int m_planet_id;
+    int m_room_id;
     int m_max_health;
     int m_max_shields;
     bool m_hatch;
