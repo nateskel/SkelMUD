@@ -14,8 +14,13 @@ void PlayingState::processInput(const std::string& input, std::shared_ptr<Connec
     std::string input_string = input;
     std::string command = Tokenizer::GetFirstToken(input_string);
     command = Tokenizer::LowerCase(command);
-    if(input == "quit")
+    if(input == "quit") {
         connection->Close();
+        auto player = game_data->GetPlayer(connection->GetCharacterName());
+        game_data->GetRoom(player->GetLocationID(),
+                           player->GetRoomID(),
+                           player->IsInShip())->RemovePlayer(player->GetID());
+    }
     if(m_cmd_map.find(command) != m_cmd_map.end())
         m_cmd_map[command](input_string, connection, game_data);
     else
