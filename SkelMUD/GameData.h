@@ -35,6 +35,7 @@ public:
     void AddConnection(std::shared_ptr<Connection> connection);
     std::shared_ptr<Connection> GetConnection(int index);
     std::map<int, std::shared_ptr<Connection>> GetAllConnections();
+    std::map<int, std::shared_ptr<Connection>> GetConnections(std::vector<int>);
     void EraseConnection(int index);
     Accounts GetAccounts();
     Account GetAccount(std::string username);

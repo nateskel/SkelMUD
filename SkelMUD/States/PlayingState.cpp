@@ -96,6 +96,20 @@ void PlayingState::CmdChat(const std::string &input, std::shared_ptr<Connection>
     Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), connection->GetSocket());
 }
 
+void PlayingState::CmdSay(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    std::string input_string = input;
+    std::stringstream ss;
+    ss << Format::YELLOW << connection->GetCharacterName() << " says: " << Format::BOLD << input_string << Format::NL;
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto room = game_data->GetRoom(player->GetLocationID(),
+                       player->GetRoomID(),
+                       player->IsInShip());
+    Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
+                           room->GetVisiblePlayers());
+
+}
+
 void PlayingState::CmdOnline(const std::string &input, std::shared_ptr<Connection> connection,
                              std::shared_ptr<GameData> game_data) {
     std::stringstream ss;

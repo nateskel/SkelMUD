@@ -76,7 +76,6 @@ void SkexmlParser::WriteNode(std::stringstream &xml_string, std::shared_ptr<Node
 std::shared_ptr<Node> SkexmlParser::MakeNode(std::string name, std::ifstream& file) {
     std::shared_ptr<Node> node = std::make_shared<Node>(name);
     std::string child_name = "";
-    Logger::Debug(name);
     std::string input = "";
     std::getline(file, input);
     Utils::RemoveEndline(input);

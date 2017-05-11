@@ -29,6 +29,14 @@ std::map<int, std::shared_ptr<Connection>> GameData::GetAllConnections() {
     return m_connections;
 }
 
+std::map<int, std::shared_ptr<Connection>> GameData::GetConnections(std::vector<int> connection_ids) {
+    std::map<int, std::shared_ptr<Connection>> connection_map;
+    for(auto connection : connection_ids) {
+        connection_map[connection] = GetConnection(connection);
+    }
+    return connection_map;
+}
+
 std::map<int, std::shared_ptr<Connection>> GameData::GetLoggedInConnections() {
     std::map<int, std::shared_ptr<Connection>> connection_map;
     for(auto connection : m_connections)
@@ -45,7 +53,6 @@ void GameData::EraseConnection(int index) {
 
 GameData::GameData() {
     Logger::Debug("Loading Resources");
-    Logger::Debug(ACCOUNT_FILE);
     m_accounts.LoadAccounts(ACCOUNT_FILE);
     Logger::Debug("Accounts Loaded");
     m_races.LoadRaces(RACE_FILE);
@@ -147,8 +154,6 @@ std::vector<std::string> GetShipNames(int room_id) {
 }
 
 std::shared_ptr<Ship> GameData::GetShip(int id) {
-    Logger::Debug("Get Ship ID: " + std::to_string(id));
-    Logger::Debug("Get Ship ID After: " + std::to_string(m_ships.GetShips()[id]->GetID()));
     return m_ships.GetShips()[id];
 }
 

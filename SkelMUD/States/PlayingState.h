@@ -36,6 +36,7 @@ public:
         m_cmd_map["enter"] = &CmdEnter;
         m_cmd_map["leave"] = &CmdLeave;
         m_cmd_map["launch"] = &CmdTakeOff;
+        m_cmd_map["say"] = &CmdSay;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -57,6 +58,8 @@ public:
     static void CmdEnter(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdLeave(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdTakeOff(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data);
+    static void CmdSay(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data);
 
 protected:

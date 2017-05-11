@@ -9,8 +9,6 @@
 #include "../Utils.h"
 #include "../Logger.h"
 
-
-
 std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, std::shared_ptr<Area> area) {
     auto children = area_node->GetChildren();
     for(auto child: children)
@@ -55,7 +53,6 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
                                                             -1,
                                                             -1,
                                                             -1);
-        Logger::Debug("Cockpit: " + cockpit);
         if(cockpit == "True")
             room->SetIsCockpit(true);
         if(landing_level == "") {
