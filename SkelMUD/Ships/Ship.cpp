@@ -3,6 +3,7 @@
 //
 
 #include "Ship.h"
+#include "../Sender.h"
 
 
 std::string Ship::GetShipName() {
@@ -33,7 +34,7 @@ void Ship::SetRoomId(int room_id) {
     m_room_id = room_id;
 }
 
-int Ship::GetPlanetId() {
+int Ship::GetPlanetID() {
     return m_planet_id;
 }
 
@@ -49,16 +50,57 @@ void Ship::SetInSpace(bool in_space) {
     m_in_space = in_space;
 }
 
+bool Ship::IsInOrbit() {
+    return m_in_orbit;
+}
+
+void Ship::SetInOrbit(bool in_orbit) {
+    m_in_orbit = in_orbit;
+}
+
 void Ship::SetCoordinates(Utils::Coordinates coords) {
     m_coordinates = coords;
 }
 
-void Ship::SetCoordinates(int x, int y, int z) {
+void Ship::SetCoordinates(double x, double y, double z) {
     m_coordinates.x = x;
     m_coordinates.y = y;
     m_coordinates.z = z;
 }
 
+std::vector<int> Ship::GetPlayerIDs() {
+    return m_player_ids;
+}
+
+void Ship::AddPlayer(int player_id) {
+    m_player_ids.push_back(player_id);
+}
+
+void Ship::RemovePlayer(int player_id) {
+    std::vector<int>::iterator it = m_player_ids.begin();
+    for (auto player : m_player_ids) {
+        if(player == player_id) {
+            m_player_ids.erase(it);
+            return;
+        }
+        it++;
+    }
+}
+
 Utils::Coordinates Ship::GetCoordinates() {
     return m_coordinates;
+}
+
+void Ship::SetVelocity(Utils::Velocity velocity) {
+    m_velocity = velocity;
+}
+
+void Ship::SetVelocity(double x, double y, double z) {
+    m_velocity.x = x;
+    m_velocity.y = y;
+    m_velocity.z = z;
+}
+
+Utils::Velocity Ship::GetVelocity() {
+    return m_velocity;
 }

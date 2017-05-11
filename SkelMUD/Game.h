@@ -34,9 +34,11 @@ private:
     bool isRunning;
     int port;
     int connection_id;
+    double elapsed;
     static std::mutex game_mutex;
     void listenerThread();
     void initStates();
+    void ProcessShips();
 };
 
 #endif // GAME_H

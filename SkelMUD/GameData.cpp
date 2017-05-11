@@ -133,7 +133,11 @@ std::shared_ptr<Area> GameData::GetArea(int ID, bool is_ship) {
 }
 
 std::shared_ptr<Planet> GameData::GetPlanet(std::string name) {
-    //return m_planets.GetPlanets()[name];
+    for(auto planet : m_planets.GetPlanets()) {
+        if(planet.second->GetName() == name) {
+            return planet.second;
+        }
+    }
     return nullptr;
 }
 

@@ -84,7 +84,7 @@ void Room::AddShipIDs(std::vector<int> ship_ids) {
 }
 
 void Room::RemoveShip(int id) {
-
+    m_ships.erase(id);
 }
 
 void Room::AddPlayer(std::shared_ptr<Player> player) {

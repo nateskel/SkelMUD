@@ -13,9 +13,15 @@ public:
     static bool IsNumber(std::string entry);
 
     struct Coordinates {
-        int x;
-        int y;
-        int z;
+        double x;
+        double y;
+        double z;
+    };
+
+    struct Velocity {
+        double x;
+        double y;
+        double z;
     };
 
 protected:

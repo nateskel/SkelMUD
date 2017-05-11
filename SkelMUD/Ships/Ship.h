@@ -9,6 +9,7 @@
 #include <map>
 #include "../Areas/Area.h"
 #include "../Utils.h"
+#include "../Connection.h"
 
 class Turret;
 
@@ -22,9 +23,13 @@ public:
         m_planet_id = 0;
         m_room_id = 0;
         m_in_space = false;
+        m_in_orbit = false;
         m_coordinates.x = 0;
         m_coordinates.y = 0;
         m_coordinates.z = 0;
+        m_velocity.x = 0;
+        m_velocity.y = 0;
+        m_velocity.z = 0;
     };
 
     std::string GetShipName();
@@ -39,7 +44,7 @@ public:
 
     void SetPlanetId(int planet_id);
 
-    int GetPlanetId();
+    int GetPlanetID();
 
     void SetRoomId(int room_id);
 
@@ -49,11 +54,27 @@ public:
 
     void SetInSpace(bool in_space);
 
-    void SetCoordinates(int x, int y, int z);
+    bool IsInOrbit();
+
+    void SetInOrbit(bool in_orbit);
+
+    void SetCoordinates(double x, double y, double z);
 
     void SetCoordinates(Utils::Coordinates coords);
 
+    Utils::Velocity GetVelocity();
+
+    void SetVelocity(Utils::Velocity velocity);
+
+    void SetVelocity(double x, double y, double z);
+
     Utils::Coordinates GetCoordinates();
+
+    void AddPlayer(int player_id);
+
+    void RemovePlayer(int player_id);
+
+    std::vector<int> GetPlayerIDs();
 
 private:
     int m_planet_id;
@@ -62,9 +83,12 @@ private:
     int m_max_shields;
     bool m_hatch;
     bool m_in_space;
+    bool m_in_orbit;
     std::map<int, bool> m_cockpits;
     std::map<int, Turret> m_turrets;
+    std::vector<int> m_player_ids;
     Utils::Coordinates m_coordinates;
+    Utils::Velocity m_velocity;
 };
 
 class Turret {

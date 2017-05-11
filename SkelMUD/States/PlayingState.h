@@ -37,6 +37,7 @@ public:
         m_cmd_map["leave"] = &CmdLeave;
         m_cmd_map["launch"] = &CmdTakeOff;
         m_cmd_map["say"] = &CmdSay;
+        m_cmd_map["setcourse"] = &CmdSetCourse;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -61,6 +62,8 @@ public:
                            std::shared_ptr<GameData> game_data);
     static void CmdSay(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data);
+    static void CmdSetCourse(const std::string &input, std::shared_ptr<Connection> connection,
+                       std::shared_ptr<GameData> game_data);
 
 protected:
     std::map<std::string, void(*)(const std::string&, std::shared_ptr<Connection>,

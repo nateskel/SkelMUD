@@ -8,6 +8,7 @@
 #include "States/BuildingState.h"
 #include <iostream>
 #include <algorithm>
+#include <ctime>
 #include <thread>
 
 #ifndef _WIN32
@@ -22,6 +23,7 @@ Game::Game() {
     Logger::Debug("Setting up GameData");
     m_game_data = std::make_shared<GameData>();
     connection_id = 0;
+    elapsed = std::time(nullptr);
     Logger::Debug("Initializing States");
     initStates();
 }
@@ -42,6 +44,10 @@ void Game::Start() {
         {
             std::lock_guard<std::mutex> lock(Game::game_mutex);
             std::shared_ptr<Connection> connection = connection_map_entry.second;
+            if(std::time(nullptr) - elapsed >= 1) {
+                std::shared_ptr<GameState> state = state_map[connection->GetState()];
+                connection->SetPrompt(state->GetPrompt(connection));
+            }
             if(!connection->IsConnected())
             {
                 if(connection->IsLoggedIn()) {
@@ -57,8 +63,6 @@ void Game::Start() {
                 continue;
             }
             if(connection->IsPromptTick()) {
-                std::shared_ptr<GameState> state = state_map[connection->GetState()];
-                connection->SetPrompt(state->GetPrompt(connection));
                 Sender::UpdatePrompt(connection);
                 //Sender::Send(state->GetPrompt(connection), connection);
 //                Sender::Send(Format::SAVE + Format::UP + Format::FRONT_LINE + state->GetPrompt(connection) + Format::RESTORE,
@@ -78,10 +82,28 @@ void Game::Start() {
                 state_map[connection->GetState()]->init(connection);
                 connection->ResetStateChanged();
             }
+
             // Sender::Send("\r\n", connection);
             // Sender::Send(state_map[connection->GetState()]->GetPrompt(connection), connection);
         }
+        if(std::time(nullptr) - elapsed >= 1) {
+            ProcessShips();
+            elapsed = std::time(nullptr);
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+void Game::ProcessShips() {
+    for(auto ship : m_game_data->GetShips().GetShips()) {
+        if(!ship.second->IsInOrbit()) {
+            Utils::Coordinates coords = ship.second->GetCoordinates();
+            Utils::Velocity velocity = ship.second->GetVelocity();
+            double x = coords.x + velocity.x;
+            double y = coords.y + velocity.y;
+            double z = coords.z + velocity.z;
+            ship.second->SetCoordinates(x, y, z);
+        }
     }
 }
 
