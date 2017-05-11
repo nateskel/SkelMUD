@@ -1,0 +1,12 @@
+[PlanetX]
+[0]
+[Landing]1[/Landing]
+[Ships]
+[/Ships]
+[North]1[/North]
+[ShortDescription]Landing Pad[/ShortDescription]
+[LongDescription]
+Landing Pad of Planet X
+[/LongDescription]
+[/0]
+[/PlanetX]
