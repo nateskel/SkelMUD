@@ -27,9 +27,9 @@ int Entity::GetPlanetID() {
     return m_planet_id;
 }
 
-void Entity::SetShipID(int planet_id) {
-    Logger::Info("Ship ID" + std::to_string(planet_id));
-    m_planet_id = planet_id;
+void Entity::SetShipID(int ship_id) {
+    Logger::Info("Ship ID" + std::to_string(ship_id));
+    m_ship_id = ship_id;
 }
 
 int Entity::GetShipID() {

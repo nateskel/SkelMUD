@@ -53,6 +53,7 @@ public:
     static void CmdOpen(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdClose(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdEnter(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
+    static void CmdLeave(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
 
 protected:
     std::map<std::string, void(*)(const std::string&, std::shared_ptr<Connection>,

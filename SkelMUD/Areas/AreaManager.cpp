@@ -25,7 +25,7 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
         for(auto item: long_desc_list) {
             ss << item << "\r\n";
         }
-        std::string long_desc = ss.str();
+        std::string long_desc = ss.str();3
         std::string short_desc = room_node->GetAttribute("ShortDescription");
         std::string landing_level = room_node->GetAttribute("Landing");
         auto ships = room_node->GetListAttribute("Ships");
@@ -33,6 +33,7 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
         std::string south_string = room_node->GetAttribute("South");
         std::string east_string = room_node->GetAttribute("East");
         std::string west_string = room_node->GetAttribute("West");
+        std::string hatch = room_node->GetAttribute("Hatch");
         if(Utils::IsNumber(north_string))
             north = atoi(north_string.c_str());
         if(Utils::IsNumber(south_string))

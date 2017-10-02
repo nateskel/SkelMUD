@@ -8,6 +8,7 @@
 Entryway to the test ship
 There is a hatch here
 [/LongDescription]
+[Hatch]True[/Hatch]
 [/0]
 [1]
 [Ships]

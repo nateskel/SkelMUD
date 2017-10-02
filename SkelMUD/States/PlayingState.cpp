@@ -136,7 +136,8 @@ void PlayingState::CmdWest(const std::string &input, std::shared_ptr<Connection>
 void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
                         Direction direction) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    //auto planet = game_data->GetPlanet(player->GetPlanetID());
+    auto area = game_data->GetArea(player->GetLocationID(), player->IsInShip());
     int room_id = player->GetRoomID();
     int player_id = player->GetID();
     bool success = false;
@@ -146,25 +147,25 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
     switch(direction) {
         case NORTH:
             departed_room = player->GetRoomID();
-            success = planet->MoveNorth(room_id, player_id);
+            success = area->MoveNorth(room_id, player_id);
             arrive_string = "south";
             depart_string = "north";
             break;
         case SOUTH:
             departed_room = player->GetRoomID();
-            success = planet->MoveSouth(room_id, player_id);
+            success = area->MoveSouth(room_id, player_id);
             arrive_string = "north";
             depart_string = "south";
             break;
         case EAST:
             departed_room = player->GetRoomID();
-            success = planet->MoveEast(room_id, player_id);
+            success = area->MoveEast(room_id, player_id);
             arrive_string = "west";
             depart_string = "east";
             break;
         case WEST:
             departed_room = player->GetRoomID();
-            success = planet->MoveWest(room_id, player_id);
+            success = area->MoveWest(room_id, player_id);
             arrive_string = "east";
             depart_string = "west";
             break;
@@ -179,9 +180,9 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
             departed_ss << player_name << " has left to the " << depart_string << Format::NL;
             arrived_ss << player_name << " has arrived from the " << arrive_string << Format::NL;
             Sender::SendToMultiple(departed_ss.str(), game_data->GetLoggedInConnections(),
-                                   planet->GetRoom(departed_room)->GetVisiblePlayers());
+                                   area->GetRoom(departed_room)->GetVisiblePlayers());
             Sender::SendToMultiple(arrived_ss.str(), game_data->GetLoggedInConnections(),
-                                   planet->GetRoom(player->GetRoomID())->GetVisiblePlayers(connection->GetID()));
+                                   area->GetRoom(player->GetRoomID())->GetVisiblePlayers(connection->GetID()));
         }
         CmdLook("", connection, game_data);
     }
@@ -315,5 +316,18 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
     }
     if(!found) {
         Sender::Send("That ship is not here!\n", connection);
+    }
+}
+
+void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    std::string data = input;
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    if(player->IsInShip()) {
+        auto ship = game_data->GetShip(player->GetLocationID());
+        if(ship->I)
+    }
+    else {
+        Sender::Send("Not in a vehicle\n", connection);
     }
 }

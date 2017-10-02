@@ -5,7 +5,7 @@
 #include "GameData.h"
 #include "Logger.h"
 
-const std::string GameData::BASE_PATH = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Data/";
+const std::string GameData::BASE_PATH = "/home/nate/SkelMUD/SkelMUD/SkelMUD/Data/";
 const std::string GameData::ACCOUNT_FILE = BASE_PATH + "Accounts.sml";
 const std::string GameData::RACE_FILE = BASE_PATH + "Races.sml";
 const std::string GameData::CLASS_FILE = BASE_PATH + "Classes.sml";
@@ -113,11 +113,15 @@ std::shared_ptr<Planet> GameData::GetPlanet(int ID) {
     return m_planets.GetPlanets()[ID];
 }
 std::shared_ptr<Room> GameData::GetRoom(int AreaID, int RoomID, bool is_ship) {
+    return GetArea(AreaID, is_ship)->GetRoom(RoomID);
+}
+
+std::shared_ptr<Area> GameData::GetArea(int ID, bool is_ship) {
     if(is_ship) {
-        return GetShip(AreaID)->GetRoom(RoomID);
+        return GetShip(ID);
     }
     else {
-        return GetPlanet(AreaID)->GetRoom(RoomID);
+        return GetPlanet(ID);
     }
 }
 
