@@ -9,4 +9,13 @@
 Landing Pad of Planet X
 [/LongDescription]
 [/0]
+[1]
+[Ships]
+[/Ships]
+[South]0[/South]
+[ShortDescription]MSNACO News Office[/ShortDescription]
+[LongDescription]
+The MSNACO main office
+[/LongDescription]
+[/1]
 [/PlanetX]

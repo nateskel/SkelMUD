@@ -58,7 +58,7 @@ void Ship::SetInOrbit(bool in_orbit) {
     m_in_orbit = in_orbit;
 }
 
-void Ship::SetCoordinates(Utils::Coordinates coords) {
+void Ship::SetCoordinates(Utils::Vector3 coords) {
     m_coordinates = coords;
 }
 
@@ -87,11 +87,11 @@ void Ship::RemovePlayer(int player_id) {
     }
 }
 
-Utils::Coordinates Ship::GetCoordinates() {
+Utils::Vector3 Ship::GetCoordinates() {
     return m_coordinates;
 }
 
-void Ship::SetVelocity(Utils::Velocity velocity) {
+void Ship::SetVelocity(Utils::Vector3 velocity) {
     m_velocity = velocity;
 }
 
@@ -101,6 +101,20 @@ void Ship::SetVelocity(double x, double y, double z) {
     m_velocity.z = z;
 }
 
-Utils::Velocity Ship::GetVelocity() {
+Utils::Vector3 Ship::GetVelocity() {
     return m_velocity;
+}
+
+void Ship::SetDestination(Utils::Vector3 destination) {
+    m_destination = destination;
+}
+
+void Ship::SetDestination(double x, double y, double z) {
+    m_destination.x = x;
+    m_destination.y = y;
+    m_destination.z = z;
+}
+
+Utils::Vector3 Ship::GetDestination() {
+    return m_destination;
 }

@@ -1,6 +1,7 @@
 #include "Utils.h"
 #include <algorithm>
 #include <iostream>
+#include <math.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -69,4 +70,25 @@ bool Utils::IsNumber(std::string entry) {
         }
     }
     return true;
+}
+
+double Utils::GetDistance(Utils::Vector3 origin, Utils::Vector3 destination) {
+    double x = destination.x - origin.x;
+    double y = destination.y - origin.y;
+    double z = destination.z - origin.z;
+    return std::sqrt(x * x + y * y + z * z);
+}
+
+double Utils::GetDistance(double ox, double oy, double oz, double dx, double dy, double dz) {
+    double x = dx - ox;
+    double y = dy - oy;
+    double z = dz - oz;
+    return std::sqrt(x * x + y * y + z * z);
+}
+
+double Utils::GetDistance(double ox, double oy, double oz, Vector3 destination) {
+    double x = destination.x - ox;
+    double y = destination.y - oy;
+    double z = destination.z - oz;
+    return std::sqrt(x * x + y * y + z * z);
 }

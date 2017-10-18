@@ -21,11 +21,11 @@ public:
 
     void SetCoordinates(int x, int y, int z);
 
-    Utils::Coordinates GetCoordinates();
+    Utils::Vector3 GetCoordinates();
 
 protected:
 private:
-    Utils::Coordinates m_coordinates;
+    Utils::Vector3 m_coordinates;
 };
 
 #endif // PLANET_H

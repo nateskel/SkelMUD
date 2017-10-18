@@ -38,6 +38,7 @@ public:
         m_cmd_map["launch"] = &CmdTakeOff;
         m_cmd_map["say"] = &CmdSay;
         m_cmd_map["setcourse"] = &CmdSetCourse;
+        m_cmd_map["scan"] = &CmdScan;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -64,6 +65,10 @@ public:
                            std::shared_ptr<GameData> game_data);
     static void CmdSetCourse(const std::string &input, std::shared_ptr<Connection> connection,
                        std::shared_ptr<GameData> game_data);
+    static void CmdScan(const std::string &input, std::shared_ptr<Connection> connection,
+                             std::shared_ptr<GameData> game_data);
+    static bool CheckCockpitCommand(const std::string &input, std::shared_ptr<Connection> connection,
+                                       std::shared_ptr<GameData> game_data, bool InSpace);
 
 protected:
     std::map<std::string, void(*)(const std::string&, std::shared_ptr<Connection>,

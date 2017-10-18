@@ -6,6 +6,6 @@ void Planet::SetCoordinates(int x, int y, int z) {
     m_coordinates.z = z;
 }
 
-Utils::Coordinates Planet::GetCoordinates() {
+Utils::Vector3 Planet::GetCoordinates() {
     return m_coordinates;
 }

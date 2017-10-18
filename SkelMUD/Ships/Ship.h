@@ -60,15 +60,21 @@ public:
 
     void SetCoordinates(double x, double y, double z);
 
-    void SetCoordinates(Utils::Coordinates coords);
+    void SetCoordinates(Utils::Vector3 coords);
 
-    Utils::Velocity GetVelocity();
+    Utils::Vector3 GetVelocity();
 
-    void SetVelocity(Utils::Velocity velocity);
+    void SetVelocity(Utils::Vector3 velocity);
 
     void SetVelocity(double x, double y, double z);
 
-    Utils::Coordinates GetCoordinates();
+    Utils::Vector3 GetDestination();
+
+    void SetDestination(Utils::Vector3 destination);
+
+    void SetDestination(double x, double y, double z);
+
+    Utils::Vector3 GetCoordinates();
 
     void AddPlayer(int player_id);
 
@@ -84,11 +90,12 @@ private:
     bool m_hatch;
     bool m_in_space;
     bool m_in_orbit;
+    Utils::Vector3 m_destination;
     std::map<int, bool> m_cockpits;
     std::map<int, Turret> m_turrets;
     std::vector<int> m_player_ids;
-    Utils::Coordinates m_coordinates;
-    Utils::Velocity m_velocity;
+    Utils::Vector3 m_coordinates;
+    Utils::Vector3 m_velocity;
 };
 
 class Turret {

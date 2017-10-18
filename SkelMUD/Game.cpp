@@ -97,12 +97,24 @@ void Game::Start() {
 void Game::ProcessShips() {
     for(auto ship : m_game_data->GetShips().GetShips()) {
         if(!ship.second->IsInOrbit()) {
-            Utils::Coordinates coords = ship.second->GetCoordinates();
-            Utils::Velocity velocity = ship.second->GetVelocity();
+            Utils::Vector3 coords = ship.second->GetCoordinates();
+            Utils::Vector3 velocity = ship.second->GetVelocity();
             double x = coords.x + velocity.x;
             double y = coords.y + velocity.y;
             double z = coords.z + velocity.z;
             ship.second->SetCoordinates(x, y, z);
+            bool is_moving = (velocity.x + velocity.y + velocity.z) != 0;
+            double speed = Utils::GetDistance(0, 0, 0, velocity);
+            if(ship.second->IsInSpace() and
+               is_moving and
+               Utils::GetDistance(ship.second->GetCoordinates(),
+                                  ship.second->GetDestination()) <= speed * 1.3) {
+                Sender::SendToMultiple("Arrived at destination\n",
+                                       m_game_data->GetLoggedInConnections(),
+                                       ship.second->GetPlayerIDs());
+                ship.second->SetVelocity(0, 0, 0);
+                //ship.second->SetCoordinates(ship.second->GetDestination());
+            }
         }
     }
 }
