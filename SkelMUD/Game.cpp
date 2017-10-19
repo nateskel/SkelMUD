@@ -109,10 +109,24 @@ void Game::ProcessShips() {
                is_moving and
                Utils::GetDistance(ship.second->GetCoordinates(),
                                   ship.second->GetDestination()) <= speed * 1.3) {
-                Sender::SendToMultiple("Arrived at destination\n",
-                                       m_game_data->GetLoggedInConnections(),
-                                       ship.second->GetPlayerIDs());
-                ship.second->SetVelocity(0, 0, 0);
+                if(speed > 10) {
+                    Utils::Vector3 new_velocity = ship.second->GetVelocity();
+                    new_velocity.x /= 10;
+                    new_velocity.y /= 10;
+                    new_velocity.z /= 10;
+                    ship.second->SetVelocity(new_velocity);
+                    std::stringstream ss;
+                    ss << "Approaching Destination, slowing speed to " << speed / 10 << "\n";
+                    Sender::SendToMultiple(ss.str(),
+                                           m_game_data->GetLoggedInConnections(),
+                                           ship.second->GetPlayerIDs());
+                }
+                else {
+                    Sender::SendToMultiple("Arrived at destination\n",
+                                           m_game_data->GetLoggedInConnections(),
+                                           ship.second->GetPlayerIDs());
+                    ship.second->SetVelocity(0, 0, 0);
+                }
                 //ship.second->SetCoordinates(ship.second->GetDestination());
             }
         }
