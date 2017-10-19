@@ -446,7 +446,7 @@ void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection
 void PlayingState::CmdTakeOff(const std::string &input, std::shared_ptr<Connection> connection,
                               std::shared_ptr<GameData> game_data) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    if (CheckCockpitCommand(input, connection, game_data, false)) {
+    if (CheckCockpitCommand(connection, game_data, false)) {
         auto ship = game_data->GetShip(player->GetShipID());
         if(!ship->IsHatchOpen()) {
             Sender::SendToMultiple("The ship lurches as it ascends into space\n",
@@ -472,7 +472,7 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
     double z = 0;
     double speed = 0;
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    if (CheckCockpitCommand(input, connection, game_data, true)) {
+    if (CheckCockpitCommand(connection, game_data, true)) {
         // TODO: Skill check
         if (params.size() > 1 and !Utils::IsNumber(params[0])) {
             auto planet = game_data->GetPlanet(params[0]);
@@ -523,7 +523,7 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
 
 void PlayingState::CmdScan(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
-    if (CheckCockpitCommand(input, connection, game_data, true)) {
+    if (CheckCockpitCommand(connection, game_data, true)) {
         std::stringstream ss;
         auto planets = game_data->GetPlanets().GetPlanets();
         ss << "Planets:\n";
@@ -539,8 +539,51 @@ void PlayingState::CmdScan(const std::string &input, std::shared_ptr<Connection>
     }
 }
 
-bool PlayingState::CheckCockpitCommand(const std::string &input, std::shared_ptr<Connection> connection,
-                                       std::shared_ptr<GameData> game_data, bool InSpace) {
+void PlayingState::CmdOrbit(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto ship = game_data->GetShip(player->GetShipID());
+    if(CheckCockpitCommand(connection, game_data, true)) {
+        for(auto planet : game_data->GetPlanets().GetPlanets()) {
+            if(Utils::GetDistance(planet.second->GetCoordinates(),
+                                  ship->GetCoordinates()) <= 100) {
+                ship->SetPlanetId(planet.second->GetID());
+                ship->SetInOrbit(true);
+                ship->SetVelocity(0, 0, 0);
+                std::stringstream ss;
+                ss << "Entered orbit around " << planet.second->GetName() << "\n";
+                Sender::SendToMultiple(ss.str(),
+                                       game_data->GetLoggedInConnections(),
+                                       ship->GetPlayerIDs());
+                return;
+            }
+        }
+        Sender::Send("Not in range of any planet\n", connection);
+    }
+}
+
+void PlayingState::CmdLand(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    if(CheckCockpitCommand(connection, game_data, true)) {
+        auto player = game_data->GetPlayer(connection->GetCharacterName());
+        auto ship = game_data->GetShip(player->GetShipID());
+        if(ship->IsInOrbit()) {
+            auto planet = game_data->GetPlanet(ship->GetPlanetID());
+            ship->SetInSpace(false);
+            std::stringstream ss;
+            ss << "The ship has landed on " <<  planet->GetName() << "\n";
+            Sender::SendToMultiple(ss.str(),
+                                   game_data->GetLoggedInConnections(),
+                                   ship->GetPlayerIDs());
+        }
+        else {
+            Sender::Send("Must be in orbit before you can land\n", connection);
+        }
+    }
+}
+
+bool PlayingState::CheckCockpitCommand(std::shared_ptr<Connection> connection,
+                                      std::shared_ptr<GameData> game_data, bool InSpace) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
     std::stringstream ss;
     if (player->IsInShip()) {
@@ -551,7 +594,7 @@ bool PlayingState::CheckCockpitCommand(const std::string &input, std::shared_ptr
             }
             else {
                 if (ship->IsInSpace())
-                    ss << "Ship is already in space\n";
+                    ss << "Ship is in space\n";
                 else
                     ss << "Ship is not in space\n";
             }

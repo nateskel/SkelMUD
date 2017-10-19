@@ -39,6 +39,8 @@ public:
         m_cmd_map["say"] = &CmdSay;
         m_cmd_map["setcourse"] = &CmdSetCourse;
         m_cmd_map["scan"] = &CmdScan;
+        m_cmd_map["orbit"] = &CmdOrbit;
+        m_cmd_map["land"] = &CmdLand;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -62,19 +64,23 @@ public:
     static void CmdTakeOff(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data);
     static void CmdSay(const std::string &input, std::shared_ptr<Connection> connection,
-                           std::shared_ptr<GameData> game_data);
-    static void CmdSetCourse(const std::string &input, std::shared_ptr<Connection> connection,
                        std::shared_ptr<GameData> game_data);
+    static void CmdSetCourse(const std::string &input, std::shared_ptr<Connection> connection,
+                             std::shared_ptr<GameData> game_data);
     static void CmdScan(const std::string &input, std::shared_ptr<Connection> connection,
                              std::shared_ptr<GameData> game_data);
-    static bool CheckCockpitCommand(const std::string &input, std::shared_ptr<Connection> connection,
-                                       std::shared_ptr<GameData> game_data, bool InSpace);
+    static void CmdOrbit(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+    static void CmdLand(const std::string &input, std::shared_ptr<Connection> connection,
+                                      std::shared_ptr<GameData> game_data);
 
 protected:
     std::map<std::string, void(*)(const std::string&, std::shared_ptr<Connection>,
                                   std::shared_ptr<GameData>)> m_cmd_map;
     static void Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
                             Direction direction);
+    static bool CheckCockpitCommand(std::shared_ptr<Connection> connection,
+                                       std::shared_ptr<GameData> game_data, bool InSpace);
     static std::string GetValidDirections(Room &room);
 };
 
