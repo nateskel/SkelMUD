@@ -21,6 +21,9 @@ void PlayingState::processInput(const std::string &input, std::shared_ptr<Connec
         game_data->GetRoom(player->GetLocationID(),
                            player->GetRoomID(),
                            player->IsInShip())->RemovePlayer(player->GetID());
+        if(player->IsInShip()) {
+            game_data->GetShip(player->GetShipID())->RemovePlayer(player->GetID());
+        }
     }
     if (m_cmd_map.find(command) != m_cmd_map.end()) {
         m_cmd_map[command](input_string, connection, game_data);
@@ -420,9 +423,11 @@ void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection
                 room->RemovePlayer(player->GetID());
                 player->SetInShip(false);
                 room = game_data->GetRoom(ship->GetPlanetID(),
-                                          ship->GetRoomId(),
+                                          0,
                                           false);
+                player->SetPlanetID(ship->GetPlanetID());
                 room->AddPlayer(player);
+                ship->RemovePlayer(player->GetID());
                 std::stringstream ss;
                 std::string ship_name = ship->GetName();
                 ss << player->GetPlayerName() << " got out of ship " << ship_name << "\n";
@@ -456,7 +461,13 @@ void PlayingState::CmdTakeOff(const std::string &input, std::shared_ptr<Connecti
             ship->SetCoordinates(planet->GetCoordinates());
             ship->SetInSpace(true);
             ship->SetInOrbit(true);
-            planet->GetRoom(0)->RemoveShip(ship->GetID());
+            auto room = planet->GetRoom(0);
+            room->RemoveShip(ship->GetID());
+            std::stringstream ss;
+            ss << ship->GetName() << " departs the planet\n";
+            Sender::SendToMultiple(ss.str(),
+                                   game_data->GetLoggedInConnections(),
+                                   room->GetPlayers());
         }
         else
             Sender::Send("Hatch is open\n", connection);
@@ -472,6 +483,7 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
     double z = 0;
     double speed = 0;
     auto player = game_data->GetPlayer(connection->GetCharacterName());
+    bool course_set = false;
     if (CheckCockpitCommand(connection, game_data, true)) {
         // TODO: Skill check
         if (params.size() > 1 and !Utils::IsNumber(params[0])) {
@@ -486,6 +498,7 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
                 y = coords.y;
                 z = coords.z;
                 speed = std::stod(params[1]);
+                course_set = true;
             }
         }
         else if (params.size() >= 4 and Utils::IsNumber(params[0])
@@ -495,8 +508,9 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
             y = std::stod(params[1]);
             z = std::stod(params[2]);
             speed = std::stod(params[3]);
+            course_set = true;
         }
-        if (x == 0 and y == 0 and z == 0) {
+        if (!course_set) {
             Sender::Send("Course not set, bad parameters\n", connection);
             return;
         }
@@ -570,11 +584,22 @@ void PlayingState::CmdLand(const std::string &input, std::shared_ptr<Connection>
         if(ship->IsInOrbit()) {
             auto planet = game_data->GetPlanet(ship->GetPlanetID());
             ship->SetInSpace(false);
+            ship->SetInOrbit(false);
+            auto room = game_data->GetRoom(ship->GetPlanetID(),
+                               0,
+                               false);
+            room->AddShip(ship);
+
             std::stringstream ss;
             ss << "The ship has landed on " <<  planet->GetName() << "\n";
             Sender::SendToMultiple(ss.str(),
                                    game_data->GetLoggedInConnections(),
                                    ship->GetPlayerIDs());
+            std::stringstream ss2;
+            ss2 << ship->GetName() << " has arrived\n";
+            Sender::SendToMultiple(ss2.str(),
+                                   game_data->GetLoggedInConnections(),
+                                   room->GetPlayers());
         }
         else {
             Sender::Send("Must be in orbit before you can land\n", connection);

@@ -61,6 +61,12 @@ void Room::AddShipID(int ship_id) {
     m_ship_ids.push_back(ship_id);
 }
 
+void Room::AddShip(std::shared_ptr<Ship> ship) {
+    int id = ship->GetID();
+    AddShipID(id);
+    m_ships[id] = ship;
+}
+
 void Room::PopulateShips(Ships &ships, int area_id) {
     auto all_ships = ships.GetShips();
     for(auto ship_id: m_ship_ids) {

@@ -74,6 +74,8 @@ public:
 
     void AddShipIDs(std::vector<int> ship_ids);
 
+    void AddShip(std::shared_ptr<Ship> ship);
+
     void PopulateShips(Ships &ships, int area_id);
 
     std::vector<int> GetShipIDs();
