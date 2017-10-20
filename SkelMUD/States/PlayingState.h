@@ -41,11 +41,11 @@ public:
         m_cmd_map["leave"] = &CmdLeave;
         m_cmd_map["launch"] = &CmdTakeOff;
         m_cmd_map["say"] = &CmdSay;
-        m_cmd_map["setcourse"] = &CmdSetCourse;
+        m_cmd_map["course"] = &CmdSetCourse;
         m_cmd_map["scan"] = &CmdScan;
         m_cmd_map["orbit"] = &CmdOrbit;
         m_cmd_map["land"] = &CmdLand;
-        m_cmd_map["setspeed"] = &CmdSetSpeed;
+        m_cmd_map["speed"] = &CmdSetSpeed;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;

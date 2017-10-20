@@ -30,6 +30,7 @@ public:
         m_velocity.x = 0;
         m_velocity.y = 0;
         m_velocity.z = 0;
+        m_speed = 0;
     };
 
     std::string GetShipName();
@@ -82,11 +83,17 @@ public:
 
     std::vector<int> GetPlayerIDs();
 
+    double GetSpeed();
+
+    void SetSpeed(double speed);
+
 private:
     int m_planet_id;
     int m_room_id;
     int m_max_health;
     int m_max_shields;
+    int m_max_speed;
+    double m_speed;
     bool m_hatch;
     bool m_in_space;
     bool m_in_orbit;

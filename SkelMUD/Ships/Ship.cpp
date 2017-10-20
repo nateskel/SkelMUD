@@ -118,3 +118,11 @@ void Ship::SetDestination(double x, double y, double z) {
 Utils::Vector3 Ship::GetDestination() {
     return m_destination;
 }
+
+void Ship::SetSpeed(double speed) {
+    m_speed = speed;
+}
+
+double Ship::GetSpeed() {
+    return m_speed;
+}

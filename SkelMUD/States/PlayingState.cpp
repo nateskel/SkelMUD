@@ -501,46 +501,49 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
     double x = 0;
     double y = 0;
     double z = 0;
-    double speed = 0;
     auto player = game_data->GetPlayer(connection->GetCharacterName());
     bool course_set = false;
+    auto ship = game_data->GetShip(player->GetShipID());
     if (CheckCockpitCommand(connection, game_data, true)) {
         // TODO: Skill check
-        if (params.size() > 1 and !Utils::IsNumber(params[0])) {
+
+        if (params.size() > 0 and !Utils::IsNumber(params[0])) {
             auto planet = game_data->GetPlanet(params[0]);
             if (planet == nullptr) {
                 Sender::Send("That planet does not exist in this system\n", connection);
                 return;
             }
-            else if(Utils::IsNumber(params[1])) {
+            else {
                 Utils::Vector3 coords = planet->GetCoordinates();
                 x = coords.x;
                 y = coords.y;
                 z = coords.z;
-                speed = std::stod(params[1]);
+                if(params.size() > 1 and Utils::IsNumber(params[1])) {
+                    ship->SetSpeed(std::stod(params[1]));
+                }
                 course_set = true;
             }
         }
-        else if (params.size() >= 4 and Utils::IsNumber(params[0])
-                 and Utils::IsNumber(params[1]) and Utils::IsNumber(params[2])
-                 and Utils::IsNumber(params[3])) {
+        else if (params.size() >= 3 and Utils::IsNumber(params[0])
+                 and Utils::IsNumber(params[1]) and Utils::IsNumber(params[2])) {
             x = std::stod(params[0]);
             y = std::stod(params[1]);
             z = std::stod(params[2]);
-            speed = std::stod(params[3]);
+            if(params.size() >= 4 and Utils::IsNumber(params[3])) {
+                ship->SetSpeed(std::stod(params[3]));
+            }
             course_set = true;
         }
         if (!course_set) {
             Sender::Send("Course not set, bad parameters\n", connection);
             return;
         }
-        auto ship = game_data->GetShip(player->GetShipID());
         ship->SetDestination(x, y, z);
         ship->SetInOrbit(false);
-        ChangeSpeed(speed, ship);
+        ChangeSpeed(ship->GetSpeed(), ship);
         std::stringstream ss;
-        ss << "Course set for " << "X: " << x << "Y: " << y
-        << "Z: " << z << " at speed " << speed << "\n";
+        ss << "Course set for " << "X: " << x << " Y: " << y
+        << " Z: " << z << " at speed " << ship->GetSpeed() << "\n";
         Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
                                ship->GetPlayerIDs());
     }
@@ -553,11 +556,14 @@ void PlayingState::ChangeSpeed(double speed, std::shared_ptr<Ship> &ship) {
     double yf = destination.y - coords.y;
     double zf = destination.z - coords.z;
     double length = sqrt(xf * xf + yf * yf + zf * zf);
+    if(length == 0)
+        return;
     Utils::Vector3 velocity;
     velocity.x = (xf / length) * speed;
     velocity.y = (yf / length) * speed;
     velocity.z = (zf / length) * speed;
     ship->SetVelocity(velocity);
+    ship->SetInOrbit(false);
 }
 
 void PlayingState::CmdSetSpeed(const std::string &input, std::shared_ptr<Connection> connection,
@@ -568,6 +574,7 @@ void PlayingState::CmdSetSpeed(const std::string &input, std::shared_ptr<Connect
         auto player = game_data->GetPlayer(connection->GetCharacterName());
         auto ship = game_data->GetShip(player->GetShipID());
         if(Utils::IsNumber(speed_string)) {
+            ship->SetSpeed(std::stod(speed_string));
             ChangeSpeed(std::stod(speed_string), ship);
             std::stringstream ss;
             ss << "Ship's speed set to " << speed_string << Format::NL;
