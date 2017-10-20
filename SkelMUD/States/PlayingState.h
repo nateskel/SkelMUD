@@ -29,6 +29,10 @@ public:
         m_cmd_map["e"] = &CmdEast;
         m_cmd_map["west"] = &CmdWest;
         m_cmd_map["w"] = &CmdWest;
+        m_cmd_map["up"] = &CmdUp;
+        m_cmd_map["u"] = &CmdUp;
+        m_cmd_map["down"] = &CmdDown;
+        m_cmd_map["d"] = &CmdDown;
         m_cmd_map["build"] = &CmdBuild;
         m_cmd_map["goto"] = &CmdGoto;
         m_cmd_map["open"] = &CmdOpen;
@@ -55,6 +59,8 @@ public:
     static void CmdSouth(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdEast(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdWest(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
+    static void CmdUp(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
+    static void CmdDown(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdBuild(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdGoto(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
     static void CmdOpen(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);

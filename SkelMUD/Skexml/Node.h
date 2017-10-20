@@ -27,6 +27,7 @@ public:
     void AddListAttribute(std::string name, std::string value);
     void AddList(std::string name, std::string value);
     void AddList(std::string name, std::vector<std::string> attribute_list);
+    void AddList(std::string name, std::vector<int> attribute_list);
     std::string GetName();
     void SetName(std::string name);
 

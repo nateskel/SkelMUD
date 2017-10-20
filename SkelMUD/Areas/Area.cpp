@@ -123,7 +123,6 @@ bool Area::ChangeRoom(int old_room, int new_room, int player_id) {
     if(new_room >= m_rooms.size())
         return false;
     std::shared_ptr<Player> player = m_rooms[old_room]->GetPlayer(player_id);
-    auto temp = *player;
     player->SetRoomID(new_room);
     m_rooms[old_room]->RemovePlayer(player_id);
     m_rooms[new_room]->AddPlayer(player);

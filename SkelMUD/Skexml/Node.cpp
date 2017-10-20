@@ -48,6 +48,14 @@ void Node::AddList(std::string name, std::vector<std::string> attribute_list) {
     this->AddChild(list_node);
 }
 
+void Node::AddList(std::string name, std::vector<int> attribute_list) {
+    std::vector<std::string> attribute_list_strings;
+    for(auto item : attribute_list) {
+        attribute_list_strings.push_back(std::to_string(item));
+    }
+    AddList(name, attribute_list_strings);
+}
+
 void Node::AddListAttribute(std::string name, std::string value) {
     if(_attributes.find(name) == _attributes.end()) {
         _attributes[name] = value;
@@ -81,7 +89,11 @@ std::string Node::GetAttribute(std::string attribute_name) {
 }
 
 std::vector<std::string> Node::GetListAttribute(std::string attribute_name) {
-    auto node = _children[attribute_name];
+    std::shared_ptr<Node> node;
+    if(_children.find(attribute_name) != _children.end())
+        node = _children[attribute_name];
+    else
+        return std::vector<std::string>();
     std::string list_attribute = node->GetAttribute("List");
     return Tokenizer::GetAllTokens(list_attribute, ';');
 }

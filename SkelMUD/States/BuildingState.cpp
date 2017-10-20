@@ -97,7 +97,7 @@ void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection
     std::string direction_string = Tokenizer::GetFirstToken(input_string);
     direction_string = Tokenizer::LowerCase(direction_string);
     std::string destination_id_string = Tokenizer::GetFirstToken(input_string);
-    std::string both_string = Tokenizer::GetFirstToken(input_string);
+    std::string single_string = Tokenizer::GetFirstToken(input_string);
     int destination_id = std::atoi(destination_id_string.c_str());
 
     // don't process if destination doesn't exist
@@ -109,23 +109,33 @@ void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection
     switch (direction) {
         case Direction::NORTH:
             room->SetNorth(destination_id);
-            if(both_string == "both")
+            if(single_string != "single")
                 destination_room->SetSouth(room->GetID());
             break;
         case Direction::SOUTH:
             room->SetSouth(destination_id);
-            if(both_string == "both")
+            if(single_string != "single")
                 destination_room->SetNorth(room->GetID());
             break;
         case Direction::EAST:
             room->SetEast(destination_id);
-            if(both_string == "both")
+            if(single_string != "single")
                 destination_room->SetWest(room->GetID());
             break;
         case Direction::WEST:
             room->SetWest(destination_id);
-            if(both_string == "both")
+            if(single_string != "single")
                 destination_room->SetEast(room->GetID());
+            break;
+        case Direction::UP:
+            room->SetUp(destination_id);
+            if(single_string != "single")
+                destination_room->SetDown(room->GetID());
+            break;
+        case Direction::DOWN:
+            room->SetDown(destination_id);
+            if(single_string != "single")
+                destination_room->SetUp(room->GetID());
             break;
         default:
             Sender::Send("Unable to link room\r\n", connection);
@@ -142,14 +152,14 @@ void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connecti
     std::string input_string = std::string(input);
     std::string direction_string = Tokenizer::GetFirstToken(input_string);
     direction_string = Tokenizer::LowerCase(direction_string);
-    std::string both_string = Tokenizer::GetFirstToken(input_string);
+    std::string single_string = Tokenizer::GetFirstToken(input_string);
     Direction direction = BuildingState::m_direction_map[direction_string];
     switch (direction) {
         case Direction::NORTH:
             room_id = room->GetNorth();
             if(room_id == -1)
                 break;
-            if(both_string == "both")
+            if(single_string == "single")
                 planet->GetRoom(room_id)->SetSouth(-1);
             room->SetNorth(-1);
             break;
@@ -157,7 +167,7 @@ void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connecti
             room_id = room->GetSouth();
             if(room_id == -1)
                 break;
-            if(both_string == "both")
+            if(single_string != "single")
                 planet->GetRoom(room_id)->SetNorth(-1);
             room->SetSouth(-1);
             break;
@@ -165,7 +175,7 @@ void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connecti
             room_id = room->GetEast();
             if(room_id == -1)
                 break;
-            if(both_string == "both")
+            if(single_string != "single")
                 planet->GetRoom(room_id)->SetWest(-1);
             room->SetEast(-1);
             break;
@@ -173,9 +183,25 @@ void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connecti
             room_id = room->GetWest();
             if(room_id == -1)
                 break;
-            if(both_string == "both")
+            if(single_string != "single")
                 planet->GetRoom(room_id)->SetEast(-1);
             room->SetWest(-1);
+            break;
+        case Direction::UP:
+            room_id = room->GetUp();
+            if(room_id == -1)
+                break;
+            if(single_string != "single")
+                planet->GetRoom(room_id)->SetDown(-1);
+            room->SetUp(-1);
+            break;
+        case Direction::DOWN:
+            room_id = room->GetDown();
+            if(room_id == -1)
+                break;
+            if(single_string != "single")
+                planet->GetRoom(room_id)->SetUp(-1);
+            room->SetDown(-1);
             break;
         default:
             Sender::Send("Unable to unlink room\n", connection);
@@ -228,5 +254,9 @@ std::map<std::string, PlayingState::Direction> BuildingState::m_direction_map = 
         {"e", Direction::EAST},
         {"east", Direction::EAST},
         {"w", Direction::WEST},
-        {"west", Direction::WEST}
+        {"west", Direction::WEST},
+        {"up", Direction::UP},
+        {"u", Direction::UP},
+        {"down", Direction::DOWN},
+        {"d", Direction::DOWN}
 };

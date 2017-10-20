@@ -24,6 +24,9 @@ void PlayingState::processInput(const std::string &input, std::shared_ptr<Connec
         if(player->IsInShip()) {
             game_data->GetShip(player->GetShipID())->RemovePlayer(player->GetID());
         }
+        game_data->GetRoom(player->GetPlanetID(),
+                           0,
+                           false)->AddPlayer(player);
     }
     if (m_cmd_map.find(command) != m_cmd_map.end()) {
         m_cmd_map[command](input_string, connection, game_data);
@@ -100,7 +103,7 @@ void PlayingState::CmdChat(const std::string &input, std::shared_ptr<Connection>
     std::stringstream ss;
     ss << Format::CYAN << Format::BOLD << connection->GetCharacterName() << " chats: " << Format::MAGENTA <<
     input_string << Format::NL;
-    Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), connection->GetSocket());
+    Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), std::vector<int>());
 }
 
 void PlayingState::CmdSay(const std::string &input, std::shared_ptr<Connection> connection,
@@ -172,6 +175,16 @@ void PlayingState::CmdWest(const std::string &input, std::shared_ptr<Connection>
     Move(connection, game_data, Direction::WEST);
 }
 
+void PlayingState::CmdUp(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data) {
+    Move(connection, game_data, Direction::UP);
+}
+
+void PlayingState::CmdDown(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    Move(connection, game_data, Direction::DOWN);
+}
+
 void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
                         Direction direction) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
@@ -182,31 +195,37 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
     bool success = false;
     std::string arrive_string = "";
     std::string depart_string = "";
-    int departed_room = 0;
+    int departed_room = player->GetRoomID();
     switch (direction) {
         case NORTH:
-            departed_room = player->GetRoomID();
             success = area->MoveNorth(room_id, player_id);
-            arrive_string = "south";
-            depart_string = "north";
+            arrive_string = "the south";
+            depart_string = "to the north";
             break;
         case SOUTH:
-            departed_room = player->GetRoomID();
             success = area->MoveSouth(room_id, player_id);
-            arrive_string = "north";
-            depart_string = "south";
+            arrive_string = "the north";
+            depart_string = "to the south";
             break;
         case EAST:
-            departed_room = player->GetRoomID();
             success = area->MoveEast(room_id, player_id);
-            arrive_string = "west";
-            depart_string = "east";
+            arrive_string = "the west";
+            depart_string = "to the east";
             break;
         case WEST:
-            departed_room = player->GetRoomID();
             success = area->MoveWest(room_id, player_id);
-            arrive_string = "east";
-            depart_string = "west";
+            arrive_string = "the east";
+            depart_string = "to the west";
+            break;
+        case UP:
+            success = area->MoveUp(room_id, player_id);
+            arrive_string = "above";
+            depart_string = "downwards";
+            break;
+        case DOWN:
+            success = area->MoveDown(room_id, player_id);
+            arrive_string = "below";
+            depart_string = "upwards";
             break;
         default:
             Logger::Error("Unhandled Direction");
@@ -216,8 +235,8 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
             std::stringstream departed_ss;
             std::stringstream arrived_ss;
             std::string player_name = player->GetPlayerName();
-            departed_ss << player_name << " has left to the " << depart_string << Format::NL;
-            arrived_ss << player_name << " has arrived from the " << arrive_string << Format::NL;
+            departed_ss << player_name << " has left " << depart_string << Format::NL;
+            arrived_ss << player_name << " has arrived from " << arrive_string << Format::NL;
             Sender::SendToMultiple(departed_ss.str(), game_data->GetLoggedInConnections(),
                                    area->GetRoom(departed_room)->GetVisiblePlayers());
             Sender::SendToMultiple(arrived_ss.str(), game_data->GetLoggedInConnections(),
@@ -247,6 +266,10 @@ std::string PlayingState::GetValidDirections(Room &room) {
         ss << "east ";
     if (room.GetWest() != -1)
         ss << "west ";
+    if (room.GetUp() != -1)
+        ss << "up ";
+    if (room.GetDown() != -1)
+        ss << "down ";
     ss << "\n";
     return ss.str();
 }
@@ -295,12 +318,9 @@ void PlayingState::CmdOpen(const std::string &input, std::shared_ptr<Connection>
         }
     }
     else {
-        //auto planet = game_data->GetPlanet(player->GetPlanetID());
         auto room = game_data->GetRoom(player->GetLocationID(),
                                        player->GetRoomID(),
                                        false);
-        //int room_id = player->GetRoomID();
-        //auto room = planet->GetRoom(room_id);
         bool found = false;
         std::string ship_name = Tokenizer::GetFirstToken(data);
         for (auto ship: room->GetShips()) {

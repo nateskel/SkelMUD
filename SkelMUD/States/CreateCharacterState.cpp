@@ -70,7 +70,7 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
             selection = atoi(input.c_str());
         if(selection < 1 or selection > characters.size())
         {
-            Sender::Send("Invalid Selection", connection);
+            Sender::Send("Invalid Selection\n", connection);
         }
         else {
             std::string character = characters[selection - 1];
