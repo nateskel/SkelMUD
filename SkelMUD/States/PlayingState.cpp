@@ -512,7 +512,7 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
                 Sender::Send("That planet does not exist in this system\n", connection);
                 return;
             }
-            else {
+            else if(Utils::IsNumber(params[1])) {
                 Utils::Vector3 coords = planet->GetCoordinates();
                 x = coords.x;
                 y = coords.y;
@@ -555,11 +555,19 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
     }
 }
 
+void PlayingState::CmdSetSpeed(const std::string &input, std::shared_ptr<Connection> connection,
+                               std::shared_ptr<GameData> game_data) {
+    if (CheckCockpitCommand(connection, game_data, true)) {
+
+    }
+}
+
 void PlayingState::CmdScan(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
     if (CheckCockpitCommand(connection, game_data, true)) {
         std::stringstream ss;
         auto planets = game_data->GetPlanets().GetPlanets();
+        auto ships = game_data->GetShips().GetShips();
         ss << "Planets:\n";
         for (auto planet : planets) {
             std::string planet_name = planet.second->GetName();
@@ -569,6 +577,17 @@ void PlayingState::CmdScan(const std::string &input, std::shared_ptr<Connection>
             ss << planet_name << " X: " << x << " Y: " << y << " Z: " << z << "\n";
         }
         ss << Format::NL;
+        ss << "Ships:\n";
+        for (auto ship : ships) {
+            if(ship.second->IsInSpace()) {
+                std::string ship_name = ship.second->GetName();
+                double x = ship.second->GetCoordinates().x;
+                double y = ship.second->GetCoordinates().y;
+                double z = ship.second->GetCoordinates().z;
+                ss << ship_name << " X: " << x << " Y: " << y << " Z: " << z << "\n";
+
+            }
+        }
         Sender::Send(ss.str(), connection);
     }
 }

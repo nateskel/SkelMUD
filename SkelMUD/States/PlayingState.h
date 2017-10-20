@@ -73,6 +73,8 @@ public:
                        std::shared_ptr<GameData> game_data);
     static void CmdSetCourse(const std::string &input, std::shared_ptr<Connection> connection,
                              std::shared_ptr<GameData> game_data);
+    static void CmdSetSpeed(const std::string &input, std::shared_ptr<Connection> connection,
+                             std::shared_ptr<GameData> game_data);
     static void CmdScan(const std::string &input, std::shared_ptr<Connection> connection,
                              std::shared_ptr<GameData> game_data);
     static void CmdOrbit(const std::string &input, std::shared_ptr<Connection> connection,
