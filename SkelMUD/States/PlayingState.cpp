@@ -537,16 +537,7 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
         auto ship = game_data->GetShip(player->GetShipID());
         ship->SetDestination(x, y, z);
         ship->SetInOrbit(false);
-        Utils::Vector3 coords = ship->GetCoordinates();
-        double xf = x - coords.x;
-        double yf = y - coords.y;
-        double zf = z - coords.z;
-        double length = sqrt(xf * xf + yf * yf + zf * zf);
-        Utils::Vector3 velocity;
-        velocity.x = (xf / length) * speed;
-        velocity.y = (yf / length) * speed;
-        velocity.z = (zf / length) * speed;
-        ship->SetVelocity(velocity);
+        ChangeSpeed(speed, ship);
         std::stringstream ss;
         ss << "Course set for " << "X: " << x << "Y: " << y
         << "Z: " << z << " at speed " << speed << "\n";
@@ -555,10 +546,37 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
     }
 }
 
+void PlayingState::ChangeSpeed(double speed, std::shared_ptr<Ship> &ship) {
+    Utils::Vector3 coords = ship->GetCoordinates();
+    Utils::Vector3 destination = ship->GetDestination();
+    double xf = destination.x - coords.x;
+    double yf = destination.y - coords.y;
+    double zf = destination.z - coords.z;
+    double length = sqrt(xf * xf + yf * yf + zf * zf);
+    Utils::Vector3 velocity;
+    velocity.x = (xf / length) * speed;
+    velocity.y = (yf / length) * speed;
+    velocity.z = (zf / length) * speed;
+    ship->SetVelocity(velocity);
+}
+
 void PlayingState::CmdSetSpeed(const std::string &input, std::shared_ptr<Connection> connection,
                                std::shared_ptr<GameData> game_data) {
     if (CheckCockpitCommand(connection, game_data, true)) {
-
+        std::string input_data = input;
+        std::string speed_string = Tokenizer::GetFirstToken(input_data);
+        auto player = game_data->GetPlayer(connection->GetCharacterName());
+        auto ship = game_data->GetShip(player->GetShipID());
+        if(Utils::IsNumber(speed_string)) {
+            ChangeSpeed(std::stod(speed_string), ship);
+            std::stringstream ss;
+            ss << "Ship's speed set to " << speed_string << Format::NL;
+            Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
+                                   ship->GetPlayerIDs());
+        }
+        else {
+            Sender::Send("Invalid speed parameter", connection);
+        }
     }
 }
 

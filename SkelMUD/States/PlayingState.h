@@ -45,6 +45,7 @@ public:
         m_cmd_map["scan"] = &CmdScan;
         m_cmd_map["orbit"] = &CmdOrbit;
         m_cmd_map["land"] = &CmdLand;
+        m_cmd_map["setspeed"] = &CmdSetSpeed;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -90,6 +91,8 @@ protected:
     static bool CheckCockpitCommand(std::shared_ptr<Connection> connection,
                                        std::shared_ptr<GameData> game_data, bool InSpace);
     static std::string GetValidDirections(Room &room);
+
+    static void ChangeSpeed(double speed, std::shared_ptr<Ship> &ship);
 };
 
 
