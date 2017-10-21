@@ -103,7 +103,7 @@ void PlayingState::CmdChat(const std::string &input, std::shared_ptr<Connection>
     std::stringstream ss;
     ss << Format::CYAN << Format::BOLD << connection->GetCharacterName() << " chats: " << Format::MAGENTA <<
     input_string << Format::NL;
-    Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), std::vector<int>());
+    Sender::SendAll(ss.str(), game_data->GetLoggedInConnections());
 }
 
 void PlayingState::CmdSay(const std::string &input, std::shared_ptr<Connection> connection,

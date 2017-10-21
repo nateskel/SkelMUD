@@ -12,7 +12,7 @@
 #include "Sender.h"
 #include "Format.h"
 
-#define MAX_TICK 10000
+#define MAX_TICK 100
 
 void Connection::Run() {
     std::thread connThread(&Connection::connectionThread, this);
@@ -57,6 +57,7 @@ void Connection::AddOutput(std::string output) {
 void Connection::FlushOutput() {
     if (m_send_buffer == "")
         return;
+    m_dirty_prompt = false;
     m_send_buffer.append(GetPrompt() + Format::RESET);
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');
@@ -69,6 +70,7 @@ void Connection::FlushOutput() {
 }
 
 void Connection::UpdatePrompt() {
+    m_dirty_prompt = false;
     m_send_buffer.append(GetPrompt() + Format::RESET);
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');
@@ -163,9 +165,12 @@ std::string Connection::GetPrompt() {
 }
 
 bool Connection::IsPromptTick() {
+    if(!m_dirty_prompt)
+        return false;
     if(prompt_tick > MAX_TICK)
     {
         prompt_tick = 0;
+        m_dirty_prompt = false;
         return true;
     }
     else
@@ -184,7 +189,10 @@ bool Connection::IsLoggedIn() {
 }
 
 void Connection::SetPrompt(std::string prompt) {
-    m_prompt = prompt;
+    if (m_prompt != prompt) {
+        m_prompt = prompt;
+        m_dirty_prompt = true;
+    }
 }
 
 int Connection::GetHealth() {
@@ -196,6 +204,7 @@ int Connection::GetHealth() {
 }
 
 void Connection::TickNow() {
+    m_dirty_prompt = true;
     prompt_tick = MAX_TICK + 1;
 }
 

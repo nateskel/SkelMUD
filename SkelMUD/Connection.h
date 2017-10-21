@@ -32,6 +32,7 @@ private:
     std::string character_name;
     int prompt_tick;
     std::string m_prompt;
+    bool m_dirty_prompt;
     bool logged_in;
     int health;
 

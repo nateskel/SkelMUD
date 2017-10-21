@@ -15,6 +15,8 @@ public:
 
     static void SendAll(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map, SOCKET exclude);
 
+    static void SendAll(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map);
+
     static void SendAll(std::string data, std::map<SOCKET, std::shared_ptr<Connection>> connection_map,
                         std::vector<int> exclude);
 
