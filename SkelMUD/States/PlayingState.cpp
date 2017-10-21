@@ -120,6 +120,21 @@ void PlayingState::CmdSay(const std::string &input, std::shared_ptr<Connection> 
 
 }
 
+void PlayingState::CmdEmote(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    std::string input_string = input;
+    std::stringstream ss;
+    ss << Format::BLUE << Format::BOLD << connection->GetCharacterName()
+        << " " << Format::BOLD << input_string << Format::NL;
+    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto room = game_data->GetRoom(player->GetLocationID(),
+                                   player->GetRoomID(),
+                                   player->IsInShip());
+    Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
+                           room->GetVisiblePlayers());
+
+}
+
 void PlayingState::CmdOnline(const std::string &input, std::shared_ptr<Connection> connection,
                              std::shared_ptr<GameData> game_data) {
     std::stringstream ss;
