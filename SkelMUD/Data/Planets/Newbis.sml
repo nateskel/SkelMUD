@@ -16,6 +16,7 @@ You start here
 3
 4
 5
+6
 [/Ships]
 [/0]
 [1]
