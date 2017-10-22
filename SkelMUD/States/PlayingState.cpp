@@ -18,20 +18,6 @@ void PlayingState::processInput(const std::string &input, std::shared_ptr<Connec
     std::string input_string = input;
     std::string command = Tokenizer::GetFirstToken(input_string);
     command = Tokenizer::LowerCase(command);
-    if (input == "quit") {
-        connection->Close();
-        auto player = connection->GetPlayer();
-        game_data->GetRoom(player->GetLocationID(),
-                           player->GetRoomID(),
-                           player->IsInShip())->RemovePlayer(player->GetID());
-        if (player->IsInShip()) {
-            game_data->GetShip(player->GetShipID())->RemovePlayer(player->GetID());
-        }
-        // TODO
-        game_data->GetRoom(0,
-                           0,
-                           false)->AddPlayer(player);
-    }
     if (m_cmd_map.find(command) != m_cmd_map.end()) {
         m_cmd_map[command](input_string, connection, game_data);
         connection->SetPrompt(GetPrompt(connection));
@@ -43,22 +29,25 @@ void PlayingState::processInput(const std::string &input, std::shared_ptr<Connec
 void PlayingState::init(std::shared_ptr<Connection> connection) {
     std::stringstream ss;
     // Check if a connection is already using this character
-    auto existing_conn = game_data->GetConnection(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
+    auto existing_conn = game_data->GetConnection(player->GetPlayerName());
     if (existing_conn != nullptr) {
-        existing_conn->GetState()->Shutdown(connection);
+        existing_conn->GetState()->Shutdown(existing_conn);
+        player->GetRoom()->AddPlayer(player);
     }
+    else {
+        // TODO: set player to proper planet
+        game_data->GetPlanet(0)->GetRoom(0)->AddPlayer(player);
+        //TODO: set proper planet id
+        player->SetPlanet(game_data->GetPlanet(0));
+        player->SetRoomID(0);
+        player->SetRoom(game_data->GetPlanet(0)->GetRoom(0));
+    }
+    player->SetID(connection->GetID());
     ss << "Welcome to SkelMUD, " << connection->GetCharacterName() << "!" << Format::NL;
     Sender::Send(ss.str(), connection);
     connection->SetPrompt(GetPrompt(connection));
     connection->SetLoggedIn(true);
-    auto player = connection->GetPlayer();
-    player->SetID(connection->GetID());
-    // TODO: set player to proper planet
-    game_data->GetPlanet(0)->GetRoom(0)->AddPlayer(player);
-    //TODO: set proper planet id
-    player->SetPlanet(game_data->GetPlanet(0));
-    player->SetRoomID(0);
-    player->SetRoom(game_data->GetPlanet(0)->GetRoom(0));
 //    player->SetVisible(true);
     CmdLook("", connection, game_data);
     ss.str(std::string());
@@ -726,7 +715,7 @@ void PlayingState::CmdQuit(const std::string &input, std::shared_ptr<Connection>
         player->SetInShip(false);
     }
     // TODO
-    game_data->GetRoom(player->GetPlanet()->GetID(), 0, false)->AddPlayer(player);
+    //game_data->GetRoom(player->GetPlanet()->GetID(), 0, false)->AddPlayer(player);
 }
 
 void PlayingState::Shutdown(std::shared_ptr<Connection> connection) {
