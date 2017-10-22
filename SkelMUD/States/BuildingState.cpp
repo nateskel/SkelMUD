@@ -12,7 +12,7 @@
 void BuildingState::init(std::shared_ptr<Connection> connection) {
     Sender::Send("Build Mode\r\n", connection);
     connection->SetPrompt(GetPrompt(connection));
-//    auto player = game_data->GetPlayer(connection->GetCharacterName());
+//    auto player = connection->GetPlayer();
 //    player->SetVisible(false);
     CmdLook("", connection, game_data);
 }
@@ -25,7 +25,7 @@ std::string BuildingState::GetPrompt(std::shared_ptr<Connection> connection) {
 
 void BuildingState::CmdBuildRoom(const std::string &input, std::shared_ptr<Connection> connection,
                                  std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     auto planet = player->GetPlanet();
     std::shared_ptr<Room> room = std::make_shared<Room>();
     u_long room_num = planet->AddRoom(room);
@@ -43,9 +43,9 @@ void BuildingState::CmdBuildRoom(const std::string &input, std::shared_ptr<Conne
 
 void BuildingState::CmdDeleteRoom(const std::string &input, std::shared_ptr<Connection> connection,
                                  std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     auto planet = player->GetPlanet();
-    auto room = planet->GetRoom(player->GetRoomID());
+    auto room = player->GetRoom();
     auto rooms = planet->GetRooms();
     int room_id;
     int room_delete_id = room->GetID();
@@ -90,9 +90,8 @@ void BuildingState::CmdDeleteRoom(const std::string &input, std::shared_ptr<Conn
 
 void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     auto planet = player->GetPlanet();
-    // auto room = planet->GetRoom(player->GetRoomID());
     auto room = player->GetRoom();
     std::string input_string = std::string(input);
     std::string direction_string = Tokenizer::GetFirstToken(input_string);
@@ -146,9 +145,9 @@ void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection
 
 void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connection> connection,
                       std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     auto planet = player->GetPlanet();
-    auto room = planet->GetRoom(player->GetRoomID());
+    auto room = player->GetRoom();
     int room_id;
     std::string input_string = std::string(input);
     std::string direction_string = Tokenizer::GetFirstToken(input_string);
@@ -212,7 +211,7 @@ void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connecti
 
 void BuildingState::CmdGetRoomID(const std::string &input, std::shared_ptr<Connection> connection,
                                  std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     std::stringstream ss;
     ss << "Room ID is " << player->GetRoomID() << Format::NL;
     Sender::Send(ss.str(), connection);
@@ -220,9 +219,8 @@ void BuildingState::CmdGetRoomID(const std::string &input, std::shared_ptr<Conne
 
 void BuildingState::CmdSetLongDesc(const std::string &input, std::shared_ptr<Connection> connection,
                                    std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = player->GetPlanet();
-    auto room = planet->GetRoom(player->GetRoomID());
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
     std::string input_string(input);
     std::replace(input_string.begin(), input_string.end(), ';', '\n');
     room->SetLongDesc(input_string);
