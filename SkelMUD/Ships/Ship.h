@@ -12,6 +12,7 @@
 #include "../Connection.h"
 
 class Turret;
+class Room;
 
 class Ship : public Area {
 public:
@@ -48,6 +49,14 @@ public:
     int GetPlanetID();
 
     void SetRoomId(int room_id);
+
+    void SetContainingRoom(std::shared_ptr<Room> room);
+
+    std::shared_ptr<Room> GetContainingRoom();
+
+    void SetPlanet(std::shared_ptr<Planet> planet);
+
+    std::shared_ptr<Planet> GetPlanet();
 
     int GetRoomId();
 
@@ -90,6 +99,8 @@ public:
 private:
     int m_planet_id;
     int m_room_id;
+    std::weak_ptr<Room> m_room;
+    std::weak_ptr<Planet> m_planet;
     int m_max_health;
     int m_max_shields;
     int m_max_speed;

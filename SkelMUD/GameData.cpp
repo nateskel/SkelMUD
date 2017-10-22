@@ -66,7 +66,8 @@ GameData::GameData() {
     m_ships.LoadShips(SHIP_FILE);
     Logger::Debug("Ships Loaded");
     m_configuration.LoadConfig(CONFIG_FILE);
-    m_planets.PopulateShips(m_ships);
+    //m_planets.PopulateShips(m_ships);
+    PopulateShips();
     Logger::Debug("Resources Loaded");
 }
 
@@ -167,4 +168,17 @@ void GameData::SaveShip(int id) {
 
 Configuration& GameData::GetConfiguration() {
     return m_configuration;
+}
+
+void GameData::PopulateShips() {
+    for (auto planet : m_planets.GetPlanets()) {
+        for(auto room : planet.second->GetRooms()) {
+            for(int ship_id : room->GetShipIDs()) {
+                auto ship = this->GetShip(ship_id);
+                room->AddShip(ship);
+                ship->SetContainingRoom(room);
+                ship->SetPlanet(planet.second);
+            }
+        }
+    }
 }

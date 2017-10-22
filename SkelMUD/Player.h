@@ -2,9 +2,10 @@
 #define PLAYER_H
 
 #include "Entity.h"
-//#include "Planets/Planet.h"
 #include <string>
 #include <memory>
+
+class Planet;
 
 class Player : public Entity {
 public:

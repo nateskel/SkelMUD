@@ -61,6 +61,7 @@ public:
     Configuration& GetConfiguration();
 
 private:
+    void PopulateShips();
     std::map<int, std::shared_ptr<Connection>> m_connections;
     Accounts m_accounts;
     Races m_races;

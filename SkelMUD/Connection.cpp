@@ -11,6 +11,7 @@
 #include "Tokenizer.h"
 #include "Sender.h"
 #include "Format.h"
+#include "Player.h"
 
 #define MAX_TICK 100
 
@@ -230,4 +231,12 @@ const std::string &Connection::GetCharacterName() const {
 
 void Connection::SetCharacterName(const std::string &character_name) {
     Connection::character_name = character_name;
+}
+
+void Connection::SetPlayer(std::shared_ptr<Player> player) {
+    m_player = player;
+}
+
+std::shared_ptr<Player> Connection::GetPlayer() {
+    return m_player;
 }

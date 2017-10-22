@@ -11,8 +11,8 @@
 //#include "../Ships/Ships.h"
 //#include "../Ships/Ship.h"
 
+class Area;
 class Ship;
-
 class Ships;
 
 class Room {
@@ -76,7 +76,7 @@ public:
 
     void AddShip(std::shared_ptr<Ship> ship);
 
-    void PopulateShips(Ships &ships, int area_id);
+//    void PopulateShips(Ships &ships, std::shared_ptr<Area> area);
 
     std::vector<int> GetShipIDs();
 

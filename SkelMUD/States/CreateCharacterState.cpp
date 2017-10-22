@@ -75,6 +75,7 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
         else {
             std::string character = characters[selection - 1];
             std::shared_ptr<Player> player = game_data->GetPlayer(character);
+            connection->SetPlayer(player);
             connection->SetCharacterName(player->GetPlayerName());
             connection->SetCharacterClass(player->GetPlayerClass());
             connection->SetCharacterRace(player->GetPlayerRace());

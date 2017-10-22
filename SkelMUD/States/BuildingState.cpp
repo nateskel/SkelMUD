@@ -26,7 +26,7 @@ std::string BuildingState::GetPrompt(std::shared_ptr<Connection> connection) {
 void BuildingState::CmdBuildRoom(const std::string &input, std::shared_ptr<Connection> connection,
                                  std::shared_ptr<GameData> game_data) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    auto planet = player->GetPlanet();
     std::shared_ptr<Room> room = std::make_shared<Room>();
     u_long room_num = planet->AddRoom(room);
     if(input.length() > 0)
@@ -44,7 +44,7 @@ void BuildingState::CmdBuildRoom(const std::string &input, std::shared_ptr<Conne
 void BuildingState::CmdDeleteRoom(const std::string &input, std::shared_ptr<Connection> connection,
                                  std::shared_ptr<GameData> game_data) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    auto planet = player->GetPlanet();
     auto room = planet->GetRoom(player->GetRoomID());
     auto rooms = planet->GetRooms();
     int room_id;
@@ -91,8 +91,9 @@ void BuildingState::CmdDeleteRoom(const std::string &input, std::shared_ptr<Conn
 void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
-    auto room = planet->GetRoom(player->GetRoomID());
+    auto planet = player->GetPlanet();
+    // auto room = planet->GetRoom(player->GetRoomID());
+    auto room = player->GetRoom();
     std::string input_string = std::string(input);
     std::string direction_string = Tokenizer::GetFirstToken(input_string);
     direction_string = Tokenizer::LowerCase(direction_string);
@@ -146,7 +147,7 @@ void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection
 void BuildingState::CmdUnlink(const std::string& input, std::shared_ptr<Connection> connection,
                       std::shared_ptr<GameData> game_data) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    auto planet = player->GetPlanet();
     auto room = planet->GetRoom(player->GetRoomID());
     int room_id;
     std::string input_string = std::string(input);
@@ -220,7 +221,7 @@ void BuildingState::CmdGetRoomID(const std::string &input, std::shared_ptr<Conne
 void BuildingState::CmdSetLongDesc(const std::string &input, std::shared_ptr<Connection> connection,
                                    std::shared_ptr<GameData> game_data) {
     auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
+    auto planet = player->GetPlanet();
     auto room = planet->GetRoom(player->GetRoomID());
     std::string input_string(input);
     std::replace(input_string.begin(), input_string.end(), ';', '\n');
@@ -229,9 +230,8 @@ void BuildingState::CmdSetLongDesc(const std::string &input, std::shared_ptr<Con
 
 void BuildingState::CmdSetShortDesc(const std::string &input, std::shared_ptr<Connection> connection,
                                     std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
-    auto room = planet->GetRoom(player->GetRoomID());
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
     room->SetShortDesc(input);
 }
 
@@ -242,7 +242,7 @@ void BuildingState::CmdPlay(const std::string &input, std::shared_ptr<Connection
 
 void BuildingState::CmdSavePlanet(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
-    auto planet = game_data->GetPlanet(game_data->GetPlayer(connection->GetCharacterName())->GetPlanetID());
+    auto planet = connection->GetPlayer()->GetPlanet();
     game_data->SavePlanet(planet->GetID());
 }
 

@@ -67,15 +67,14 @@ void Room::AddShip(std::shared_ptr<Ship> ship) {
     m_ships[id] = ship;
 }
 
-void Room::PopulateShips(Ships &ships, int area_id) {
-    auto all_ships = ships.GetShips();
-    for(auto ship_id: m_ship_ids) {
-        auto ship = all_ships[ship_id];
-        ship->SetPlanetId(area_id);
-        ship->SetRoomId(m_id);
-        m_ships[ship_id] = ship;
-    }
-}
+//void Room::PopulateShips(Ships &ships, std::shared_ptr<Area> area) {
+//    auto all_ships = ships.GetShips();
+//    for(auto ship_id: m_ship_ids) {
+//        auto ship = all_ships[ship_id];
+//        //ship->SetContainingRoom(&this);
+//        m_ships[ship_id] = ship;
+//    }
+//}
 
 std::vector<int> Room::GetShipIDs() {
     return m_ship_ids;

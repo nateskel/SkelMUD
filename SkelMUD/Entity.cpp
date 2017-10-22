@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "Logger.h"
+#include "Planets/Planet.h"
 
 Entity::Entity(int max_hp, int max_sp, int max_stamina) {
     m_max_hp = m_hp = max_hp;
@@ -19,12 +20,20 @@ Entity::~Entity() {
 
 }
 
-void Entity::SetPlanetID(int planet_id) {
-    m_planet_id = planet_id;
+//void Entity::SetPlanetID(int planet_id) {
+//    m_planet_id = planet_id;
+//}
+//
+//int Entity::GetPlanetID() {
+//    return m_planet_id;
+//}
+
+void Entity::SetPlanet(std::shared_ptr<Planet> planet) {
+    m_planet = planet;
 }
 
-int Entity::GetPlanetID() {
-    return m_planet_id;
+std::shared_ptr<Planet> Entity::GetPlanet() {
+    return m_planet.lock();
 }
 
 void Entity::SetShipID(int ship_id) {
@@ -112,4 +121,20 @@ int Entity::GetMaxSP() {
 
 int Entity::GetMaxStamina() {
     return m_max_stamina;
+}
+
+void Entity::SetRoom(std::shared_ptr<Room> room) {
+    m_room = room;
+}
+
+std::shared_ptr<Room> Entity::GetRoom() {
+    return m_room.lock();
+}
+
+void Entity::SetShip(std::shared_ptr<Ship> ship) {
+    m_ship = ship;
+}
+
+std::shared_ptr<Ship> Entity::GetShip() {
+    return m_ship.lock();
 }

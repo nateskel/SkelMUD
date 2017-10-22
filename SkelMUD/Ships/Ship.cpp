@@ -3,6 +3,7 @@
 //
 
 #include "Ship.h"
+#include "../Areas/Room.h"
 #include "../Sender.h"
 
 
@@ -125,4 +126,20 @@ void Ship::SetSpeed(double speed) {
 
 double Ship::GetSpeed() {
     return m_speed;
+}
+
+void Ship::SetContainingRoom(std::shared_ptr<Room> room) {
+    m_room = room;
+}
+
+std::shared_ptr<Room> Ship::GetContainingRoom() {
+    return m_room.lock();
+}
+
+void Ship::SetPlanet(std::shared_ptr<Planet> planet) {
+    m_planet = planet;
+}
+
+std::shared_ptr<Planet> Ship::GetPlanet() {
+    return m_planet.lock();
 }

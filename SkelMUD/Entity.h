@@ -2,6 +2,11 @@
 #define ENTITY_H
 
 #include <string>
+#include <memory>
+
+class Planet;
+class Ship;
+class Room;
 
 class Entity {
 public:
@@ -15,9 +20,9 @@ public:
 
     std::string GetName();
 
-    void SetPlanetID(int planet_id);
+    // void SetPlanetID(int planet_id);
 
-    int GetPlanetID();
+    // int GetPlanetID();
 
     void SetShipID(int ship_id);
 
@@ -32,6 +37,18 @@ public:
     bool IsInShip();
 
     void SetInShip(bool in_ship);
+
+    void SetPlanet(std::shared_ptr<Planet> planet);
+
+    std::shared_ptr<Planet> GetPlanet();
+
+    void SetShip(std::shared_ptr<Ship> ship);
+
+    std::shared_ptr<Ship> GetShip();
+
+    void SetRoom(std::shared_ptr<Room> room);
+
+    std::shared_ptr<Room> GetRoom();
 
     void SetHP(int hp);
 
@@ -61,6 +78,9 @@ protected:
     std::string m_name;
     bool m_in_ship;
     int m_planet_id;
+    std::weak_ptr<Planet> m_planet;
+    std::weak_ptr<Ship> m_ship;
+    std::weak_ptr<Room> m_room;
     int m_ship_id;
     int m_room_id;
     int m_max_hp;

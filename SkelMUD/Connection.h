@@ -10,6 +10,8 @@
 #include "Network.h"
 #include "Accounts/Account.h"
 
+class Player;
+
 class Connection {
 public:
     Connection(DataSocket &dataSocket) : dataSocket(dataSocket), id(-1) { }
@@ -35,6 +37,7 @@ private:
     bool m_dirty_prompt;
     bool logged_in;
     int health;
+    std::shared_ptr<Player> m_player;
 
 public:
     Connection();
@@ -73,6 +76,8 @@ public:
     void SetCharacterClass(const std::string &character_class);
     const std::string &GetCharacterName() const;
     void SetCharacterName(const std::string &character_name);
+    void SetPlayer(std::shared_ptr<Player> player);
+    std::shared_ptr<Player> GetPlayer();
 };
 
 #endif //SKELMUD_CONNECTION_H
