@@ -148,6 +148,15 @@ std::vector<std::string> Room::GetVisiblePlayerNames(int exclude) {
     return output;
 }
 
+std::vector<std::string> Room::GetVisiblePlayerNames(std::string exclude_name) {
+    std::vector<std::string> output;
+    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
+        if (it->second->GetPlayerName() != exclude_name and it->second->IsVisible())
+            output.push_back(it->second->GetPlayerName());
+    }
+    return output;
+}
+
 std::vector<std::string> Room::GetPlayerNames(int exclude) {
     std::vector<std::string> output;
     for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {

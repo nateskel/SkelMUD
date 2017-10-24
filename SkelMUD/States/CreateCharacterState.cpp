@@ -7,6 +7,7 @@
 #include "../Sender.h"
 #include "../Utils.h"
 #include "StateFactory.h"
+#include "../Tokenizer.h"
 
 void CreateCharacterState::processInput(const std::string& input, std::shared_ptr<Connection> connection) {
     std::string username = connection->GetUsername();
@@ -150,12 +151,15 @@ void CreateCharacterState::processNameCharacter(const std::string &input, std::s
 }
 
 void CreateCharacterState::processConfirmCharacter(const std::string &input, std::shared_ptr<Connection> connection) {
-    if(input == "Y" or input == "y" or input == "Yes" or input == "yes") {
+    std::string command = input;
+    Tokenizer::LowerCase(input);
+    if(command == "y" or command == "yes") {
         std::shared_ptr<Player> player = std::make_shared<Player>(0, connection->GetCharacterName(),
                                                                   connection->GetCharacterClass(), connection->GetCharacterRace());
         game_data->AddCharacter(connection->GetUsername(), player);
         game_data->SaveCharacters(GameData::CHARACTER_FILE);
         game_data->SaveAccounts(GameData::ACCOUNT_FILE);
+        connection->SetPlayer(player);
         connection->SetState(GameStates::PLAYING, game_data);
     }
     else

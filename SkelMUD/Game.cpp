@@ -1,15 +1,9 @@
 #include "Game.h"
-#include "File.h"
 #include "States/PlayingState.h"
-#include "States/LoginState.h"
 #include "Sender.h"
-#include "Format.h"
-#include "States/CreateCharacterState.h"
-#include "States/BuildingState.h"
 #include "States/StateFactory.h"
 #include <iostream>
 #include <algorithm>
-#include <ctime>
 #include <thread>
 
 #ifndef _WIN32
@@ -64,9 +58,6 @@ void Game::Start() {
             }
             if(connection->IsPromptTick()) {
                 Sender::UpdatePrompt(connection);
-                //Sender::Send(state->GetPrompt(connection), connection);
-//                Sender::Send(Format::SAVE + Format::UP + Format::FRONT_LINE + state->GetPrompt(connection) + Format::RESTORE,
-//                             connection);
             }
             std::string received = connection->GetNextReceived();
             Utils::RemoveEndline(received);
@@ -82,9 +73,6 @@ void Game::Start() {
                 connection->GetState()->init(connection);
                 connection->ResetStateChanged();
             }
-
-            // Sender::Send("\r\n", connection);
-            // Sender::Send(state_map[connection->GetState()]->GetPrompt(connection), connection);
         }
         if(std::time(nullptr) - elapsed >= 1) {
             ProcessShips();

@@ -3,11 +3,13 @@
 
 #include <string>
 #include <memory>
+#include <map>
 
 class Planet;
 class Ship;
 class Room;
 class Area;
+class Item;
 
 class Entity {
 public:
@@ -92,6 +94,7 @@ protected:
     int m_sp;
     int m_max_stamina;
     int m_stamina;
+    std::map<int, Item> inventory;
 
 private:
 };

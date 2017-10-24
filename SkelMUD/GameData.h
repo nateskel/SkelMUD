@@ -31,6 +31,7 @@ public:
     static const std::string SHIP_PATH;
     static const std::string SHIP_FILE;
     static const std::string CONFIG_FILE;
+    static const std::string ACCOUNT_DATA;
 
     GameData();
     void AddConnection(std::shared_ptr<Connection> connection);

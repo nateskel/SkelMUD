@@ -12,8 +12,6 @@ set(SOURCE_FILES
         SkelMUD/Connection.h
         SkelMUD/Entity.cpp
         SkelMUD/Entity.h
-        SkelMUD/File.cpp
-        SkelMUD/File.h
         SkelMUD/Game.cpp
         SkelMUD/Game.h
         SkelMUD/Logger.cpp
@@ -57,8 +55,6 @@ set(SOURCE_FILES
         SkelMUD/Format.h
         SkelMUD/States/CreateCharacterState.cpp
         SkelMUD/States/CreateCharacterState.h
-        SkelMUD/Players.cpp
-        SkelMUD/Players.h
         SkelMUD/Skills/Skill.cpp
         SkelMUD/Skills/Skill.h
         SkelMUD/Skills/Skills.cpp
@@ -66,7 +62,7 @@ set(SOURCE_FILES
         SkelMUD/Races/Race.cpp
         SkelMUD/Races/Race.h
         SkelMUD/Races/Races.cpp
-        SkelMUD/Races/Races.h SkelMUD/Classes/CharacterClass.cpp SkelMUD/Classes/CharacterClass.h SkelMUD/Classes/CharacterClasses.cpp SkelMUD/Classes/CharacterClasses.h SkelMUD/Characters/Characters.cpp SkelMUD/Characters/Characters.h SkelMUD/Planets/Planets.cpp SkelMUD/Planets/Planets.h SkelMUD/States/BuildingState.cpp SkelMUD/States/BuildingState.h SkelMUD/Config/Configuration.cpp SkelMUD/Config/Configuration.h SkelMUD/Ships/Ship.cpp SkelMUD/Ships/Ship.h SkelMUD/Areas/Area.cpp SkelMUD/Areas/Area.h SkelMUD/Areas/AreaManager.cpp SkelMUD/Areas/AreaManager.h SkelMUD/Areas/Room.cpp SkelMUD/Areas/Room.h SkelMUD/Ships/Ships.cpp SkelMUD/Ships/Ships.h SkelMUD/States/StateFactory.cpp SkelMUD/States/StateFactory.h)
+        SkelMUD/Races/Races.h SkelMUD/Classes/CharacterClass.cpp SkelMUD/Classes/CharacterClass.h SkelMUD/Classes/CharacterClasses.cpp SkelMUD/Classes/CharacterClasses.h SkelMUD/Characters/Characters.cpp SkelMUD/Characters/Characters.h SkelMUD/Planets/Planets.cpp SkelMUD/Planets/Planets.h SkelMUD/States/BuildingState.cpp SkelMUD/States/BuildingState.h SkelMUD/Config/Configuration.cpp SkelMUD/Config/Configuration.h SkelMUD/Ships/Ship.cpp SkelMUD/Ships/Ship.h SkelMUD/Areas/Area.cpp SkelMUD/Areas/Area.h SkelMUD/Areas/AreaManager.cpp SkelMUD/Areas/AreaManager.h SkelMUD/Areas/Room.cpp SkelMUD/Areas/Room.h SkelMUD/Ships/Ships.cpp SkelMUD/Ships/Ships.h SkelMUD/States/StateFactory.cpp SkelMUD/States/StateFactory.h SkelMUD/Items/Item.cpp SkelMUD/Items/Item.h)
 
 add_executable(SkelMUD ${SOURCE_FILES} SkelMUD/SkelMUD.cpp)
 FIND_PACKAGE(Threads)

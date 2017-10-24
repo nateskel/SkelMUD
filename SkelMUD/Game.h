@@ -37,7 +37,7 @@ private:
     double elapsed;
     static std::mutex game_mutex;
     void listenerThread();
-    void initStates();
+//    void initStates();
     void ProcessShips();
 };
 

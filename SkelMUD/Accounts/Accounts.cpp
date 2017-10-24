@@ -4,6 +4,7 @@
 
 #include "Accounts.h"
 #include "../Skexml/SkexmlParser.h"
+#include "../GameData.h"
 
 void Accounts::AddAccount(Account account) {
     m_accounts[account.GetUsername()] = account;
@@ -59,8 +60,11 @@ void Accounts::SaveAccounts(std::string filename) {
         auto characters = account.GetCharacters();
         child->AddList("Characters", characters);
         parent->AddChild(child);
+        ss << GameData::ACCOUNT_DATA << account.GetUsername();
+        Utils::make_directory(ss.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
     SkexmlParser::BuildSkeXML(filename, parent);
+    std::stringstream ss;
 }
 
 Account Accounts::GetAccount(std::string username) {

@@ -98,6 +98,8 @@ public:
 
     std::vector<std::string> GetVisiblePlayerNames(int exclude);
 
+    std::vector<std::string> GetVisiblePlayerNames(std::string exclude_name);
+
     std::vector<std::string> GetPlayerNames(int exclude);
 
     std::string GetLongDescription();

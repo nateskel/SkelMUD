@@ -4,6 +4,7 @@
 #include "Areas/Room.h"
 #include "Areas/Area.h"
 #include "Ships/Ship.h"
+#include "Items/Item.h"
 
 Entity::Entity(int max_hp, int max_sp, int max_stamina) {
     m_max_hp = m_hp = max_hp;

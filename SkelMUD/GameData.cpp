@@ -16,6 +16,7 @@ const std::string GameData::PLANET_FILE = PLANET_PATH + "Planets.sml";
 const std::string GameData::SHIP_PATH = BASE_PATH + "Ships/";
 const std::string GameData::SHIP_FILE = SHIP_PATH + "Ships.sml";
 const std::string GameData::CONFIG_FILE = BASE_PATH + "config.sml";
+const std::string GameData::ACCOUNT_DATA = BASE_PATH + "AccountData/";
 
 
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {

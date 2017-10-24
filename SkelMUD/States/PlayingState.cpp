@@ -150,7 +150,7 @@ void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection>
     ss << room->GetLongDescription() << Format::NL;
     ss << Format::BOLD << Format::CYAN << "Directions:" << Format::NL << GetValidDirections(*room) << Format::NL
     << Format::RESET;
-    auto other_players = room->GetVisiblePlayerNames(connection->GetID());
+    auto other_players = room->GetVisiblePlayerNames(player->GetPlayerName());
     for (auto other_player: other_players) {
         ss << Format::BOLD << Format::BLUE << other_player << " is here." << Format::RESET << Format::NL;
     }
