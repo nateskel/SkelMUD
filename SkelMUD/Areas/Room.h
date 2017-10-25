@@ -8,8 +8,6 @@
 #include <vector>
 #include <map>
 #include "../Player.h"
-//#include "../Ships/Ships.h"
-//#include "../Ships/Ship.h"
 
 class Area;
 class Ship;
@@ -44,6 +42,7 @@ private:
     std::map<int, std::shared_ptr<Player>> m_player_map;
     std::vector<int> m_ship_ids;
     std::map<int, std::shared_ptr<Ship>> m_ships;
+    std::map<std::string, int> m_items;
     bool m_is_cockpit;
 
 public:
@@ -76,8 +75,6 @@ public:
 
     void AddShip(std::shared_ptr<Ship> ship);
 
-//    void PopulateShips(Ships &ships, std::shared_ptr<Area> area);
-
     std::vector<int> GetShipIDs();
 
     std::map<int, std::shared_ptr<Ship>> GetShips();
@@ -101,6 +98,12 @@ public:
     std::vector<std::string> GetVisiblePlayerNames(std::string exclude_name);
 
     std::vector<std::string> GetPlayerNames(int exclude);
+
+    void AddItem(std::string);
+
+    void RemoveItem(std::string);
+
+    std::map<std::string, int> GetItems();
 
     std::string GetLongDescription();
 

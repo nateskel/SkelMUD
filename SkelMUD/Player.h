@@ -35,6 +35,12 @@ public:
 
     void SetVisible(const bool visible);
 
+    void AddItem(std::string);
+
+    void RemoveItem(std::string);
+
+    std::map<std::string, int> GetItems();
+
 protected:
     int m_player_id;
     bool m_visible;
@@ -43,6 +49,7 @@ protected:
     std::string m_race;
 
 private:
+    std::map<std::string, int> m_items;
 };
 
 #endif // PLAYER_H

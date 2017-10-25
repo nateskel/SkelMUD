@@ -8,6 +8,7 @@
 This is the starting area
 The place where you start
 You start here
+There are ships here (type 'ships' to list available ships)
 [/LongDescription]
 [Ships]
 0

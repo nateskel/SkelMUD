@@ -64,7 +64,7 @@ std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
     if (player->IsInShip()) {
         auto ship = player->GetShip();
         if (ship->IsInOrbit()) {
-            auto planet = player->GetPlanet();
+            auto planet = ship->GetPlanet();
             ss << Format::CYAN << "<Orbiting planet " << planet->GetName() << ">\n";
         }
         else if (ship->IsInSpace()) {
@@ -154,6 +154,20 @@ void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection>
     for (auto other_player: other_players) {
         ss << Format::BOLD << Format::BLUE << other_player << " is here." << Format::RESET << Format::NL;
     }
+    if(room->GetItems().size() > 0) {
+        ss << Format::MAGENTA << "Items:" << Format::NL;
+        for (auto item : room->GetItems()) {
+            ss << item.first << Format::NL;
+        }
+        ss << Format::RESET;
+    }
+    Sender::Send(ss.str(), connection);
+}
+
+void PlayingState::CmdShips(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto room = connection->GetPlayer()->GetRoom();
+    std::stringstream ss;
     if (room->IsLandable()) {
         ss << "Ships:" << Format::NL;
         for (auto ship: room->GetShips()) {
@@ -720,4 +734,53 @@ void PlayingState::CmdQuit(const std::string &input, std::shared_ptr<Connection>
 
 void PlayingState::Shutdown(std::shared_ptr<Connection> connection) {
     CmdQuit("", connection, game_data);
+}
+
+void PlayingState::CmdInventory(const std::string &input, std::shared_ptr<Connection> connection,
+                                std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    std::stringstream ss;
+    ss << "Inventory:" << Format::NL;
+    for(auto item : player->GetItems()) {
+        ss << item.first << Format::NL;
+    }
+    Sender::Send(ss.str(), connection);
+}
+
+void PlayingState::CmdGet(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    std::string input_data = input;
+    std::string item_name = Tokenizer::GetFirstToken(input_data);
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    auto items = room->GetItems();
+    if(items.find(item_name) != items.end()) {
+        player->AddItem(item_name);
+        room->RemoveItem(item_name);
+        std::stringstream ss;
+        ss << "Picked up " << item_name << Format::NL;
+        Sender::Send(ss.str(), connection);
+    }
+    else {
+        Sender::Send("That item isn't here!\r\n", connection);
+    }
+}
+
+void PlayingState::CmdDrop(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    std::string input_data = input;
+    std::string item_name = Tokenizer::GetFirstToken(input_data);
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    auto items = player->GetItems();
+    if(items.find(item_name) != items.end()) {
+        room->AddItem(item_name);
+        player->RemoveItem(item_name);
+        std::stringstream ss;
+        ss << "Dropped " << item_name << Format::NL;
+        Sender::Send(ss.str(), connection);
+    }
+    else {
+        Sender::Send("You don't have that item!\r\n", connection);
+    }
 }

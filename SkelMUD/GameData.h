@@ -15,6 +15,7 @@
 #include "Planets/Planets.h"
 #include "Config/Configuration.h"
 #include "Ships/Ships.h"
+#include "Items/Items.h"
 
 class Connection;
 
@@ -32,6 +33,8 @@ public:
     static const std::string SHIP_FILE;
     static const std::string CONFIG_FILE;
     static const std::string ACCOUNT_DATA;
+    static const std::string ITEM_PATH;
+    static const std::string ITEM_FILE;
 
     GameData();
     void AddConnection(std::shared_ptr<Connection> connection);
@@ -60,7 +63,6 @@ public:
     std::shared_ptr<Planet> GetPlanet(std::string name);
     Planets& GetPlanets();
     Ships& GetShips();
-    //std::vector<std::string> GetShipNames();
     Configuration& GetConfiguration();
 
 private:
@@ -72,6 +74,7 @@ private:
     Characters m_characters;
     Planets m_planets;
     Ships m_ships;
+    Items m_items;
     Configuration m_configuration;
 };
 

@@ -6,8 +6,18 @@
 #define SKELMUD_ITEM_H
 
 
+#include <string>
+
 class Item {
 
+private:
+    std::string m_item_name;
+
+public:
+    Item();
+    Item(std::string item_name);
+    std::string GetItemName();
+    void SetItemName(std::string name);
 };
 
 

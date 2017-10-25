@@ -16,11 +16,6 @@ public:
         double z;
     };
 
-    struct Velocity {
-        double x;
-        double y;
-        double z;
-    };
 
     static void RemoveEndline(std::string &data);
 

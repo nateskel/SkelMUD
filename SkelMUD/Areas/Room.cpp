@@ -284,3 +284,25 @@ Room::LandingLevel Room::GetLandingLevel() {
 bool Room::IsLandable() {
     return m_landing_level != LandingLevel::NONE;
 }
+
+void Room::AddItem(std::string item) {
+    if(m_items.find(item) == m_items.end()) {
+        m_items[item] = 1;
+    }
+    else {
+        m_items[item]++;
+    }
+}
+
+void Room::RemoveItem(std::string item) {
+    if(m_items.find(item) != m_items.end()) {
+        m_items[item]--;
+        if(m_items[item] == 0) {
+            m_items.erase(item);
+        }
+    }
+}
+
+std::map<std::string, int> Room::GetItems() {
+    return m_items;
+}

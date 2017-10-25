@@ -6,7 +6,7 @@
 #include "GameData.h"
 #include "Logger.h"
 
-const std::string GameData::BASE_PATH = "Data/";
+const std::string GameData::BASE_PATH = "./Data/";
 const std::string GameData::ACCOUNT_FILE = BASE_PATH + "Accounts.sml";
 const std::string GameData::RACE_FILE = BASE_PATH + "Races.sml";
 const std::string GameData::CLASS_FILE = BASE_PATH + "Classes.sml";
@@ -17,6 +17,7 @@ const std::string GameData::SHIP_PATH = BASE_PATH + "Ships/";
 const std::string GameData::SHIP_FILE = SHIP_PATH + "Ships.sml";
 const std::string GameData::CONFIG_FILE = BASE_PATH + "config.sml";
 const std::string GameData::ACCOUNT_DATA = BASE_PATH + "AccountData/";
+const std::string GameData::ITEM_PATH = BASE_PATH + "Items/";
 
 
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {
@@ -67,9 +68,14 @@ GameData::GameData() {
     Logger::Debug("Planets Loaded");
     m_ships.LoadShips(SHIP_FILE);
     Logger::Debug("Ships Loaded");
+    m_items.LoadItems(ITEM_PATH);
+    Logger::Debug("Items Loaded");
     m_configuration.LoadConfig(CONFIG_FILE);
-    //m_planets.PopulateShips(m_ships);
     PopulateShips();
+    auto room = GetRoom(0, 1, false);
+    for(auto item : m_items.GetItems()) {
+        room->AddItem(item.first);
+    }
     Logger::Debug("Resources Loaded");
 }
 
@@ -154,10 +160,6 @@ void GameData::SavePlanet(int id) {
 
 Ships& GameData::GetShips() {
     return m_ships;
-}
-
-std::vector<std::string> GetShipNames(int room_id) {
-
 }
 
 std::shared_ptr<Ship> GameData::GetShip(int id) {

@@ -52,6 +52,11 @@ public:
         m_cmd_map["land"] = &CmdLand;
         m_cmd_map["speed"] = &CmdSetSpeed;
         m_cmd_map["quit"] = &CmdQuit;
+        m_cmd_map["ships"] = &CmdShips;
+        m_cmd_map["inv"] = &CmdInventory;
+        m_cmd_map["inventory"] = &CmdInventory;
+        m_cmd_map["get"] = &CmdGet;
+        m_cmd_map["drop"] = &CmdDrop;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -139,6 +144,18 @@ public:
 
     static void CmdQuit(const std::string &input, std::shared_ptr<Connection> connection,
                         std::shared_ptr<GameData> game_data);
+
+    static void CmdShips(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdInventory(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdGet(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdDrop(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
 
 protected:
     std::map<std::string, void (*)(const std::string &, std::shared_ptr<Connection>,
