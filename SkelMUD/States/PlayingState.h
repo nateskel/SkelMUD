@@ -47,6 +47,7 @@ public:
         m_cmd_map["orbit"] = &CmdOrbit;
         m_cmd_map["land"] = &CmdLand;
         m_cmd_map["speed"] = &CmdSetSpeed;
+        m_cmd_map["quit"] = &CmdQuit;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -128,6 +129,9 @@ public:
                          std::shared_ptr<GameData> game_data);
 
     static void CmdLand(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdQuit(const std::string &input, std::shared_ptr<Connection> connection,
                         std::shared_ptr<GameData> game_data);
 
 protected:

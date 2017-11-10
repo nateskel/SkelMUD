@@ -5,7 +5,7 @@
 #include "GameData.h"
 #include "Logger.h"
 
-const std::string GameData::BASE_PATH = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Data/";
+const std::string GameData::BASE_PATH = "Data/";
 const std::string GameData::ACCOUNT_FILE = BASE_PATH + "Accounts.sml";
 const std::string GameData::RACE_FILE = BASE_PATH + "Races.sml";
 const std::string GameData::CLASS_FILE = BASE_PATH + "Classes.sml";
