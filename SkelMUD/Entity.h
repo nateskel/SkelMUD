@@ -7,6 +7,7 @@
 class Planet;
 class Ship;
 class Room;
+class Area;
 
 class Entity {
 public:
@@ -33,6 +34,8 @@ public:
     int GetRoomID();
 
     int GetLocationID();
+
+    std::shared_ptr<Area> GetLocation();
 
     bool IsInShip();
 

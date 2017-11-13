@@ -2,6 +2,7 @@
 // Created by nate on 11/18/15.
 //
 
+#include "Connection.h"
 #include "GameData.h"
 #include "Logger.h"
 
@@ -110,7 +111,7 @@ std::shared_ptr<Player> GameData::GetPlayer(std::string name) {
 
 std::shared_ptr<Connection> GameData::GetConnection(std::string character_name) {
     for(auto connection: m_connections) {
-        if(connection.second->GetCharacterName() == character_name) {
+        if(connection.second->GetCharacterName() == character_name and connection.second->IsLoggedIn()) {
             return connection.second;
         }
     }
@@ -181,4 +182,12 @@ void GameData::PopulateShips() {
             }
         }
     }
+}
+
+std::shared_ptr<Connection> GameData::GetConnectionByUsername(std::string username) {
+    for (auto connection : GetLoggedInConnections()) {
+        if (connection.second->GetUsername() == username)
+            return connection.second;
+    }
+    return nullptr;
 }

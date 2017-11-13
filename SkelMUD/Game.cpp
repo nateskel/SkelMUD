@@ -6,6 +6,7 @@
 #include "Format.h"
 #include "States/CreateCharacterState.h"
 #include "States/BuildingState.h"
+#include "States/StateFactory.h"
 #include <iostream>
 #include <algorithm>
 #include <ctime>
@@ -25,7 +26,6 @@ Game::Game() {
     connection_id = 0;
     elapsed = std::time(nullptr);
     Logger::Debug("Initializing States");
-    initStates();
 }
 
 std::mutex Game::game_mutex;
@@ -45,7 +45,7 @@ void Game::Start() {
             std::lock_guard<std::mutex> lock(Game::game_mutex);
             std::shared_ptr<Connection> connection = connection_map_entry.second;
             if(std::time(nullptr) - elapsed >= 1) {
-                std::shared_ptr<GameState> state = state_map[connection->GetState()];
+                std::shared_ptr<GameState> state = connection->GetState();
                 connection->SetPrompt(state->GetPrompt(connection));
             }
             if(!connection->IsConnected())
@@ -76,10 +76,10 @@ void Game::Start() {
             std::stringstream ss;
             ss << "Received data (" << connection->GetIP() << "): " << received;
             Logger::Debug(ss.str());
-            state_map[connection->GetState()]->processInput(received, connection);
+            connection->GetState()->processInput(received, connection);
             if(connection->IsStateChanged())
             {
-                state_map[connection->GetState()]->init(connection);
+                connection->GetState()->init(connection);
                 connection->ResetStateChanged();
             }
 
@@ -139,8 +139,9 @@ void Game::listenerThread() {
     while(isRunning) {
         DataSocket dataSocket = socket.Accept();
         auto connection = std::make_shared<Connection>(dataSocket);
-        connection->SetState(USERNAME);
-        state_map[USERNAME]->init(connection);
+        connection->SetState(GameStates::LOGIN, m_game_data);
+        connection->GetState()->init(connection);
+//        state_map[USERNAME]->init(connection);
         connection->ResetStateChanged();
         // Sender::Send(connection->GetPrompt(), connection);
         std::lock_guard<std::mutex> guard(Game::game_mutex);
@@ -153,9 +154,9 @@ void Game::listenerThread() {
     }
 }
 
-void Game::initStates() {
-    state_map[USERNAME] = std::make_shared<LoginState>(m_game_data);
-    state_map[PLAYING] = std::make_shared<PlayingState>(m_game_data);
-    state_map[CHARACTERCREATION] = std::make_shared<CreateCharacterState>(m_game_data);
-    state_map[BUILDING] = std::make_shared<BuildingState>(m_game_data);
-}
+//void Game::initStates() {
+//    state_map[USERNAME] = std::make_shared<LoginState>(m_game_data);
+//    state_map[PLAYING] = std::make_shared<PlayingState>(m_game_data);
+//    state_map[CHARACTERCREATION] = std::make_shared<CreateCharacterState>(m_game_data);
+//    state_map[BUILDING] = std::make_shared<BuildingState>(m_game_data);
+//}

@@ -7,7 +7,6 @@
 
 
 #include <map>
-#include "Connection.h"
 #include "Accounts/Accounts.h"
 #include "Accounts/Account.h"
 #include "Races/Races.h"
@@ -16,6 +15,8 @@
 #include "Planets/Planets.h"
 #include "Config/Configuration.h"
 #include "Ships/Ships.h"
+
+class Connection;
 
 class GameData {
 
@@ -50,6 +51,7 @@ public:
     void SaveShip(int id);
     std::map<int, std::shared_ptr<Connection>> GetLoggedInConnections();
     std::shared_ptr<Connection> GetConnection(std::string character_name);
+    std::shared_ptr<Connection> GetConnectionByUsername(std::string username);
     std::shared_ptr<Planet> GetPlanet(int ID);
     std::shared_ptr<Ship> GetShip(int ID);
     std::shared_ptr<Area> GetArea(int ID, bool is_ship);

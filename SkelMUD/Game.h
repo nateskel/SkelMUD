@@ -30,7 +30,7 @@ public:
 
 private:
     std::shared_ptr<GameData> m_game_data;
-    std::map<std::string, std::shared_ptr<GameState>> state_map;
+//    std::map<std::string, std::shared_ptr<GameState>> state_map;
     bool isRunning;
     int port;
     int connection_id;

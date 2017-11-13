@@ -9,8 +9,13 @@
 #include <list>
 #include "Network.h"
 #include "Accounts/Account.h"
+#include "States/GameState.h"
 
 class Player;
+
+class GameState;
+
+enum GameStates : short;
 
 class Connection {
 public:
@@ -23,7 +28,8 @@ private:
     bool state_changed;
     int id;
     std::string m_send_buffer;
-    std::string state;
+//    std::string state;
+    std::shared_ptr<GameState> m_state;
     std::list<std::string> m_receive_buffer;
     std::string owner_ip;
     Account account;
@@ -47,8 +53,8 @@ public:
     void FlushOutput();
     void UpdatePrompt();
     void Close();
-    void SetState(std::string connection_state);
-    std::string GetState();
+    void SetState(const GameStates &connection_state, std::shared_ptr<GameData> game_data);
+    std::shared_ptr<GameState> GetState();
     SOCKET GetSocket();
     std::string GetNextReceived();
     std::string GetIP();

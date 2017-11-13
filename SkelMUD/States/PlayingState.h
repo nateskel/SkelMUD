@@ -8,6 +8,10 @@
 
 #include "GameState.h"
 
+class Room;
+
+class Ship;
+
 class PlayingState : public GameState {
 public:
     enum Direction {
@@ -53,6 +57,8 @@ public:
     virtual void init(std::shared_ptr<Connection> connection) override;
 
     virtual void processInput(const std::string &input, std::shared_ptr<Connection> connection) override;
+
+    virtual void Shutdown(std::shared_ptr<Connection> connection) override;
 
     virtual std::string GetPrompt(std::shared_ptr<Connection> connection) override;
 

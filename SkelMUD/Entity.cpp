@@ -1,6 +1,9 @@
 #include "Entity.h"
 #include "Logger.h"
 #include "Planets/Planet.h"
+#include "Areas/Room.h"
+#include "Areas/Area.h"
+#include "Ships/Ship.h"
 
 Entity::Entity(int max_hp, int max_sp, int max_stamina) {
     m_max_hp = m_hp = max_hp;
@@ -49,6 +52,13 @@ int Entity::GetLocationID() {
         return m_ship_id;
     else
         return m_planet_id;
+}
+
+std::shared_ptr<Area> Entity::GetLocation() {
+    if(IsInShip())
+        return m_ship.lock();
+    else
+        return m_planet.lock();
 }
 
 bool Entity::IsInShip() {

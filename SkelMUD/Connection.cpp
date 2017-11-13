@@ -12,6 +12,8 @@
 #include "Sender.h"
 #include "Format.h"
 #include "Player.h"
+#include "States/GameState.h"
+#include "States/StateFactory.h"
 
 #define MAX_TICK 100
 
@@ -99,18 +101,18 @@ SOCKET Connection::GetSocket() {
 }
 
 Connection::Connection() {
-    state = "";
+    m_state = nullptr;
     character_class = "";
     character_race = "";
 }
 
-void Connection::SetState(std::string connection_state) {
-    state = connection_state;
+void Connection::SetState(const GameStates &connection_state, std::shared_ptr<GameData> game_data) {
+    m_state = StateFactory::GetGameState(connection_state, game_data);
     state_changed = true;
 }
 
-std::string Connection::GetState() {
-    return state;
+std::shared_ptr<GameState> Connection::GetState() {
+    return m_state;
 }
 
 std::string Connection::GetIP() {

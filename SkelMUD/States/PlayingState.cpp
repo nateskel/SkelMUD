@@ -9,6 +9,10 @@
 #include "../Sender.h"
 #include "../Format.h"
 #include "../Logger.h"
+#include "StateFactory.h"
+#include "../Areas/Room.h"
+#include "../GameData.h"
+#include "../Ships/Ship.h"
 
 void PlayingState::processInput(const std::string &input, std::shared_ptr<Connection> connection) {
     std::string input_string = input;
@@ -38,6 +42,11 @@ void PlayingState::processInput(const std::string &input, std::shared_ptr<Connec
 
 void PlayingState::init(std::shared_ptr<Connection> connection) {
     std::stringstream ss;
+    // Check if a connection is already using this character
+    auto existing_conn = game_data->GetConnection(connection->GetCharacterName());
+    if (existing_conn != nullptr) {
+        existing_conn->GetState()->Shutdown(connection);
+    }
     ss << "Welcome to SkelMUD, " << connection->GetCharacterName() << "!" << Format::NL;
     Sender::Send(ss.str(), connection);
     connection->SetPrompt(GetPrompt(connection));
@@ -198,7 +207,7 @@ void PlayingState::CmdDown(const std::string &input, std::shared_ptr<Connection>
 void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
                         Direction direction) {
     auto player = connection->GetPlayer();
-    auto area = game_data->GetArea(player->GetLocationID(), player->IsInShip());
+    auto area = player->GetLocation();
     auto departed_room = player->GetRoom();
     std::string arrive_string = "";
     std::string depart_string = "";
@@ -259,7 +268,7 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
 void PlayingState::CmdBuild(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
     if (connection->GetAccount().GetAccountLevel() > Account::NORMAL)
-        connection->SetState("Building");
+        connection->SetState(GameStates::BUILDING, game_data);
     else
         Sender::Send("Not Authorized to enter build mode\n", connection);
 }
@@ -449,7 +458,7 @@ void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection
                 // TODO
                 room = ship->GetPlanet()->GetRoom(0);
                 // TODO
-                player->SetPlanet(game_data->GetPlanet(ship->GetPlanetID()));
+                player->SetPlanet(ship->GetPlanet());
                 player->SetRoom(room);
                 room->AddPlayer(player);
                 ship->RemovePlayer(player->GetID());
@@ -631,6 +640,7 @@ void PlayingState::CmdOrbit(const std::string &input, std::shared_ptr<Connection
             if (Utils::GetDistance(planet.second->GetCoordinates(),
                                    ship->GetCoordinates()) <= 100) {
                 ship->SetPlanetId(planet.second->GetID());
+                ship->SetPlanet(planet.second);
                 ship->SetInOrbit(true);
                 ship->SetVelocity(0, 0, 0);
                 std::stringstream ss;
@@ -654,7 +664,7 @@ void PlayingState::CmdLand(const std::string &input, std::shared_ptr<Connection>
             auto planet = ship->GetPlanet();
             ship->SetInSpace(false);
             ship->SetInOrbit(false);
-            auto room = ship->GetContainingRoom();
+            auto room = planet->GetRoom(0);
             if (!room) {
                 // error handle
                 return;
@@ -717,4 +727,8 @@ void PlayingState::CmdQuit(const std::string &input, std::shared_ptr<Connection>
     }
     // TODO
     game_data->GetRoom(player->GetPlanet()->GetID(), 0, false)->AddPlayer(player);
+}
+
+void PlayingState::Shutdown(std::shared_ptr<Connection> connection) {
+    CmdQuit("", connection, game_data);
 }

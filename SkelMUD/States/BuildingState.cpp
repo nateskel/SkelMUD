@@ -7,6 +7,10 @@
 #include "../Format.h"
 #include "../Sender.h"
 #include "../Tokenizer.h"
+#include "../Player.h"
+#include "../Planets/Planet.h"
+#include "../GameData.h"
+#include "StateFactory.h"
 #include <algorithm>
 
 void BuildingState::init(std::shared_ptr<Connection> connection) {
@@ -235,7 +239,7 @@ void BuildingState::CmdSetShortDesc(const std::string &input, std::shared_ptr<Co
 
 void BuildingState::CmdPlay(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
-    connection->SetState("Playing");
+    connection->SetState(GameStates::PLAYING, game_data);
 }
 
 void BuildingState::CmdSavePlanet(const std::string &input, std::shared_ptr<Connection> connection,
