@@ -214,43 +214,43 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
     auto departed_room = player->GetRoom();
     std::string arrive_string = "";
     std::string depart_string = "";
-    int new_room = -1;
+    int new_room_int = -1;
     switch (direction) {
         case NORTH:
-            new_room = departed_room->GetNorth();
+            new_room_int = departed_room->GetNorth();
             arrive_string = "the south";
             depart_string = "to the north";
             break;
         case SOUTH:
-            new_room = departed_room->GetSouth();
+            new_room_int = departed_room->GetSouth();
             arrive_string = "the north";
             depart_string = "to the south";
             break;
         case EAST:
-            new_room = departed_room->GetEast();
+            new_room_int = departed_room->GetEast();
             arrive_string = "the west";
             depart_string = "to the east";
             break;
         case WEST:
-            new_room = departed_room->GetWest();
+            new_room_int = departed_room->GetWest();
             arrive_string = "the east";
             depart_string = "to the west";
             break;
         case UP:
-            new_room = departed_room->GetUp();
+            new_room_int = departed_room->GetUp();
             arrive_string = "above";
             depart_string = "downwards";
             break;
         case DOWN:
-            new_room = departed_room->GetDown();
+            new_room_int = departed_room->GetDown();
             arrive_string = "below";
             depart_string = "upwards";
             break;
         default:
             Logger::Error("Unhandled Direction");
     }
-    if (new_room != -1) {
-        area->ChangeRoom(departed_room->GetID(), new_room, player);
+    if (new_room_int != -1) {
+        area->ChangeRoom(departed_room->GetID(), new_room_int, player);
         if (connection->GetPlayer()->IsVisible()) {
             std::stringstream departed_ss;
             std::stringstream arrived_ss;
@@ -259,8 +259,9 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
             arrived_ss << player_name << " has arrived from " << arrive_string << Format::NL;
             Sender::SendToMultiple(departed_ss.str(), game_data->GetLoggedInConnections(),
                                    departed_room->GetVisiblePlayers());
+            auto new_room = game_data->GetRoom(area->GetID(), new_room_int, false);
             Sender::SendToMultiple(arrived_ss.str(), game_data->GetLoggedInConnections(),
-                                   departed_room->GetVisiblePlayers(connection->GetID()));
+                                   new_room->GetVisiblePlayers(connection->GetID()));
         }
         CmdLook("", connection, game_data);
     }
