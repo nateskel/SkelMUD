@@ -77,6 +77,7 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
         else {
             std::string character = characters[selection - 1];
             std::shared_ptr<Player> player = game_data->GetPlayer(character);
+            player->SetID(connection->GetID());
             connection->SetPlayer(player);
             connection->SetCharacterName(player->GetPlayerName());
             connection->SetCharacterClass(player->GetPlayerClass());
@@ -154,7 +155,7 @@ void CreateCharacterState::processConfirmCharacter(const std::string &input, std
     std::string command = input;
     Tokenizer::LowerCase(input);
     if(command == "y" or command == "yes") {
-        std::shared_ptr<Player> player = std::make_shared<Player>(0, connection->GetCharacterName(),
+        std::shared_ptr<Player> player = std::make_shared<Player>(connection->GetID(), connection->GetCharacterName(),
                                                                   connection->GetCharacterClass(), connection->GetCharacterRace());
         game_data->AddCharacter(connection->GetUsername(), player);
         game_data->SaveCharacters(GameData::CHARACTER_FILE);
