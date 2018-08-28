@@ -154,6 +154,9 @@ void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection>
     for (auto other_player: other_players) {
         ss << Format::BOLD << Format::BLUE << other_player << " is here." << Format::RESET << Format::NL;
     }
+    for (auto npc : room->GetNPCs()) {
+        ss << npc << " (NPC) is here." << Format::RESET << Format::NL;
+    }
     if(room->GetItems().size() > 0) {
         ss << Format::MAGENTA << "Items:" << Format::NL;
         for (auto item : room->GetItems()) {
@@ -251,7 +254,7 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
     }
     if (new_room_int != -1) {
         area->ChangeRoom(departed_room->GetID(), new_room_int, player);
-        if (connection->GetPlayer()->IsVisible()) {
+        if (player->IsVisible()) {
             std::stringstream departed_ss;
             std::stringstream arrived_ss;
             std::string player_name = player->GetPlayerName();
@@ -259,7 +262,7 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
             arrived_ss << player_name << " has arrived from " << arrive_string << Format::NL;
             Sender::SendToMultiple(departed_ss.str(), game_data->GetLoggedInConnections(),
                                    departed_room->GetVisiblePlayers());
-            auto new_room = game_data->GetRoom(area->GetID(), new_room_int, false);
+            auto new_room = game_data->GetRoom(area->GetID(), new_room_int, player->IsInShip());
             Sender::SendToMultiple(arrived_ss.str(), game_data->GetLoggedInConnections(),
                                    new_room->GetVisiblePlayers(connection->GetID()));
         }

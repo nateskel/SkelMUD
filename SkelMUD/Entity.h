@@ -9,7 +9,7 @@ class Planet;
 class Ship;
 class Room;
 class Area;
-class Item;
+//class Item;
 
 class Entity {
 public:
@@ -36,6 +36,8 @@ public:
     int GetRoomID();
 
     int GetLocationID();
+
+    void SetLocationID(int id);
 
     std::shared_ptr<Area> GetLocation();
 
@@ -94,7 +96,7 @@ protected:
     int m_sp;
     int m_max_stamina;
     int m_stamina;
-    std::map<int, Item> inventory;
+//    std::map<int, Item> inventory;
 
 private:
 };

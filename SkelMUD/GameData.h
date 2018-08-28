@@ -16,6 +16,7 @@
 #include "Config/Configuration.h"
 #include "Ships/Ships.h"
 #include "Items/Items.h"
+#include "NPCs/NPCs.h"
 
 class Connection;
 
@@ -35,6 +36,7 @@ public:
     static const std::string ACCOUNT_DATA;
     static const std::string ITEM_PATH;
     static const std::string ITEM_FILE;
+    static const std::string NPC_PATH;
 
     GameData();
     void AddConnection(std::shared_ptr<Connection> connection);
@@ -67,6 +69,7 @@ public:
 
 private:
     void PopulateShips();
+    void PopulateNPCs();
     std::map<int, std::shared_ptr<Connection>> m_connections;
     Accounts m_accounts;
     Races m_races;
@@ -75,6 +78,7 @@ private:
     Planets m_planets;
     Ships m_ships;
     Items m_items;
+    NPCs m_npcs;
     Configuration m_configuration;
 };
 

@@ -18,6 +18,7 @@ There are ships here (type 'ships' to list available ships)
 4
 5
 6
+7
 [/Ships]
 [/0]
 [1]

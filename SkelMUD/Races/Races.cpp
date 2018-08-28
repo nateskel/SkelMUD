@@ -2,8 +2,6 @@
 // Created by nate on 7/8/16.
 //
 
-#include <string>
-
 #include "Races.h"
 #include "../Skexml/Node.h"
 #include "../Skexml/SkexmlParser.h"

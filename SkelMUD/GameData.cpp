@@ -18,6 +18,7 @@ const std::string GameData::SHIP_FILE = SHIP_PATH + "Ships.sml";
 const std::string GameData::CONFIG_FILE = BASE_PATH + "config.sml";
 const std::string GameData::ACCOUNT_DATA = BASE_PATH + "AccountData/";
 const std::string GameData::ITEM_PATH = BASE_PATH + "Items/";
+const std::string GameData::NPC_PATH = BASE_PATH + "NPCs/";
 
 
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {
@@ -70,8 +71,11 @@ GameData::GameData() {
     Logger::Debug("Ships Loaded");
     m_items.LoadItems(ITEM_PATH);
     Logger::Debug("Items Loaded");
+    m_npcs.LoadNPCs(NPC_PATH);
+    Logger::Debug("NPCs Loaded");
     m_configuration.LoadConfig(CONFIG_FILE);
     PopulateShips();
+    PopulateNPCs();
     auto room = GetRoom(0, 1, false);
     for(auto item : m_items.GetItems()) {
         room->AddItem(item.first);
@@ -184,6 +188,15 @@ void GameData::PopulateShips() {
                 ship->SetPlanet(planet.second);
             }
         }
+    }
+}
+
+void GameData::PopulateNPCs() {
+    for (auto npc : m_npcs.GetNPCs()) {
+        auto area = GetArea(npc.second->GetLocationID(), npc.second->IsInShip());
+        auto room = area->GetRoom(npc.second->GetRoomID());
+        npc.second->SetRoom(room);
+        room->AddNPC(npc.second);
     }
 }
 

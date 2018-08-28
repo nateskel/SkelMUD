@@ -4,7 +4,7 @@
 #include "Areas/Room.h"
 #include "Areas/Area.h"
 #include "Ships/Ship.h"
-#include "Items/Item.h"
+//#include "Items/Item.h"
 
 Entity::Entity(int max_hp, int max_sp, int max_stamina) {
     m_max_hp = m_hp = max_hp;
@@ -53,6 +53,13 @@ int Entity::GetLocationID() {
         return m_ship_id;
     else
         return m_planet_id;
+}
+
+void Entity::SetLocationID(int id) {
+    if(IsInShip())
+        m_ship_id = id;
+    else
+        m_planet_id = id;
 }
 
 std::shared_ptr<Area> Entity::GetLocation() {

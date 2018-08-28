@@ -96,6 +96,18 @@ void Room::AddPlayer(std::shared_ptr<Player> player) {
     m_player_map[player->GetID()] = player;
 }
 
+void Room::AddNPC(std::shared_ptr<NPC> npc) {
+    m_npc_map[npc->GetName()] = npc;
+}
+
+std::vector<std::string> Room::GetNPCs() {
+    std::vector<std::string> output;
+    for (std::map<std::string, std::shared_ptr<NPC>>::iterator it = m_npc_map.begin(); it != m_npc_map.end(); it++) {
+        output.push_back(it->first);
+    }
+    return output;
+}
+
 std::shared_ptr<Player> Room::GetPlayer(int id) {
     return m_player_map[id];
 }
