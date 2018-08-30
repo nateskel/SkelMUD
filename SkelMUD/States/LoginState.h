@@ -26,6 +26,7 @@ public:
     LoginState(std::shared_ptr<GameData> data) : GameState(data) { }
     virtual void processInput(const std::string& input, std::shared_ptr<Connection> connection) override;
     virtual void init(std::shared_ptr<Connection> connection) override;
+    virtual void Shutdown(std::shared_ptr<Connection> connection) override;
     void RemoveConnection(const int& connection_id);
 };
 

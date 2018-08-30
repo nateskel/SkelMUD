@@ -9,22 +9,15 @@
 #include "../Sender.h"
 #include "../Format.h"
 #include "../Logger.h"
-#include "../Utils.h"
+#include "StateFactory.h"
+#include "../Areas/Room.h"
+#include "../GameData.h"
+#include "../Ships/Ship.h"
 
 void PlayingState::processInput(const std::string &input, std::shared_ptr<Connection> connection) {
     std::string input_string = input;
     std::string command = Tokenizer::GetFirstToken(input_string);
     command = Tokenizer::LowerCase(command);
-    if (input == "quit") {
-        connection->Close();
-        auto player = game_data->GetPlayer(connection->GetCharacterName());
-        game_data->GetRoom(player->GetLocationID(),
-                           player->GetRoomID(),
-                           player->IsInShip())->RemovePlayer(player->GetID());
-        if(player->IsInShip()) {
-            game_data->GetShip(player->GetShipID())->RemovePlayer(player->GetID());
-        }
-    }
     if (m_cmd_map.find(command) != m_cmd_map.end()) {
         m_cmd_map[command](input_string, connection, game_data);
         connection->SetPrompt(GetPrompt(connection));
@@ -35,16 +28,26 @@ void PlayingState::processInput(const std::string &input, std::shared_ptr<Connec
 
 void PlayingState::init(std::shared_ptr<Connection> connection) {
     std::stringstream ss;
+    // Check if a connection is already using this character
+    auto player = connection->GetPlayer();
+    auto existing_conn = game_data->GetConnection(player->GetPlayerName());
+    if (existing_conn != nullptr) {
+        existing_conn->GetState()->Shutdown(existing_conn);
+        player->GetRoom()->AddPlayer(player);
+    }
+    else {
+        // TODO: set player to proper planet
+        game_data->GetPlanet(0)->GetRoom(0)->AddPlayer(player);
+        //TODO: set proper planet id
+        player->SetPlanet(game_data->GetPlanet(0));
+        player->SetRoomID(0);
+        player->SetRoom(game_data->GetPlanet(0)->GetRoom(0));
+    }
+    player->SetID(connection->GetID());
     ss << "Welcome to SkelMUD, " << connection->GetCharacterName() << "!" << Format::NL;
     Sender::Send(ss.str(), connection);
     connection->SetPrompt(GetPrompt(connection));
     connection->SetLoggedIn(true);
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    player->SetID(connection->GetID());
-    game_data->GetPlanet(0)->GetRoom(0)->AddPlayer(player);
-    //TODO: set proper planet id
-    player->SetPlanetID(0);
-    player->SetRoomID(0);
 //    player->SetVisible(true);
     CmdLook("", connection, game_data);
     ss.str(std::string());
@@ -57,11 +60,11 @@ std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
     std::stringstream ss;
     ss << Format::YELLOW << "<" + Format::BLUE << connection->GetCharacterName() << Format::YELLOW << "> ";
     ss << Format::RED << "<" << connection->GetHealth() << "> \n";
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     if (player->IsInShip()) {
-        auto ship = game_data->GetShip(player->GetShipID());
+        auto ship = player->GetShip();
         if (ship->IsInOrbit()) {
-            auto planet = game_data->GetPlanet(ship->GetPlanetID());
+            auto planet = ship->GetPlanet();
             ss << Format::CYAN << "<Orbiting planet " << planet->GetName() << ">\n";
         }
         else if (ship->IsInSpace()) {
@@ -100,7 +103,7 @@ void PlayingState::CmdChat(const std::string &input, std::shared_ptr<Connection>
     std::stringstream ss;
     ss << Format::CYAN << Format::BOLD << connection->GetCharacterName() << " chats: " << Format::MAGENTA <<
     input_string << Format::NL;
-    Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), connection->GetSocket());
+    Sender::SendAll(ss.str(), game_data->GetLoggedInConnections());
 }
 
 void PlayingState::CmdSay(const std::string &input, std::shared_ptr<Connection> connection,
@@ -108,10 +111,21 @@ void PlayingState::CmdSay(const std::string &input, std::shared_ptr<Connection> 
     std::string input_string = input;
     std::stringstream ss;
     ss << Format::YELLOW << connection->GetCharacterName() << " says: " << Format::BOLD << input_string << Format::NL;
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto room = game_data->GetRoom(player->GetLocationID(),
-                                   player->GetRoomID(),
-                                   player->IsInShip());
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
+                           room->GetVisiblePlayers());
+
+}
+
+void PlayingState::CmdEmote(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    std::string input_string = input;
+    std::stringstream ss;
+    ss << Format::BLUE << Format::BOLD << connection->GetCharacterName()
+    << " " << Format::BOLD << input_string << Format::NL;
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
     Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
                            room->GetVisiblePlayers());
 
@@ -129,20 +143,34 @@ void PlayingState::CmdOnline(const std::string &input, std::shared_ptr<Connectio
 
 void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    // auto planet = game_data->GetPlanet(player->GetPlanetID());
-    auto room = game_data->GetRoom(player->GetLocationID(),
-                                   player->GetRoomID(),
-                                   player->IsInShip());
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
     std::stringstream ss;
     ss << Format::NL << Format::BOLD << Format::YELLOW << room->GetShortDescription() << Format::RESET << Format::NL;
     ss << room->GetLongDescription() << Format::NL;
     ss << Format::BOLD << Format::CYAN << "Directions:" << Format::NL << GetValidDirections(*room) << Format::NL
     << Format::RESET;
-    auto other_players = room->GetVisiblePlayerNames(connection->GetID());
+    auto other_players = room->GetVisiblePlayerNames(player->GetPlayerName());
     for (auto other_player: other_players) {
         ss << Format::BOLD << Format::BLUE << other_player << " is here." << Format::RESET << Format::NL;
     }
+    for (auto npc : room->GetNPCs()) {
+        ss << npc << " (NPC) is here." << Format::RESET << Format::NL;
+    }
+    if(room->GetItems().size() > 0) {
+        ss << Format::MAGENTA << "Items:" << Format::NL;
+        for (auto item : room->GetItems()) {
+            ss << item.first << Format::NL;
+        }
+        ss << Format::RESET;
+    }
+    Sender::Send(ss.str(), connection);
+}
+
+void PlayingState::CmdShips(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto room = connection->GetPlayer()->GetRoom();
+    std::stringstream ss;
     if (room->IsLandable()) {
         ss << "Ships:" << Format::NL;
         for (auto ship: room->GetShips()) {
@@ -172,56 +200,71 @@ void PlayingState::CmdWest(const std::string &input, std::shared_ptr<Connection>
     Move(connection, game_data, Direction::WEST);
 }
 
+void PlayingState::CmdUp(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data) {
+    Move(connection, game_data, Direction::UP);
+}
+
+void PlayingState::CmdDown(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    Move(connection, game_data, Direction::DOWN);
+}
+
 void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
                         Direction direction) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    //auto planet = game_data->GetPlanet(player->GetPlanetID());
-    auto area = game_data->GetArea(player->GetLocationID(), player->IsInShip());
-    int room_id = player->GetRoomID();
-    int player_id = player->GetID();
-    bool success = false;
+    auto player = connection->GetPlayer();
+    auto area = player->GetLocation();
+    auto departed_room = player->GetRoom();
     std::string arrive_string = "";
     std::string depart_string = "";
-    int departed_room = 0;
+    int new_room_int = -1;
     switch (direction) {
         case NORTH:
-            departed_room = player->GetRoomID();
-            success = area->MoveNorth(room_id, player_id);
-            arrive_string = "south";
-            depart_string = "north";
+            new_room_int = departed_room->GetNorth();
+            arrive_string = "the south";
+            depart_string = "to the north";
             break;
         case SOUTH:
-            departed_room = player->GetRoomID();
-            success = area->MoveSouth(room_id, player_id);
-            arrive_string = "north";
-            depart_string = "south";
+            new_room_int = departed_room->GetSouth();
+            arrive_string = "the north";
+            depart_string = "to the south";
             break;
         case EAST:
-            departed_room = player->GetRoomID();
-            success = area->MoveEast(room_id, player_id);
-            arrive_string = "west";
-            depart_string = "east";
+            new_room_int = departed_room->GetEast();
+            arrive_string = "the west";
+            depart_string = "to the east";
             break;
         case WEST:
-            departed_room = player->GetRoomID();
-            success = area->MoveWest(room_id, player_id);
-            arrive_string = "east";
-            depart_string = "west";
+            new_room_int = departed_room->GetWest();
+            arrive_string = "the east";
+            depart_string = "to the west";
+            break;
+        case UP:
+            new_room_int = departed_room->GetUp();
+            arrive_string = "above";
+            depart_string = "downwards";
+            break;
+        case DOWN:
+            new_room_int = departed_room->GetDown();
+            arrive_string = "below";
+            depart_string = "upwards";
             break;
         default:
             Logger::Error("Unhandled Direction");
     }
-    if (success) {
-        if (game_data->GetPlayer(connection->GetCharacterName())->IsVisible()) {
+    if (new_room_int != -1) {
+        area->ChangeRoom(departed_room->GetID(), new_room_int, player);
+        if (player->IsVisible()) {
             std::stringstream departed_ss;
             std::stringstream arrived_ss;
             std::string player_name = player->GetPlayerName();
-            departed_ss << player_name << " has left to the " << depart_string << Format::NL;
-            arrived_ss << player_name << " has arrived from the " << arrive_string << Format::NL;
+            departed_ss << player_name << " has left " << depart_string << Format::NL;
+            arrived_ss << player_name << " has arrived from " << arrive_string << Format::NL;
             Sender::SendToMultiple(departed_ss.str(), game_data->GetLoggedInConnections(),
-                                   area->GetRoom(departed_room)->GetVisiblePlayers());
+                                   departed_room->GetVisiblePlayers());
+            auto new_room = game_data->GetRoom(area->GetID(), new_room_int, player->IsInShip());
             Sender::SendToMultiple(arrived_ss.str(), game_data->GetLoggedInConnections(),
-                                   area->GetRoom(player->GetRoomID())->GetVisiblePlayers(connection->GetID()));
+                                   new_room->GetVisiblePlayers(connection->GetID()));
         }
         CmdLook("", connection, game_data);
     }
@@ -232,7 +275,7 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
 void PlayingState::CmdBuild(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
     if (connection->GetAccount().GetAccountLevel() > Account::NORMAL)
-        connection->SetState("Building");
+        connection->SetState(GameStates::BUILDING, game_data);
     else
         Sender::Send("Not Authorized to enter build mode\n", connection);
 }
@@ -247,6 +290,10 @@ std::string PlayingState::GetValidDirections(Room &room) {
         ss << "east ";
     if (room.GetWest() != -1)
         ss << "west ";
+    if (room.GetUp() != -1)
+        ss << "up ";
+    if (room.GetDown() != -1)
+        ss << "down ";
     ss << "\n";
     return ss.str();
 }
@@ -260,9 +307,9 @@ void PlayingState::CmdGoto(const std::string &input, std::shared_ptr<Connection>
         newroom = std::atoi(room_number_string.c_str());
     }
 
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
-    if (planet->ChangeRoom(player->GetRoomID(), newroom, player->GetID())) {
+    auto player = connection->GetPlayer();
+    auto planet = player->GetPlanet();
+    if (planet->ChangeRoom(player->GetRoomID(), newroom, player)) {
         CmdLook("", connection, game_data);
     }
     else {
@@ -274,11 +321,11 @@ void PlayingState::CmdGoto(const std::string &input, std::shared_ptr<Connection>
 void PlayingState::CmdOpen(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
     std::string data = input;
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     if (player->IsInShip()) {
-        auto ship = game_data->GetShip(player->GetShipID());
+        auto ship = player->GetShip();
         if (player->GetRoomID() == 0) {
-            if(!ship->IsInSpace()) {
+            if (!ship->IsInSpace()) {
                 if (!ship->IsHatchOpen()) {
                     ship->OpenHatch();
                     Sender::Send("Opened hatch\n", connection);
@@ -295,12 +342,7 @@ void PlayingState::CmdOpen(const std::string &input, std::shared_ptr<Connection>
         }
     }
     else {
-        //auto planet = game_data->GetPlanet(player->GetPlanetID());
-        auto room = game_data->GetRoom(player->GetLocationID(),
-                                       player->GetRoomID(),
-                                       false);
-        //int room_id = player->GetRoomID();
-        //auto room = planet->GetRoom(room_id);
+        auto room = player->GetRoom();
         bool found = false;
         std::string ship_name = Tokenizer::GetFirstToken(data);
         for (auto ship: room->GetShips()) {
@@ -325,10 +367,9 @@ void PlayingState::CmdOpen(const std::string &input, std::shared_ptr<Connection>
 void PlayingState::CmdClose(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
     std::string data = input;
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     if (player->IsInShip()) {
-        Logger::Debug("Ship ID: " + std::to_string(player->GetShipID()));
-        auto ship = game_data->GetShip(player->GetShipID());
+        auto ship = player->GetShip();
         if (player->GetRoomID() == 0) {
             if (ship->IsHatchOpen()) {
                 ship->CloseHatch();
@@ -343,9 +384,7 @@ void PlayingState::CmdClose(const std::string &input, std::shared_ptr<Connection
         }
     }
     else {
-        auto room = game_data->GetRoom(player->GetLocationID(),
-                                       player->GetRoomID(),
-                                       player->IsInShip());
+        auto room = player->GetRoom();
         bool found = false;
         std::string ship_name = Tokenizer::GetFirstToken(data);
         for (auto ship: room->GetShips()) {
@@ -370,10 +409,8 @@ void PlayingState::CmdClose(const std::string &input, std::shared_ptr<Connection
 void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
     std::string data = input;
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto planet = game_data->GetPlanet(player->GetPlanetID());
-    int room_id = player->GetRoomID();
-    auto room = planet->GetRoom(room_id);
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
     bool found = false;
     std::string ship_name = Tokenizer::GetFirstToken(data);
     for (auto ship: room->GetShips()) {
@@ -388,9 +425,11 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
                 auto ship_room = ship.second->GetRoom(0);
                 ship.second->AddPlayer(player->GetID());
                 ship_room->AddPlayer(player);
-                player->SetShipID(ship.second->GetID());
+                //player->SetShipID(ship.second->GetID());
+                player->SetShip(ship.second);
                 player->SetInShip(true);
-                player->SetRoomID(0);
+                //player->SetRoomID(0);
+                player->SetRoom(ship_room);
                 std::stringstream enter_ss;
                 enter_ss << player->GetPlayerName() << " entered the ship\n";
                 Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
@@ -410,22 +449,24 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
 
 void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
+
     if (player->IsInShip()) {
-        auto ship = game_data->GetShip(player->GetLocationID());
+        auto ship = player->GetShip();
         if (player->GetRoomID() == 0) {
             if (ship->IsHatchOpen()) {
-                auto room = ship->GetRoom(player->GetRoomID());
+                auto room = player->GetRoom();
                 std::stringstream exit_ss;
                 exit_ss << player->GetPlayerName() << " left the ship\n";
                 Sender::SendToMultiple(exit_ss.str(), game_data->GetLoggedInConnections(),
                                        room->GetVisiblePlayers(connection->GetID()));
                 room->RemovePlayer(player->GetID());
                 player->SetInShip(false);
-                room = game_data->GetRoom(ship->GetPlanetID(),
-                                          0,
-                                          false);
-                player->SetPlanetID(ship->GetPlanetID());
+                // TODO
+                room = ship->GetPlanet()->GetRoom(0);
+                // TODO
+                player->SetPlanet(ship->GetPlanet());
+                player->SetRoom(room);
                 room->AddPlayer(player);
                 ship->RemovePlayer(player->GetID());
                 std::stringstream ss;
@@ -450,14 +491,14 @@ void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection
 
 void PlayingState::CmdTakeOff(const std::string &input, std::shared_ptr<Connection> connection,
                               std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     if (CheckCockpitCommand(connection, game_data, false)) {
-        auto ship = game_data->GetShip(player->GetShipID());
-        if(!ship->IsHatchOpen()) {
+        auto ship = player->GetShip();
+        if (!ship->IsHatchOpen()) {
             Sender::SendToMultiple("The ship lurches as it ascends into space\n",
                                    game_data->GetLoggedInConnections(),
                                    ship->GetPlayerIDs());
-            auto planet = game_data->GetPlanet(ship->GetPlanetID());
+            auto planet = ship->GetPlanet();
             ship->SetCoordinates(planet->GetCoordinates());
             ship->SetInSpace(true);
             ship->SetInOrbit(true);
@@ -481,12 +522,13 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
     double x = 0;
     double y = 0;
     double z = 0;
-    double speed = 0;
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+    auto player = connection->GetPlayer();
     bool course_set = false;
+    auto ship = player->GetShip();
     if (CheckCockpitCommand(connection, game_data, true)) {
         // TODO: Skill check
-        if (params.size() > 1 and !Utils::IsNumber(params[0])) {
+
+        if (params.size() > 0 and !Utils::IsNumber(params[0])) {
             auto planet = game_data->GetPlanet(params[0]);
             if (planet == nullptr) {
                 Sender::Send("That planet does not exist in this system\n", connection);
@@ -497,41 +539,72 @@ void PlayingState::CmdSetCourse(const std::string &input, std::shared_ptr<Connec
                 x = coords.x;
                 y = coords.y;
                 z = coords.z;
-                speed = std::stod(params[1]);
+                if (params.size() > 1 and Utils::IsNumber(params[1])) {
+                    ship->SetSpeed(std::stod(params[1]));
+                }
                 course_set = true;
             }
         }
-        else if (params.size() >= 4 and Utils::IsNumber(params[0])
-                 and Utils::IsNumber(params[1]) and Utils::IsNumber(params[2])
-                 and Utils::IsNumber(params[3])) {
+        else if (params.size() >= 3 and Utils::IsNumber(params[0])
+                 and Utils::IsNumber(params[1]) and Utils::IsNumber(params[2])) {
             x = std::stod(params[0]);
             y = std::stod(params[1]);
             z = std::stod(params[2]);
-            speed = std::stod(params[3]);
+            if (params.size() >= 4 and Utils::IsNumber(params[3])) {
+                ship->SetSpeed(std::stod(params[3]));
+            }
             course_set = true;
         }
         if (!course_set) {
             Sender::Send("Course not set, bad parameters\n", connection);
             return;
         }
-        auto ship = game_data->GetShip(player->GetShipID());
         ship->SetDestination(x, y, z);
         ship->SetInOrbit(false);
-        Utils::Vector3 coords = ship->GetCoordinates();
-        double xf = x - coords.x;
-        double yf = y - coords.y;
-        double zf = z - coords.z;
-        double length = sqrt(xf * xf + yf * yf + zf * zf);
-        Utils::Vector3 velocity;
-        velocity.x = (xf / length) * speed;
-        velocity.y = (yf / length) * speed;
-        velocity.z = (zf / length) * speed;
-        ship->SetVelocity(velocity);
+        ChangeSpeed(ship->GetSpeed(), ship);
         std::stringstream ss;
-        ss << "Course set for " << "X: " << x << "Y: " << y
-        << "Z: " << z << " at speed " << speed << "\n";
+        ss << "Course set for " << "X: " << x << " Y: " << y
+        << " Z: " << z << " at speed " << ship->GetSpeed() << "\n";
         Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
                                ship->GetPlayerIDs());
+    }
+}
+
+void PlayingState::ChangeSpeed(double speed, std::shared_ptr<Ship> &ship) {
+    Utils::Vector3 coords = ship->GetCoordinates();
+    Utils::Vector3 destination = ship->GetDestination();
+    double xf = destination.x - coords.x;
+    double yf = destination.y - coords.y;
+    double zf = destination.z - coords.z;
+    double length = sqrt(xf * xf + yf * yf + zf * zf);
+    if (length == 0)
+        return;
+    Utils::Vector3 velocity;
+    velocity.x = (xf / length) * speed;
+    velocity.y = (yf / length) * speed;
+    velocity.z = (zf / length) * speed;
+    ship->SetVelocity(velocity);
+    ship->SetInOrbit(false);
+}
+
+void PlayingState::CmdSetSpeed(const std::string &input, std::shared_ptr<Connection> connection,
+                               std::shared_ptr<GameData> game_data) {
+    if (CheckCockpitCommand(connection, game_data, true)) {
+        std::string input_data = input;
+        std::string speed_string = Tokenizer::GetFirstToken(input_data);
+        auto player = connection->GetPlayer();
+        auto ship = player->GetShip();
+        if (Utils::IsNumber(speed_string)) {
+            ship->SetSpeed(std::stod(speed_string));
+            ChangeSpeed(std::stod(speed_string), ship);
+            std::stringstream ss;
+            ss << "Ship's speed set to " << speed_string << Format::NL;
+            Sender::SendToMultiple(ss.str(), game_data->GetLoggedInConnections(),
+                                   ship->GetPlayerIDs());
+        }
+        else {
+            Sender::Send("Invalid speed parameter", connection);
+        }
     }
 }
 
@@ -540,6 +613,7 @@ void PlayingState::CmdScan(const std::string &input, std::shared_ptr<Connection>
     if (CheckCockpitCommand(connection, game_data, true)) {
         std::stringstream ss;
         auto planets = game_data->GetPlanets().GetPlanets();
+        auto ships = game_data->GetShips().GetShips();
         ss << "Planets:\n";
         for (auto planet : planets) {
             std::string planet_name = planet.second->GetName();
@@ -549,19 +623,31 @@ void PlayingState::CmdScan(const std::string &input, std::shared_ptr<Connection>
             ss << planet_name << " X: " << x << " Y: " << y << " Z: " << z << "\n";
         }
         ss << Format::NL;
+        ss << "Ships:\n";
+        for (auto ship : ships) {
+            if (ship.second->IsInSpace()) {
+                std::string ship_name = ship.second->GetName();
+                double x = ship.second->GetCoordinates().x;
+                double y = ship.second->GetCoordinates().y;
+                double z = ship.second->GetCoordinates().z;
+                ss << ship_name << " X: " << x << " Y: " << y << " Z: " << z << "\n";
+
+            }
+        }
         Sender::Send(ss.str(), connection);
     }
 }
 
 void PlayingState::CmdOrbit(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
-    auto ship = game_data->GetShip(player->GetShipID());
-    if(CheckCockpitCommand(connection, game_data, true)) {
-        for(auto planet : game_data->GetPlanets().GetPlanets()) {
-            if(Utils::GetDistance(planet.second->GetCoordinates(),
-                                  ship->GetCoordinates()) <= 100) {
+    auto player = connection->GetPlayer();
+    auto ship = player->GetShip();
+    if (CheckCockpitCommand(connection, game_data, true)) {
+        for (auto planet : game_data->GetPlanets().GetPlanets()) {
+            if (Utils::GetDistance(planet.second->GetCoordinates(),
+                                   ship->GetCoordinates()) <= 100) {
                 ship->SetPlanetId(planet.second->GetID());
+                ship->SetPlanet(planet.second);
                 ship->SetInOrbit(true);
                 ship->SetVelocity(0, 0, 0);
                 std::stringstream ss;
@@ -578,20 +664,22 @@ void PlayingState::CmdOrbit(const std::string &input, std::shared_ptr<Connection
 
 void PlayingState::CmdLand(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
-    if(CheckCockpitCommand(connection, game_data, true)) {
-        auto player = game_data->GetPlayer(connection->GetCharacterName());
-        auto ship = game_data->GetShip(player->GetShipID());
-        if(ship->IsInOrbit()) {
-            auto planet = game_data->GetPlanet(ship->GetPlanetID());
+    if (CheckCockpitCommand(connection, game_data, true)) {
+        auto player = connection->GetPlayer();
+        auto ship = player->GetShip();
+        if (ship->IsInOrbit()) {
+            auto planet = ship->GetPlanet();
             ship->SetInSpace(false);
             ship->SetInOrbit(false);
-            auto room = game_data->GetRoom(ship->GetPlanetID(),
-                               0,
-                               false);
+            auto room = planet->GetRoom(0);
+            if (!room) {
+                // error handle
+                return;
+            }
             room->AddShip(ship);
 
             std::stringstream ss;
-            ss << "The ship has landed on " <<  planet->GetName() << "\n";
+            ss << "The ship has landed on " << planet->GetName() << "\n";
             Sender::SendToMultiple(ss.str(),
                                    game_data->GetLoggedInConnections(),
                                    ship->GetPlayerIDs());
@@ -608,12 +696,12 @@ void PlayingState::CmdLand(const std::string &input, std::shared_ptr<Connection>
 }
 
 bool PlayingState::CheckCockpitCommand(std::shared_ptr<Connection> connection,
-                                      std::shared_ptr<GameData> game_data, bool InSpace) {
-    auto player = game_data->GetPlayer(connection->GetCharacterName());
+                                       std::shared_ptr<GameData> game_data, bool InSpace) {
+    auto player = connection->GetPlayer();
     std::stringstream ss;
     if (player->IsInShip()) {
-        auto ship = game_data->GetShip(player->GetShipID());
-        if (ship->GetRoom(player->GetRoomID())->IsCockpit()) {
+        auto ship = player->GetShip();
+        if (player->GetRoom()->IsCockpit()) {
             if (!ship->IsInSpace() xor InSpace) {
                 return true;
             }
@@ -633,4 +721,70 @@ bool PlayingState::CheckCockpitCommand(std::shared_ptr<Connection> connection,
     }
     Sender::Send(ss.str(), connection);
     return false;
+}
+
+void PlayingState::CmdQuit(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    connection->Close();
+    auto player = connection->GetPlayer();
+    player->GetRoom()->RemovePlayer(player->GetID());
+    if (player->IsInShip()) {
+        player->GetShip()->RemovePlayer(player->GetID());
+        player->SetInShip(false);
+    }
+    // TODO
+    //game_data->GetRoom(player->GetPlanet()->GetID(), 0, false)->AddPlayer(player);
+}
+
+void PlayingState::Shutdown(std::shared_ptr<Connection> connection) {
+    CmdQuit("", connection, game_data);
+}
+
+void PlayingState::CmdInventory(const std::string &input, std::shared_ptr<Connection> connection,
+                                std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    std::stringstream ss;
+    ss << "Inventory:" << Format::NL;
+    for(auto item : player->GetItems()) {
+        ss << item.first << Format::NL;
+    }
+    Sender::Send(ss.str(), connection);
+}
+
+void PlayingState::CmdGet(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    std::string input_data = input;
+    std::string item_name = Tokenizer::GetFirstToken(input_data);
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    auto items = room->GetItems();
+    if(items.find(item_name) != items.end()) {
+        player->AddItem(item_name);
+        room->RemoveItem(item_name);
+        std::stringstream ss;
+        ss << "Picked up " << item_name << Format::NL;
+        Sender::Send(ss.str(), connection);
+    }
+    else {
+        Sender::Send("That item isn't here!\r\n", connection);
+    }
+}
+
+void PlayingState::CmdDrop(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    std::string input_data = input;
+    std::string item_name = Tokenizer::GetFirstToken(input_data);
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    auto items = player->GetItems();
+    if(items.find(item_name) != items.end()) {
+        room->AddItem(item_name);
+        player->RemoveItem(item_name);
+        std::stringstream ss;
+        ss << "Dropped " << item_name << Format::NL;
+        Sender::Send(ss.str(), connection);
+    }
+    else {
+        Sender::Send("You don't have that item!\r\n", connection);
+    }
 }

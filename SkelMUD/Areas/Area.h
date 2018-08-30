@@ -23,29 +23,9 @@ public:
 
     std::shared_ptr<Room> GetRoom(int id);
 
-    bool MoveNorth(int room_id, int player_id);
-
-    bool MoveSouth(int room_id, int player_id);
-
-    bool MoveEast(int room_id, int player_id);
-
-    bool MoveWest(int room_id, int player_id);
-
-    bool MoveNorthWest(int room_id, int player_id);
-
-    bool MoveNorthEast(int room_id, int player_id);
-
-    bool MoveSouthWest(int room_id, int player_id);
-
-    bool MoveSouthEast(int room_id, int player_id);
-
-    bool MoveUp(int room_id, int player_id);
-
-    bool MoveDown(int room_id, int player_id);
-
     void SetName(std::string name);
 
-    bool ChangeRoom(int old_room, int new_room, int player_id);
+    bool ChangeRoom(int old_room, int new_room, std::shared_ptr<Player> player);
 
     std::vector<std::shared_ptr<Room>> GetRooms();
 
@@ -53,7 +33,7 @@ public:
 
     int GetID();
 
-    void PopulateShips(Ships &ships);
+//    void PopulateShips(Ships &ships);
 
 protected:
     std::string m_area_name;

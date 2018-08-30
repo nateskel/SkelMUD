@@ -11,8 +11,11 @@
 #include "Tokenizer.h"
 #include "Sender.h"
 #include "Format.h"
+#include "Player.h"
+#include "States/GameState.h"
+#include "States/StateFactory.h"
 
-#define MAX_TICK 10000
+#define MAX_TICK 100
 
 void Connection::Run() {
     std::thread connThread(&Connection::connectionThread, this);
@@ -57,6 +60,7 @@ void Connection::AddOutput(std::string output) {
 void Connection::FlushOutput() {
     if (m_send_buffer == "")
         return;
+    m_dirty_prompt = false;
     m_send_buffer.append(GetPrompt() + Format::RESET);
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');
@@ -69,6 +73,7 @@ void Connection::FlushOutput() {
 }
 
 void Connection::UpdatePrompt() {
+    m_dirty_prompt = false;
     m_send_buffer.append(GetPrompt() + Format::RESET);
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');
@@ -96,18 +101,18 @@ SOCKET Connection::GetSocket() {
 }
 
 Connection::Connection() {
-    state = "";
+    m_state = nullptr;
     character_class = "";
     character_race = "";
 }
 
-void Connection::SetState(std::string connection_state) {
-    state = connection_state;
+void Connection::SetState(const GameStates &connection_state, std::shared_ptr<GameData> game_data) {
+    m_state = StateFactory::GetGameState(connection_state, game_data);
     state_changed = true;
 }
 
-std::string Connection::GetState() {
-    return state;
+std::shared_ptr<GameState> Connection::GetState() {
+    return m_state;
 }
 
 std::string Connection::GetIP() {
@@ -163,9 +168,12 @@ std::string Connection::GetPrompt() {
 }
 
 bool Connection::IsPromptTick() {
+    if(!m_dirty_prompt)
+        return false;
     if(prompt_tick > MAX_TICK)
     {
         prompt_tick = 0;
+        m_dirty_prompt = false;
         return true;
     }
     else
@@ -184,7 +192,10 @@ bool Connection::IsLoggedIn() {
 }
 
 void Connection::SetPrompt(std::string prompt) {
-    m_prompt = prompt;
+    if (m_prompt != prompt) {
+        m_prompt = prompt;
+        m_dirty_prompt = true;
+    }
 }
 
 int Connection::GetHealth() {
@@ -196,6 +207,7 @@ int Connection::GetHealth() {
 }
 
 void Connection::TickNow() {
+    m_dirty_prompt = true;
     prompt_tick = MAX_TICK + 1;
 }
 
@@ -221,4 +233,12 @@ const std::string &Connection::GetCharacterName() const {
 
 void Connection::SetCharacterName(const std::string &character_name) {
     Connection::character_name = character_name;
+}
+
+void Connection::SetPlayer(std::shared_ptr<Player> player) {
+    m_player = player;
+}
+
+std::shared_ptr<Player> Connection::GetPlayer() {
+    return m_player;
 }

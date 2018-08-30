@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 
 class Utils {
 public:
@@ -13,11 +16,6 @@ public:
         double z;
     };
 
-    struct Velocity {
-        double x;
-        double y;
-        double z;
-    };
 
     static void RemoveEndline(std::string &data);
 
@@ -30,6 +28,8 @@ public:
     static double GetDistance(double ox, double oy, double oz, double dx, double dy, double dz);
 
     static double GetDistance(double ox, double oy, double oz, Vector3 destination);
+
+    static int make_directory(const char *path, mode_t mode);
 
 protected:
 private:

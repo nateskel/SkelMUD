@@ -63,7 +63,9 @@ std::vector<std::string> Utils::GetFilenames(std::string path) {
 bool Utils::IsNumber(std::string entry) {
     if(entry.length() == 0)
         return false;
-    for(int i = 0; i < entry.length(); i++)
+    if(entry[0] != '-' and !isdigit((char)entry[0]))
+        return false;
+    for(int i = 1; i < entry.length(); i++)
     {
         if(!isdigit((char)entry[i])) {
             return false;
@@ -91,4 +93,21 @@ double Utils::GetDistance(double ox, double oy, double oz, Vector3 destination) 
     double y = destination.y - oy;
     double z = destination.z - oz;
     return std::sqrt(x * x + y * y + z * z);
+}
+
+int Utils::make_directory(const char *path, mode_t mode) {
+    struct stat st;
+    int status = 0;
+    if (stat(path, &st) != 0)
+    {
+        if (mkdir(path, mode) != 0 && errno != EEXIST)
+            status = -1;
+    }
+    else if (!S_ISDIR(st.st_mode))
+    {
+        errno = ENOTDIR;
+        status = -1;
+    }
+
+    return(status);
 }

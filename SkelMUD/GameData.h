@@ -7,7 +7,6 @@
 
 
 #include <map>
-#include "Connection.h"
 #include "Accounts/Accounts.h"
 #include "Accounts/Account.h"
 #include "Races/Races.h"
@@ -16,6 +15,10 @@
 #include "Planets/Planets.h"
 #include "Config/Configuration.h"
 #include "Ships/Ships.h"
+#include "Items/Items.h"
+#include "NPCs/NPCs.h"
+
+class Connection;
 
 class GameData {
 
@@ -30,6 +33,10 @@ public:
     static const std::string SHIP_PATH;
     static const std::string SHIP_FILE;
     static const std::string CONFIG_FILE;
+    static const std::string ACCOUNT_DATA;
+    static const std::string ITEM_PATH;
+    static const std::string ITEM_FILE;
+    static const std::string NPC_PATH;
 
     GameData();
     void AddConnection(std::shared_ptr<Connection> connection);
@@ -50,6 +57,7 @@ public:
     void SaveShip(int id);
     std::map<int, std::shared_ptr<Connection>> GetLoggedInConnections();
     std::shared_ptr<Connection> GetConnection(std::string character_name);
+    std::shared_ptr<Connection> GetConnectionByUsername(std::string username);
     std::shared_ptr<Planet> GetPlanet(int ID);
     std::shared_ptr<Ship> GetShip(int ID);
     std::shared_ptr<Area> GetArea(int ID, bool is_ship);
@@ -57,10 +65,11 @@ public:
     std::shared_ptr<Planet> GetPlanet(std::string name);
     Planets& GetPlanets();
     Ships& GetShips();
-    //std::vector<std::string> GetShipNames();
     Configuration& GetConfiguration();
 
 private:
+    void PopulateShips();
+    void PopulateNPCs();
     std::map<int, std::shared_ptr<Connection>> m_connections;
     Accounts m_accounts;
     Races m_races;
@@ -68,6 +77,8 @@ private:
     Characters m_characters;
     Planets m_planets;
     Ships m_ships;
+    Items m_items;
+    NPCs m_npcs;
     Configuration m_configuration;
 };
 

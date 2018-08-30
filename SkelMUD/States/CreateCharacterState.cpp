@@ -6,6 +6,8 @@
 #include "CreateCharacterState.h"
 #include "../Sender.h"
 #include "../Utils.h"
+#include "StateFactory.h"
+#include "../Tokenizer.h"
 
 void CreateCharacterState::processInput(const std::string& input, std::shared_ptr<Connection> connection) {
     std::string username = connection->GetUsername();
@@ -70,16 +72,18 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
             selection = atoi(input.c_str());
         if(selection < 1 or selection > characters.size())
         {
-            Sender::Send("Invalid Selection", connection);
+            Sender::Send("Invalid Selection\n", connection);
         }
         else {
             std::string character = characters[selection - 1];
             std::shared_ptr<Player> player = game_data->GetPlayer(character);
+            player->SetID(connection->GetID());
+            connection->SetPlayer(player);
             connection->SetCharacterName(player->GetPlayerName());
             connection->SetCharacterClass(player->GetPlayerClass());
             connection->SetCharacterRace(player->GetPlayerRace());
             Sender::Send("Character Selected\r\n", connection);
-            connection->SetState("Playing");
+            connection->SetState(GameStates::PLAYING, game_data);
         }
     }
 }
@@ -123,7 +127,6 @@ void CreateCharacterState::processChooseClass(const std::string &input, std::sha
         connection->SetCharacterClass(m_class_map[choice].GetName());
         Sender::Send("Class Selected\r\nEnter name for character\r\n", connection);
         m_state_map[connection->GetID()] = NAME_CHARACTER;
-//        connection->SetState("Playing");
     }
     else {
         std::stringstream ss;
@@ -149,13 +152,16 @@ void CreateCharacterState::processNameCharacter(const std::string &input, std::s
 }
 
 void CreateCharacterState::processConfirmCharacter(const std::string &input, std::shared_ptr<Connection> connection) {
-    if(input == "Y" or input == "y" or input == "Yes" or input == "yes") {
-        std::shared_ptr<Player> player = std::make_shared<Player>(0, connection->GetCharacterName(),
+    std::string command = input;
+    Tokenizer::LowerCase(input);
+    if(command == "y" or command == "yes") {
+        std::shared_ptr<Player> player = std::make_shared<Player>(connection->GetID(), connection->GetCharacterName(),
                                                                   connection->GetCharacterClass(), connection->GetCharacterRace());
         game_data->AddCharacter(connection->GetUsername(), player);
         game_data->SaveCharacters(GameData::CHARACTER_FILE);
         game_data->SaveAccounts(GameData::ACCOUNT_FILE);
-        connection->SetState("Playing");
+        connection->SetPlayer(player);
+        connection->SetState(GameStates::PLAYING, game_data);
     }
     else
         init(connection);
@@ -166,7 +172,7 @@ void CreateCharacterState::processRollStats(const std::string &input, std::share
         Sender::Send("Stats Rolled, enter <R> to <R>eroll, or <A> to <A>ccept\r\n", connection);
     }
     else {
-        connection->SetState("Playing");
+        connection->SetState(GameStates::PLAYING, game_data);
     }
 }
 
@@ -176,3 +182,6 @@ std::string CreateCharacterState::rollStats() {
 }
 
 
+void CreateCharacterState::Shutdown(std::shared_ptr<Connection> connection) {
+
+}

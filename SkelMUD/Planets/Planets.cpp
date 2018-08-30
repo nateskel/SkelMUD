@@ -67,8 +67,8 @@ void Planets::SavePlanet(Planet planet) {
     SkexmlParser::BuildSkeXML(filename, planet_node);
 }
 
-void Planets::PopulateShips(Ships &ships) {
-    for(auto planet: m_planet_map) {
-        planet.second->PopulateShips(ships);
-    }
-}
+//void Planets::PopulateShips(Ships &ships) {
+//    for(auto planet: m_planet_map) {
+//        planet.second->PopulateShips(ships);
+//    }
+//}

@@ -47,6 +47,10 @@ void SkexmlParser::BuildSkeXML(std::string filename, std::shared_ptr<Node> node)
 
 void SkexmlParser::WriteNode(std::stringstream &xml_string, std::shared_ptr<Node> node, std::ofstream &file) {
     std::string node_name = node->GetName();
+    if(node_name == "LongDescription")
+    {
+        int x = 0;
+    }
     xml_string << "[" << node_name << "]" << "\r\n";
     std::string list = node->GetAttribute("List");
     if(list != "") {
@@ -60,12 +64,14 @@ void SkexmlParser::WriteNode(std::stringstream &xml_string, std::shared_ptr<Node
         std::map<std::string, std::string> attributes = node->GetAttributes();
         for (auto &kv : attributes) {
             std::string name = kv.first;
+            if(name=="List")
+                continue;
             std::string value = kv.second;
             xml_string << "[" << name << "]" << value << "[/" << name << "]" << "\r\n";
         }
     }
     std::map<std::string, std::shared_ptr<Node>> children = node->GetChildren();
-    for(auto& kv : children)
+    for(auto &kv : children)
     {
         std::shared_ptr<Node> value = kv.second;
         WriteNode(xml_string, value, file);

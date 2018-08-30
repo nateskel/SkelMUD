@@ -4,6 +4,8 @@
 
 #include "GameState.h"
 #include "../Format.h"
+#include "../Connection.h"
+#include "../GameData.h"
 
 //void GameState::processInput(std::string input, std::shared_ptr<Connection> connection) {
 //

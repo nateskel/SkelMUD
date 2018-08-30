@@ -17,6 +17,8 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
         int south = -1;
         int east = -1;
         int west = -1;
+        int up = -1;
+        int down = -1;
         auto room_node = child.second;
         auto long_desc_list = room_node->GetListAttribute("LongDescription");
         std::stringstream ss;
@@ -31,6 +33,8 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
         std::string south_string = room_node->GetAttribute("South");
         std::string east_string = room_node->GetAttribute("East");
         std::string west_string = room_node->GetAttribute("West");
+        std::string up_string = room_node->GetAttribute("Up");
+        std::string down_string = room_node->GetAttribute("Down");
         std::string hatch = room_node->GetAttribute("Hatch");
         std::string cockpit = room_node->GetAttribute("Cockpit");
         if(Utils::IsNumber(north_string))
@@ -41,6 +45,10 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
             east = atoi(east_string.c_str());
         if(Utils::IsNumber(west_string))
             west = atoi(west_string.c_str());
+        if(Utils::IsNumber(up_string))
+            up = atoi(up_string.c_str());
+        if(Utils::IsNumber(down_string))
+            down = atoi(down_string.c_str());
         std::shared_ptr<Room> room = std::make_shared<Room>(long_desc,
                                                             short_desc,
                                                             north,
@@ -51,8 +59,8 @@ std::shared_ptr<Area> AreaManager::BuildArea(std::shared_ptr<Node> area_node, st
                                                             -1,
                                                             -1,
                                                             -1,
-                                                            -1,
-                                                            -1);
+                                                            up,
+                                                            down);
         if(cockpit == "True")
             room->SetIsCockpit(true);
         if(landing_level == "") {
@@ -75,10 +83,23 @@ std::shared_ptr<Node> AreaManager::BuildRoomNodes(Area &area, std::shared_ptr<No
         room_node->AddAttribute("ShortDescription", room->GetShortDescription());
         auto long_desc = Tokenizer::GetAllTokens(room->GetLongDescription(), '\n');
         room_node->AddList("LongDescription", long_desc);
+        std::stringstream ss;
+        int landing_level = room->GetLandingLevel();
+        if(landing_level > 0)
+            room_node->AddAttribute("Landing", std::to_string(landing_level));
+        if(room->GetShipIDs().size() > 0) {
+            for (auto ship_id : room->GetShipIDs()) {
+                ss << ship_id << "\n";
+            }
+            auto ship_vector = Tokenizer::GetAllTokens(ss.str(),'\n');
+            room_node->AddList("Ships", ship_vector);
+        }
         AddDirectionAttribute("North", room->GetNorth(), room_node);
         AddDirectionAttribute("South", room->GetSouth(), room_node);
         AddDirectionAttribute("East", room->GetEast(), room_node);
         AddDirectionAttribute("West", room->GetWest(), room_node);
+        AddDirectionAttribute("Up", room->GetUp(), room_node);
+        AddDirectionAttribute("Down", room->GetDown(), room_node);
         area_node->AddChild(room_node);
     }
     return area_node;

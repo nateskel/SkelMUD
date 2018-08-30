@@ -8,11 +8,10 @@
 #include <vector>
 #include <map>
 #include "../Player.h"
-//#include "../Ships/Ships.h"
-//#include "../Ships/Ship.h"
+#include "../NPCs/NPC.h"
 
+class Area;
 class Ship;
-
 class Ships;
 
 class Room {
@@ -42,8 +41,10 @@ private:
     int m_down;
     LandingLevel m_landing_level;
     std::map<int, std::shared_ptr<Player>> m_player_map;
+    std::map<std::string, std::shared_ptr<NPC>> m_npc_map;
     std::vector<int> m_ship_ids;
     std::map<int, std::shared_ptr<Ship>> m_ships;
+    std::map<std::string, int> m_items;
     bool m_is_cockpit;
 
 public:
@@ -76,8 +77,6 @@ public:
 
     void AddShip(std::shared_ptr<Ship> ship);
 
-    void PopulateShips(Ships &ships, int area_id);
-
     std::vector<int> GetShipIDs();
 
     std::map<int, std::shared_ptr<Ship>> GetShips();
@@ -85,6 +84,10 @@ public:
     void RemovePlayer(int id);
 
     void AddPlayer(std::shared_ptr<Player> player);
+
+    void AddNPC(std::shared_ptr<NPC> npc);
+
+    std::vector<std::string> GetNPCs();
 
     std::shared_ptr<Player> GetPlayer(int id);
 
@@ -98,7 +101,15 @@ public:
 
     std::vector<std::string> GetVisiblePlayerNames(int exclude);
 
+    std::vector<std::string> GetVisiblePlayerNames(std::string exclude_name);
+
     std::vector<std::string> GetPlayerNames(int exclude);
+
+    void AddItem(std::string);
+
+    void RemoveItem(std::string);
+
+    std::map<std::string, int> GetItems();
 
     std::string GetLongDescription();
 

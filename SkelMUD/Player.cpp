@@ -64,3 +64,25 @@ bool Player::IsVisible() {
 void Player::SetVisible(const bool visible) {
     m_visible = visible;
 }
+
+void Player::AddItem(std::string item) {
+    if(m_items.find(item) == m_items.end()) {
+        m_items[item] = 1;
+    }
+    else {
+        m_items[item]++;
+    }
+}
+
+void Player::RemoveItem(std::string item) {
+    if(m_items.find(item) != m_items.end()) {
+        m_items[item]--;
+        if(m_items[item] == 0) {
+            m_items.erase(item);
+        }
+    }
+}
+
+std::map<std::string, int> Player::GetItems() {
+    return m_items;
+}

@@ -67,15 +67,14 @@ void Room::AddShip(std::shared_ptr<Ship> ship) {
     m_ships[id] = ship;
 }
 
-void Room::PopulateShips(Ships &ships, int area_id) {
-    auto all_ships = ships.GetShips();
-    for(auto ship_id: m_ship_ids) {
-        auto ship = all_ships[ship_id];
-        ship->SetPlanetId(area_id);
-        ship->SetRoomId(m_id);
-        m_ships[ship_id] = ship;
-    }
-}
+//void Room::PopulateShips(Ships &ships, std::shared_ptr<Area> area) {
+//    auto all_ships = ships.GetShips();
+//    for(auto ship_id: m_ship_ids) {
+//        auto ship = all_ships[ship_id];
+//        //ship->SetContainingRoom(&this);
+//        m_ships[ship_id] = ship;
+//    }
+//}
 
 std::vector<int> Room::GetShipIDs() {
     return m_ship_ids;
@@ -95,6 +94,18 @@ void Room::RemoveShip(int id) {
 
 void Room::AddPlayer(std::shared_ptr<Player> player) {
     m_player_map[player->GetID()] = player;
+}
+
+void Room::AddNPC(std::shared_ptr<NPC> npc) {
+    m_npc_map[npc->GetName()] = npc;
+}
+
+std::vector<std::string> Room::GetNPCs() {
+    std::vector<std::string> output;
+    for (std::map<std::string, std::shared_ptr<NPC>>::iterator it = m_npc_map.begin(); it != m_npc_map.end(); it++) {
+        output.push_back(it->first);
+    }
+    return output;
 }
 
 std::shared_ptr<Player> Room::GetPlayer(int id) {
@@ -144,6 +155,15 @@ std::vector<std::string> Room::GetVisiblePlayerNames(int exclude) {
     std::vector<std::string> output;
     for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
         if (it->first != exclude and it->second->IsVisible())
+            output.push_back(it->second->GetPlayerName());
+    }
+    return output;
+}
+
+std::vector<std::string> Room::GetVisiblePlayerNames(std::string exclude_name) {
+    std::vector<std::string> output;
+    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
+        if (it->second->GetPlayerName() != exclude_name and it->second->IsVisible())
             output.push_back(it->second->GetPlayerName());
     }
     return output;
@@ -275,4 +295,26 @@ Room::LandingLevel Room::GetLandingLevel() {
 
 bool Room::IsLandable() {
     return m_landing_level != LandingLevel::NONE;
+}
+
+void Room::AddItem(std::string item) {
+    if(m_items.find(item) == m_items.end()) {
+        m_items[item] = 1;
+    }
+    else {
+        m_items[item]++;
+    }
+}
+
+void Room::RemoveItem(std::string item) {
+    if(m_items.find(item) != m_items.end()) {
+        m_items[item]--;
+        if(m_items[item] == 0) {
+            m_items.erase(item);
+        }
+    }
+}
+
+std::map<std::string, int> Room::GetItems() {
+    return m_items;
 }

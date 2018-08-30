@@ -2,10 +2,11 @@
 // Created by nate on 11/18/15.
 //
 
+#include "Connection.h"
 #include "GameData.h"
 #include "Logger.h"
 
-const std::string GameData::BASE_PATH = "/home/skelton/SkelMUD/SkelMUD/SkelMUD/Data/";
+const std::string GameData::BASE_PATH = "./Data/";
 const std::string GameData::ACCOUNT_FILE = BASE_PATH + "Accounts.sml";
 const std::string GameData::RACE_FILE = BASE_PATH + "Races.sml";
 const std::string GameData::CLASS_FILE = BASE_PATH + "Classes.sml";
@@ -15,6 +16,9 @@ const std::string GameData::PLANET_FILE = PLANET_PATH + "Planets.sml";
 const std::string GameData::SHIP_PATH = BASE_PATH + "Ships/";
 const std::string GameData::SHIP_FILE = SHIP_PATH + "Ships.sml";
 const std::string GameData::CONFIG_FILE = BASE_PATH + "config.sml";
+const std::string GameData::ACCOUNT_DATA = BASE_PATH + "AccountData/";
+const std::string GameData::ITEM_PATH = BASE_PATH + "Items/";
+const std::string GameData::NPC_PATH = BASE_PATH + "NPCs/";
 
 
 void GameData::AddConnection(std::shared_ptr<Connection> connection) {
@@ -65,8 +69,17 @@ GameData::GameData() {
     Logger::Debug("Planets Loaded");
     m_ships.LoadShips(SHIP_FILE);
     Logger::Debug("Ships Loaded");
+    m_items.LoadItems(ITEM_PATH);
+    Logger::Debug("Items Loaded");
+    m_npcs.LoadNPCs(NPC_PATH);
+    Logger::Debug("NPCs Loaded");
     m_configuration.LoadConfig(CONFIG_FILE);
-    m_planets.PopulateShips(m_ships);
+    PopulateShips();
+    PopulateNPCs();
+    auto room = GetRoom(0, 1, false);
+    for(auto item : m_items.GetItems()) {
+        room->AddItem(item.first);
+    }
     Logger::Debug("Resources Loaded");
 }
 
@@ -109,7 +122,7 @@ std::shared_ptr<Player> GameData::GetPlayer(std::string name) {
 
 std::shared_ptr<Connection> GameData::GetConnection(std::string character_name) {
     for(auto connection: m_connections) {
-        if(connection.second->GetCharacterName() == character_name) {
+        if(connection.second->GetCharacterName() == character_name and connection.second->IsLoggedIn()) {
             return connection.second;
         }
     }
@@ -153,10 +166,6 @@ Ships& GameData::GetShips() {
     return m_ships;
 }
 
-std::vector<std::string> GetShipNames(int room_id) {
-
-}
-
 std::shared_ptr<Ship> GameData::GetShip(int id) {
     return m_ships.GetShips()[id];
 }
@@ -167,4 +176,34 @@ void GameData::SaveShip(int id) {
 
 Configuration& GameData::GetConfiguration() {
     return m_configuration;
+}
+
+void GameData::PopulateShips() {
+    for (auto planet : m_planets.GetPlanets()) {
+        for(auto room : planet.second->GetRooms()) {
+            for(int ship_id : room->GetShipIDs()) {
+                auto ship = this->GetShip(ship_id);
+                room->AddShip(ship);
+                ship->SetContainingRoom(room);
+                ship->SetPlanet(planet.second);
+            }
+        }
+    }
+}
+
+void GameData::PopulateNPCs() {
+    for (auto npc : m_npcs.GetNPCs()) {
+        auto area = GetArea(npc.second->GetLocationID(), npc.second->IsInShip());
+        auto room = area->GetRoom(npc.second->GetRoomID());
+        npc.second->SetRoom(room);
+        room->AddNPC(npc.second);
+    }
+}
+
+std::shared_ptr<Connection> GameData::GetConnectionByUsername(std::string username) {
+    for (auto connection : GetLoggedInConnections()) {
+        if (connection.second->GetUsername() == username)
+            return connection.second;
+    }
+    return nullptr;
 }

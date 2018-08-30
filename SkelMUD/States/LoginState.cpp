@@ -5,6 +5,8 @@
 #include <sstream>
 #include "LoginState.h"
 #include "../Sender.h"
+#include "StateFactory.h"
+#include "../GameData.h"
 
 void LoginState::processInput(const std::string& input, std::shared_ptr<Connection> connection) {
     int state = m_state_map[connection->GetID()];
@@ -52,7 +54,7 @@ void LoginState::processPassword(const std::string &input, std::shared_ptr<Conne
     int connection_id = connection->GetID();
     if (account.MatchPassword(input)) {
         Sender::Send("Logged In!\r\n", connection);
-        connection->SetState("CharacterCreation");
+        connection->SetState(GameStates::CHARACTERCREATION, game_data);
         m_state_map.erase(connection_id);
     }
     else {
@@ -73,7 +75,7 @@ void LoginState::processNewPassword(const std::string &input, std::shared_ptr<Co
     game_data->AddAccount(account);
     game_data->SaveAccounts(GameData::ACCOUNT_FILE);
     Sender::Send("Account created\r\n", connection);
-    connection->SetState("CharacterCreation");
+    connection->SetState(GameStates::CHARACTERCREATION, game_data);
     m_state_map.erase(connection_id);
 }
 
@@ -100,4 +102,7 @@ void LoginState::processUsername(const std::string &input, std::shared_ptr<Conne
         Sender::Send("No account found, would you like to make a new one? Y/N\r\n", connection);
         m_state_map[connection->GetID()] = NEWACCOUNT;
     }
+}
+
+void LoginState::Shutdown(std::shared_ptr<Connection> connection) {
 }

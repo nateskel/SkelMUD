@@ -8,6 +8,10 @@
 
 #include "GameState.h"
 
+class Room;
+
+class Ship;
+
 class PlayingState : public GameState {
 public:
     enum Direction {
@@ -29,6 +33,10 @@ public:
         m_cmd_map["e"] = &CmdEast;
         m_cmd_map["west"] = &CmdWest;
         m_cmd_map["w"] = &CmdWest;
+        m_cmd_map["up"] = &CmdUp;
+        m_cmd_map["u"] = &CmdUp;
+        m_cmd_map["down"] = &CmdDown;
+        m_cmd_map["d"] = &CmdDown;
         m_cmd_map["build"] = &CmdBuild;
         m_cmd_map["goto"] = &CmdGoto;
         m_cmd_map["open"] = &CmdOpen;
@@ -37,51 +45,131 @@ public:
         m_cmd_map["leave"] = &CmdLeave;
         m_cmd_map["launch"] = &CmdTakeOff;
         m_cmd_map["say"] = &CmdSay;
-        m_cmd_map["setcourse"] = &CmdSetCourse;
+        m_cmd_map["emote"] = &CmdEmote;
+        m_cmd_map["course"] = &CmdSetCourse;
         m_cmd_map["scan"] = &CmdScan;
         m_cmd_map["orbit"] = &CmdOrbit;
         m_cmd_map["land"] = &CmdLand;
+        m_cmd_map["speed"] = &CmdSetSpeed;
+        m_cmd_map["quit"] = &CmdQuit;
+        m_cmd_map["ships"] = &CmdShips;
+        m_cmd_map["inv"] = &CmdInventory;
+        m_cmd_map["inventory"] = &CmdInventory;
+        m_cmd_map["get"] = &CmdGet;
+        m_cmd_map["drop"] = &CmdDrop;
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
-    virtual void processInput(const std::string& input, std::shared_ptr<Connection> connection) override;
+
+    virtual void processInput(const std::string &input, std::shared_ptr<Connection> connection) override;
+
+    virtual void Shutdown(std::shared_ptr<Connection> connection) override;
+
     virtual std::string GetPrompt(std::shared_ptr<Connection> connection) override;
-    static void CmdHelp(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdTell(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdChat(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdOnline(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdLook(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdNorth(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdSouth(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdEast(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdWest(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdBuild(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdGoto(const std::string& input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdOpen(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdClose(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdEnter(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
-    static void CmdLeave(const std::string&input, std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data);
+
+    static void CmdHelp(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdTell(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdChat(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdOnline(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data);
+
+    static void CmdLook(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdNorth(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdSouth(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdEast(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdWest(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdUp(const std::string &input, std::shared_ptr<Connection> connection,
+                      std::shared_ptr<GameData> game_data);
+
+    static void CmdDown(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdBuild(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdGoto(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdOpen(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdClose(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdEnter(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdLeave(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
     static void CmdTakeOff(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data);
+
     static void CmdSay(const std::string &input, std::shared_ptr<Connection> connection,
                        std::shared_ptr<GameData> game_data);
+
+    static void CmdEmote(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
     static void CmdSetCourse(const std::string &input, std::shared_ptr<Connection> connection,
                              std::shared_ptr<GameData> game_data);
+
+    static void CmdSetSpeed(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data);
+
     static void CmdScan(const std::string &input, std::shared_ptr<Connection> connection,
-                             std::shared_ptr<GameData> game_data);
+                        std::shared_ptr<GameData> game_data);
+
     static void CmdOrbit(const std::string &input, std::shared_ptr<Connection> connection,
                          std::shared_ptr<GameData> game_data);
+
     static void CmdLand(const std::string &input, std::shared_ptr<Connection> connection,
-                                      std::shared_ptr<GameData> game_data);
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdQuit(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdShips(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
+    static void CmdInventory(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdGet(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdDrop(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
 
 protected:
-    std::map<std::string, void(*)(const std::string&, std::shared_ptr<Connection>,
-                                  std::shared_ptr<GameData>)> m_cmd_map;
+    std::map<std::string, void (*)(const std::string &, std::shared_ptr<Connection>,
+                                   std::shared_ptr<GameData>)> m_cmd_map;
+
     static void Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
-                            Direction direction);
+                     Direction direction);
+
     static bool CheckCockpitCommand(std::shared_ptr<Connection> connection,
-                                       std::shared_ptr<GameData> game_data, bool InSpace);
+                                    std::shared_ptr<GameData> game_data, bool InSpace);
+
     static std::string GetValidDirections(Room &room);
+
+    static void ChangeSpeed(double speed, std::shared_ptr<Ship> &ship);
 };
 
 
