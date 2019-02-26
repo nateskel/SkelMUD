@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <math.h>
+#include <algorithm>
 #include "PlayingState.h"
 #include "../Tokenizer.h"
 #include "../Sender.h"
@@ -18,6 +19,7 @@ void PlayingState::processInput(const std::string &input, std::shared_ptr<Connec
     std::string input_string = input;
     std::string command = Tokenizer::GetFirstToken(input_string);
     command = Tokenizer::LowerCase(command);
+    command = Utils::FindMatch(m_cmd_vect, command);
     if (m_cmd_map.find(command) != m_cmd_map.end()) {
         m_cmd_map[command](input_string, connection, game_data);
         connection->SetPrompt(GetPrompt(connection));
@@ -344,12 +346,22 @@ void PlayingState::CmdOpen(const std::string &input, std::shared_ptr<Connection>
     else {
         auto room = player->GetRoom();
         bool found = false;
-        std::string ship_name = Tokenizer::GetFirstToken(data);
-        for (auto ship: room->GetShips()) {
+//        std::string ship_name = Tokenizer::GetFirstToken(data);
+        auto ships = room->GetShips();
+        auto vals = Utils::ExtractMapValues(ships);
+        std::vector<std::string> ship_names;
+        for(auto val: vals) {
+            ship_names.push_back(val->GetShipName());
+        }
+        std::sort(ship_names.begin(), ship_names.end());
+        std::string ship_name = Utils::FindMatch(ship_names, data);
+        for (auto ship: ships) {
             if (ship.second->GetShipName() == ship_name) {
                 found = true;
                 if (!ship.second->IsHatchOpen()) {
-                    Sender::Send("Opened hatch\n", connection);
+                    std::stringstream ss;
+                    ss << "Opened hatch on " << ship_name << "\n";
+                    Sender::Send(ss.str(), connection);
                     ship.second->OpenHatch();
                 }
                 else {
@@ -386,12 +398,22 @@ void PlayingState::CmdClose(const std::string &input, std::shared_ptr<Connection
     else {
         auto room = player->GetRoom();
         bool found = false;
-        std::string ship_name = Tokenizer::GetFirstToken(data);
-        for (auto ship: room->GetShips()) {
+//    std::string ship_name = Tokenizer::GetFirstToken(data);
+        auto ships = room->GetShips();
+        auto vals = Utils::ExtractMapValues(ships);
+        std::vector<std::string> ship_names;
+        for(auto val: vals) {
+            ship_names.push_back(val->GetShipName());
+        }
+        std::sort(ship_names.begin(), ship_names.end());
+        std::string ship_name = Utils::FindMatch(ship_names, data);
+        for (auto ship: ships) {
             if (ship.second->GetShipName() == ship_name) {
                 found = true;
                 if (ship.second->IsHatchOpen()) {
-                    Sender::Send("Closed hatch\n", connection);
+                    std::stringstream ss;
+                    ss << "Closed hatch on " << ship_name << "\n";
+                    Sender::Send(ss.str(), connection);
                     ship.second->CloseHatch();
                 }
                 else {
@@ -412,8 +434,16 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
     auto player = connection->GetPlayer();
     auto room = player->GetRoom();
     bool found = false;
-    std::string ship_name = Tokenizer::GetFirstToken(data);
-    for (auto ship: room->GetShips()) {
+//    std::string ship_name = Tokenizer::GetFirstToken(data);
+    auto ships = room->GetShips();
+    auto vals = Utils::ExtractMapValues(ships);
+    std::vector<std::string> ship_names;
+    for(auto val: vals) {
+        ship_names.push_back(val->GetShipName());
+    }
+    std::sort(ship_names.begin(), ship_names.end());
+    std::string ship_name = Utils::FindMatch(ship_names, data);
+    for (auto ship: ships) {
         if (ship.second->GetShipName() == ship_name) {
             found = true;
             if (ship.second->IsHatchOpen()) {
@@ -754,10 +784,14 @@ void PlayingState::CmdInventory(const std::string &input, std::shared_ptr<Connec
 void PlayingState::CmdGet(const std::string &input, std::shared_ptr<Connection> connection,
                           std::shared_ptr<GameData> game_data) {
     std::string input_data = input;
-    std::string item_name = Tokenizer::GetFirstToken(input_data);
+//    std::string item_name = Tokenizer::GetFirstToken(input_data);
+    std::string item_name = input_data;
     auto player = connection->GetPlayer();
     auto room = player->GetRoom();
     auto items = room->GetItems();
+    std::vector<std::string> keys = Utils::ExtractMapKeys(items);
+    std::sort(keys.begin(), keys.end());
+    item_name = Utils::FindMatch(keys, item_name);
     if(items.find(item_name) != items.end()) {
         player->AddItem(item_name);
         room->RemoveItem(item_name);
@@ -773,10 +807,14 @@ void PlayingState::CmdGet(const std::string &input, std::shared_ptr<Connection> 
 void PlayingState::CmdDrop(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
     std::string input_data = input;
-    std::string item_name = Tokenizer::GetFirstToken(input_data);
+//    std::string item_name = Tokenizer::GetFirstToken(input_data);
+    std::string item_name = input_data;
     auto player = connection->GetPlayer();
     auto room = player->GetRoom();
     auto items = player->GetItems();
+    std::vector<std::string> keys = Utils::ExtractMapKeys(items);
+    std::sort(keys.begin(), keys.end());
+    item_name = Utils::FindMatch(keys, input_data);
     if(items.find(item_name) != items.end()) {
         room->AddItem(item_name);
         player->RemoveItem(item_name);
@@ -787,4 +825,23 @@ void PlayingState::CmdDrop(const std::string &input, std::shared_ptr<Connection>
     else {
         Sender::Send("You don't have that item!\r\n", connection);
     }
+}
+
+void PlayingState::CmdStats(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    std::string p_name = player->GetPlayerName();
+    std::string p_race = player->GetPlayerRace();
+    std::string p_class = player->GetPlayerClass();
+    std::stringstream ss;
+    ss << p_name << " the " << p_race << " " << p_class << Format::NL;
+    Sender::Send(ss.str(), connection);
+}
+
+void PlayingState::BuildCommandVector() {
+//    for(auto const& item: m_cmd_map) {
+//        m_cmd_vect.push_back(item.first);
+//    }
+//    std::sort(m_cmd_vect.begin(), m_cmd_vect.end());
+    m_cmd_vect = Utils::ExtractMapKeys(m_cmd_map);
 }

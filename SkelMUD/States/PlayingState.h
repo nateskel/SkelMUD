@@ -6,6 +6,7 @@
 #define SKELMUD_PLAYINGSTATE_H
 
 
+#include <vector>
 #include "GameState.h"
 
 class Room;
@@ -57,6 +58,9 @@ public:
         m_cmd_map["inventory"] = &CmdInventory;
         m_cmd_map["get"] = &CmdGet;
         m_cmd_map["drop"] = &CmdDrop;
+        m_cmd_map["stats"] = &CmdStats;
+
+        BuildCommandVector();
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
@@ -157,9 +161,16 @@ public:
     static void CmdDrop(const std::string &input, std::shared_ptr<Connection> connection,
                          std::shared_ptr<GameData> game_data);
 
+    static void CmdStats(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
 protected:
     std::map<std::string, void (*)(const std::string &, std::shared_ptr<Connection>,
                                    std::shared_ptr<GameData>)> m_cmd_map;
+
+    std::vector<std::string> m_cmd_vect;
+
+    void BuildCommandVector();
 
     static void Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
                      Direction direction);

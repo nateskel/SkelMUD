@@ -3,4 +3,8 @@
 [Use]1[/Use]
 [HP]10[/HP]
 [/Apple]
+[Jumja Stick]
+[Use]1[/Use]
+[HP]20[/HP]
+[/Jumja Stick]
 [/Consumables]
