@@ -5,7 +5,8 @@
 #include <vector>
 #include <sys/stat.h>
 #include <sys/types.h>
-
+#include <map>
+#include <algorithm>
 
 class Utils {
 public:
@@ -30,6 +31,26 @@ public:
     static double GetDistance(double ox, double oy, double oz, Vector3 destination);
 
     static int make_directory(const char *path, mode_t mode);
+
+    static std::string FindMatch(std::vector<std::string> list, std::string value);
+
+    template <class T, class T2>
+    static std::vector<T> ExtractMapKeys(std::map<T, T2> input) {
+        std::vector<T> output;
+        for (auto const &item: input) {
+            output.push_back(item.first);
+        }
+        return output;
+    }
+
+    template <class T, class T2>
+    static std::vector<T2> ExtractMapValues(std::map<T, T2> input) {
+        std::vector<T2> output;
+        for (auto const &item: input) {
+            output.push_back(item.second);
+        }
+        return output;
+    }
 
 protected:
 private:

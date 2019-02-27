@@ -18,6 +18,10 @@ public:
 
     static std::vector<std::string> GetAllTokens(std::string data);
 
+    static std::vector<int> GetAllTokenIndexes(std::string data, std::vector<int> output, int index);
+
+    static std::vector<int> GetAllTokenIndexes(std::string data);
+
     static std::string MakeString(std::vector<std::string> string_vector);
 
     static std::string UpperCase(std::string data);

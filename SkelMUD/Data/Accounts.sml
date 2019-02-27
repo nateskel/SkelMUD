@@ -23,6 +23,8 @@ Test
 Tokel
 Notleks
 Blaaarg
+Shredimus
+Kevin
 [/Characters]
 [/Nate]
 [ugh]

@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include "Tokenizer.h"
 #include <algorithm>
 #include <iostream>
 #include <math.h>
@@ -111,3 +112,26 @@ int Utils::make_directory(const char *path, mode_t mode) {
 
     return(status);
 }
+
+std::string Utils::FindMatch(std::vector<std::string> list, std::string value) {
+    for(auto item: list) {
+        std::string check_string = item;
+        while(check_string.length() > 0) {
+            if(check_string.substr(0, value.length()) == value)
+                return item;
+            else
+                Tokenizer::GetFirstToken(check_string, true);
+        }
+    }
+    return value;
+}
+
+//template <class T>
+//std::vector<std::string> Utils::ExtractMapKeys(std::map<std::string, T> input) {
+//    std::vector<std::string> output;
+//    for(auto const& item: input) {
+//        output.push_back(item.first);
+//    }
+//    std::sort(output.begin(), output.end());
+//    return output;
+//}

@@ -84,3 +84,20 @@ std::string Tokenizer::LowerCase(std::string data) {
 std::string Tokenizer::GetFirstToken(std::string &data) {
     return GetFirstToken(data, true);
 }
+
+std::vector<int> Tokenizer::GetAllTokenIndexes(std::string data, std::vector<int> output, int index) {
+    std::string result = GetFirstToken(data, true);
+    Utils::RemoveEndline(result);
+    if (result != "") {
+        output.push_back(index);
+        index += result.length();
+    }
+    if (data != "")
+        return GetAllTokenIndexes(data, output, index);
+    return output;
+}
+
+std::vector<int> Tokenizer::GetAllTokenIndexes(std::string data) {
+    std::vector<int> output;
+    return GetAllTokenIndexes(data, output, 0);
+}
