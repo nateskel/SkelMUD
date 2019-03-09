@@ -10,15 +10,13 @@
 void Characters::LoadCharacters(std::string filename) {
     std::shared_ptr<Node> class_node = SkexmlParser::Parse(filename);
     auto children = class_node->GetChildren();
-    int count = 0;
     for(auto child : children)
     {
         std::string character_name = child.first;
         std::shared_ptr<Node> child_node = child.second;
         std::string char_class = child_node->GetAttribute("Class");
         std::string race = child_node->GetAttribute("Race");
-        std::shared_ptr<Player> character = std::make_shared<Player>(count, character_name, char_class, race);
-        count++;
+        std::shared_ptr<Player> character = std::make_shared<Player>(-1, character_name, char_class, race);
         AddCharacter(character);
     }
 }

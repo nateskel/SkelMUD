@@ -76,9 +76,16 @@ void Game::Start() {
         }
         if(std::time(nullptr) - elapsed >= 1) {
             ProcessShips();
+            ProcessCombat();
             elapsed = std::time(nullptr);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+void Game::ProcessCombat() {
+    for(auto player: m_game_data->GetPlayers()) {
+
     }
 }
 

@@ -39,6 +39,7 @@ private:
     void listenerThread();
 //    void initStates();
     void ProcessShips();
+    void ProcessCombat();
 };
 
 #endif // GAME_H

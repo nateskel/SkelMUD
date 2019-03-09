@@ -78,6 +78,11 @@ std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
     return ss.str();
 }
 
+void PlayingState::BeginPlayerCombat(std::shared_ptr<Connection> player_connection,
+                                     std::shared_ptr<Connection> target_connection) {
+
+}
+
 void PlayingState::CmdHelp(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
     Sender::Send("'chat' to chat\n'tell <character>' to direct tell\n'online' to see who is online\n", connection);
@@ -837,6 +842,30 @@ void PlayingState::CmdStats(const std::string &input, std::shared_ptr<Connection
     ss << p_name << " the " << p_race << " " << p_class << Format::NL;
     Sender::Send(ss.str(), connection);
 }
+
+
+void PlayingState::CmdAttack(const std::string &input, std::shared_ptr<Connection> connection,
+                             std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    auto players = room->GetVisiblePlayerNames(player->GetID());
+    auto match = Utils::FindMatch(players, input);
+    if(std::find(players.begin(), players.end(), match) != players.end()) {
+        auto target = game_data->GetPlayer(match);
+        std::stringstream sst;
+        sst << Format::RED << "Attacked by " << player->GetName() << "!" << Format::NL;
+        Sender::Send(sst.str(), game_data->GetConnection(match));
+        std::stringstream ss;
+        ss << Format::YELLOW << "You attack " << match << "!" << Format::NL;
+        Sender::Send(ss.str(), connection);
+    }
+    else {
+        std::stringstream ss;
+        ss << "No " << input << "here to attack" << Format::NL;
+        Sender::Send(ss.str(), connection);
+    }
+}
+
 
 void PlayingState::BuildCommandVector() {
 //    for(auto const& item: m_cmd_map) {

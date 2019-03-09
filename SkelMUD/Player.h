@@ -47,6 +47,7 @@ protected:
     std::string m_player_name;
     std::string m_class;
     std::string m_race;
+    std::string m_in_combat_with;
 
 private:
     std::map<std::string, int> m_items;

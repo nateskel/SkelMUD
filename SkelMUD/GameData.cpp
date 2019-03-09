@@ -120,6 +120,10 @@ std::shared_ptr<Player> GameData::GetPlayer(std::string name) {
     return m_characters.GetCharacters()[name];
 }
 
+std::map<std::string, std::shared_ptr<Player>> GameData::GetPlayers() {
+    return m_characters.GetCharacters();
+}
+
 std::shared_ptr<Connection> GameData::GetConnection(std::string character_name) {
     for(auto connection: m_connections) {
         if(connection.second->GetCharacterName() == character_name and connection.second->IsLoggedIn()) {

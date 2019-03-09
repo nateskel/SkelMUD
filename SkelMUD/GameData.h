@@ -48,6 +48,7 @@ public:
     Account GetAccount(std::string username);
     void AddCharacter(std::string username, std::shared_ptr<Player> character);
     std::shared_ptr<Player> GetPlayer(std::string name);
+    std::map<std::string, std::shared_ptr<Player>> GetPlayers();
     Races GetRaces();
     CharacterClasses GetClasses();
     void AddAccount(Account account);

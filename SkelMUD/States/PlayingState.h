@@ -8,6 +8,7 @@
 
 #include <vector>
 #include "GameState.h"
+#include "../Player.h"
 
 class Room;
 
@@ -59,6 +60,7 @@ public:
         m_cmd_map["get"] = &CmdGet;
         m_cmd_map["drop"] = &CmdDrop;
         m_cmd_map["stats"] = &CmdStats;
+        m_cmd_map["attack"] = &CmdAttack;
 
         BuildCommandVector();
     }
@@ -70,6 +72,8 @@ public:
     virtual void Shutdown(std::shared_ptr<Connection> connection) override;
 
     virtual std::string GetPrompt(std::shared_ptr<Connection> connection) override;
+
+    void BeginPlayerCombat(std::shared_ptr<Connection> player_connection, std::shared_ptr<Connection> target_connection);
 
     static void CmdHelp(const std::string &input, std::shared_ptr<Connection> connection,
                         std::shared_ptr<GameData> game_data);
@@ -163,6 +167,9 @@ public:
 
     static void CmdStats(const std::string &input, std::shared_ptr<Connection> connection,
                         std::shared_ptr<GameData> game_data);
+
+    static void CmdAttack(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
 
 protected:
     std::map<std::string, void (*)(const std::string &, std::shared_ptr<Connection>,
