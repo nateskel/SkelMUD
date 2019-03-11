@@ -21,6 +21,7 @@ public:
     Game();
     ~Game();
     void Start();
+    void Start(int port);
 
     const std::string LOGIN = "Login";
     const std::string USERNAME = "Username";

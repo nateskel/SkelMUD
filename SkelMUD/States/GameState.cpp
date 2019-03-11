@@ -19,6 +19,6 @@ GameState::GameState(std::shared_ptr<GameData> data) {
     game_data = data;
 }
 
-std::string GameState::GetPrompt(std::shared_ptr<Connection> connection) {
+std::string GameState::GetPrompt(Connection connection) {
     return Format::YELLOW + "> \r\n";
 }

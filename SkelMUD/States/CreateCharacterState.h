@@ -42,7 +42,7 @@ public:
 
     virtual void init(std::shared_ptr<Connection> connection) override;
 
-    virtual std::string GetPrompt(std::shared_ptr<Connection> connection) override;
+    virtual std::string GetPrompt(Connection connection) override;
 
     virtual void Shutdown(std::shared_ptr<Connection> connection) override;
 };

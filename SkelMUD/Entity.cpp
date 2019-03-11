@@ -11,6 +11,7 @@ Entity::Entity(int max_hp, int max_sp, int max_stamina) {
     m_max_sp = m_sp = max_sp;
     m_max_stamina = m_stamina = max_stamina;
     m_in_ship = false;
+    m_target = nullptr;
 }
 
 Entity::Entity() {
@@ -18,6 +19,7 @@ Entity::Entity() {
     m_max_sp = m_sp = 100;
     m_max_stamina = m_stamina = 100;
     m_in_ship = false;
+    m_target = nullptr;
 }
 
 Entity::~Entity() {
@@ -155,4 +157,56 @@ void Entity::SetShip(std::shared_ptr<Ship> ship) {
 
 std::shared_ptr<Ship> Entity::GetShip() {
     return m_ship.lock();
+}
+
+void Entity::BeginFighting(std::shared_ptr<Entity> target) {
+    m_target = target;
+}
+
+void Entity::AddAttacker(std::shared_ptr<Entity> attacker) {
+    Logger::Info(GetName() + ": add attacker " + attacker->GetName());
+    m_attackers.push_back(attacker);
+}
+
+std::vector<std::shared_ptr<Entity>> Entity::GetAttackers() {
+    return m_attackers;
+}
+
+void Entity::RemoveAttacker(std::shared_ptr<Entity> attacker) {
+    auto found = std::find(m_attackers.begin(), m_attackers.end(), attacker);
+    if(found != m_attackers.end())
+        m_attackers.erase(found);
+}
+
+void Entity::RemoveAllAttackers() {
+    m_attackers.clear();
+}
+
+void Entity::StopFighting() {
+    m_target = nullptr;
+}
+
+bool Entity::IsFighting() {
+    return m_target != nullptr;
+}
+
+bool Entity::IsAttacked() {
+    return !m_attackers.empty();
+}
+
+std::shared_ptr<Entity> Entity::GetTarget() {
+    return m_target;
+}
+
+bool Entity::Damage(int amount) {
+    m_hp -= amount;
+    return m_hp <= 0;
+}
+
+void Entity::Heal(int amount) {
+    Damage(-amount);
+}
+
+void Entity::Send(std::string data) {
+    // Possible future use, for now this is overridden by Player
 }

@@ -83,6 +83,16 @@ void Player::RemoveItem(std::string item) {
     }
 }
 
+void Player::Send(std::string data) {
+    m_send_queue << data;
+}
+
+std::string Player::GetCommData() {
+    std::string data = m_send_queue.str();
+    m_send_queue.str(std::string());
+    return data;
+}
+
 std::map<std::string, int> Player::GetItems() {
     return m_items;
 }

@@ -2,6 +2,7 @@
 #include "States/PlayingState.h"
 #include "Sender.h"
 #include "States/StateFactory.h"
+#include "Format.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -28,10 +29,16 @@ Game::~Game() {
 
 }
 
+void Game::Start(int port) {
+    m_game_data->GetConfiguration().SetPort(port);
+    Start();
+}
+
 void Game::Start() {
     std::thread listener(&Game::listenerThread, this);
     listener.detach();
     std::list<int> disconnected;
+    Logger::Info("Running\n");
     while(isRunning) {
         std::map<int, std::shared_ptr<Connection>> connection_map = m_game_data->GetAllConnections();
         for(auto connection_map_entry : connection_map)
@@ -40,7 +47,7 @@ void Game::Start() {
             std::shared_ptr<Connection> connection = connection_map_entry.second;
             if(std::time(nullptr) - elapsed >= 1) {
                 std::shared_ptr<GameState> state = connection->GetState();
-                connection->SetPrompt(state->GetPrompt(connection));
+                connection->SetPrompt(state->GetPrompt(*connection));
             }
             if(!connection->IsConnected())
             {
@@ -61,6 +68,11 @@ void Game::Start() {
             }
             std::string received = connection->GetNextReceived();
             Utils::RemoveEndline(received);
+            if(connection->IsLoggedIn()) {
+                std::string data = connection->GetPlayer()->GetCommData();
+                if(data != "")
+                    Sender::Send(data, connection);
+            }
             connection->FlushOutput();
             if(received == "")
                 continue;
@@ -84,8 +96,18 @@ void Game::Start() {
 }
 
 void Game::ProcessCombat() {
-    for(auto player: m_game_data->GetPlayers()) {
-
+    for(auto item: m_game_data->GetPlayers()) {
+        auto player = item.second;
+        if(player->IsFighting()) {
+            auto target = player->GetTarget();
+            std::stringstream ss;
+            ss << "You punch " << target->GetName() << " for 1 HP!" << Format::NL;
+            player->Send(ss.str());
+            std::stringstream ss2;
+            ss2 << player->GetName() << " punches you for 1 HP!" << Format::NL;
+            target->Send(ss2.str());
+            target->Damage(1);
+        }
     }
 }
 

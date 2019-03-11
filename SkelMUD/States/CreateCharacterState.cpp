@@ -49,7 +49,7 @@ void CreateCharacterState::init(std::shared_ptr<Connection> connection) {
     m_state_map[connection_id] = SELECT_CHARACTER;
 }
 
-std::string CreateCharacterState::GetPrompt(std::shared_ptr<Connection> connection) {
+std::string CreateCharacterState::GetPrompt(Connection connection) {
     return GameState::GetPrompt(connection);
 }
 

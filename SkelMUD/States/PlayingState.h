@@ -9,6 +9,7 @@
 #include <vector>
 #include "GameState.h"
 #include "../Player.h"
+#include "../Connection.h"
 
 class Room;
 
@@ -71,9 +72,9 @@ public:
 
     virtual void Shutdown(std::shared_ptr<Connection> connection) override;
 
-    virtual std::string GetPrompt(std::shared_ptr<Connection> connection) override;
+    virtual std::string GetPrompt(Connection connection) override;
 
-    void BeginPlayerCombat(std::shared_ptr<Connection> player_connection, std::shared_ptr<Connection> target_connection);
+    static void BeginCombat(std::shared_ptr<Player> player, std::shared_ptr<Player> target);
 
     static void CmdHelp(const std::string &input, std::shared_ptr<Connection> connection,
                         std::shared_ptr<GameData> game_data);

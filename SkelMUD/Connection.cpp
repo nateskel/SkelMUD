@@ -74,7 +74,9 @@ void Connection::FlushOutput() {
 
 void Connection::UpdatePrompt() {
     m_dirty_prompt = false;
-    m_send_buffer.append(GetPrompt() + Format::RESET);
+    auto prompt = GetState()->GetPrompt(*this);
+    //m_send_buffer.append(GetPrompt() + Format::RESET);
+    m_send_buffer.append(prompt + Format::RESET);
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');
     int sent = dataSocket.Send(&output[0]);
@@ -199,11 +201,7 @@ void Connection::SetPrompt(std::string prompt) {
 }
 
 int Connection::GetHealth() {
-    if(health > 0) {}
-        //--health;
-    else
-        health = 100;
-    return health;
+    return GetPlayer()->GetHP();
 }
 
 void Connection::TickNow() {

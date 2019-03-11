@@ -11,7 +11,8 @@
 
 void Configuration::LoadConfig(std::string filename) {
     std::shared_ptr<Node> root = SkexmlParser::Parse(filename);
-    m_port = std::atoi(root->GetAttribute("Port").c_str());
+    if(m_port == 0)
+        m_port = std::atoi(root->GetAttribute("Port").c_str());
     m_data_directory = root->GetAttribute("DataDirectory");
     if(m_data_directory == "") {
         // TODO: this is linux specific
@@ -32,4 +33,8 @@ int Configuration::GetPort() {
 
 void Configuration::SetPort(int port) {
     m_port = port;
+}
+
+Configuration::Configuration() {
+    m_port = 0;
 }

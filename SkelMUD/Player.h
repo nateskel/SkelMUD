@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include <string>
 #include <memory>
+#include <sstream>
 
 class Planet;
 
@@ -35,9 +36,13 @@ public:
 
     void SetVisible(const bool visible);
 
-    void AddItem(std::string);
+    void AddItem(std::string item);
 
-    void RemoveItem(std::string);
+    void RemoveItem(std::string item);
+
+    void Send(std::string data);
+
+    std::string GetCommData();
 
     std::map<std::string, int> GetItems();
 
@@ -47,7 +52,7 @@ protected:
     std::string m_player_name;
     std::string m_class;
     std::string m_race;
-    std::string m_in_combat_with;
+    std::stringstream m_send_queue;
 
 private:
     std::map<std::string, int> m_items;

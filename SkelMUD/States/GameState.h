@@ -20,7 +20,7 @@ public:
     virtual void processInput(const std::string& input, std::shared_ptr<Connection> connection) = 0;
     virtual void init(std::shared_ptr<Connection> connection);
     virtual void Shutdown(std::shared_ptr<Connection> connection) = 0;
-    virtual std::string GetPrompt(std::shared_ptr<Connection> connection);
+    virtual std::string GetPrompt(Connection connection);
 protected:
     std::shared_ptr<GameData> game_data;
 };

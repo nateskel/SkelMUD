@@ -5,6 +5,7 @@
 #include <sstream>
 #include <math.h>
 #include <algorithm>
+#include <random>
 #include "PlayingState.h"
 #include "../Tokenizer.h"
 #include "../Sender.h"
@@ -22,7 +23,6 @@ void PlayingState::processInput(const std::string &input, std::shared_ptr<Connec
     command = Utils::FindMatch(m_cmd_vect, command);
     if (m_cmd_map.find(command) != m_cmd_map.end()) {
         m_cmd_map[command](input_string, connection, game_data);
-        connection->SetPrompt(GetPrompt(connection));
     }
     else
         Sender::Send("Unrecognized command!\n", connection);
@@ -48,7 +48,7 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
     player->SetID(connection->GetID());
     ss << "Welcome to SkelMUD, " << connection->GetCharacterName() << "!" << Format::NL;
     Sender::Send(ss.str(), connection);
-    connection->SetPrompt(GetPrompt(connection));
+    connection->SetPrompt(GetPrompt(*connection));
     connection->SetLoggedIn(true);
 //    player->SetVisible(true);
     CmdLook("", connection, game_data);
@@ -58,11 +58,11 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
     Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), connection->GetSocket());
 }
 
-std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
+std::string PlayingState::GetPrompt(Connection connection) {
     std::stringstream ss;
-    ss << Format::YELLOW << "<" + Format::BLUE << connection->GetCharacterName() << Format::YELLOW << "> ";
-    ss << Format::RED << "<" << connection->GetHealth() << "> \n";
-    auto player = connection->GetPlayer();
+    ss << Format::YELLOW << "<" + Format::BLUE << connection.GetCharacterName() << Format::YELLOW << "> ";
+    ss << Format::RED << "<" << connection.GetHealth() << "> \n";
+    auto player = connection.GetPlayer();
     if (player->IsInShip()) {
         auto ship = player->GetShip();
         if (ship->IsInOrbit()) {
@@ -78,14 +78,21 @@ std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
     return ss.str();
 }
 
-void PlayingState::BeginPlayerCombat(std::shared_ptr<Connection> player_connection,
-                                     std::shared_ptr<Connection> target_connection) {
-
+void PlayingState::BeginCombat(std::shared_ptr<Player> player,
+                               std::shared_ptr<Player> target) {
+    player->BeginFighting(target);
+    if(!target->IsFighting()) {
+        target->BeginFighting(player);
+        player->AddAttacker(target);
+    }
+    target->AddAttacker(player);
 }
 
 void PlayingState::CmdHelp(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
-    Sender::Send("'chat' to chat\n'tell <character>' to direct tell\n'online' to see who is online\n", connection);
+    std::stringstream ss;
+    ss << "'chat' to chat\n'tell <character>' to direct tell\n'online' to see who is online\n";
+    Sender::Send(ss.str(), connection);
 }
 
 void PlayingState::CmdTell(const std::string &input, std::shared_ptr<Connection> connection,
@@ -220,6 +227,32 @@ void PlayingState::CmdDown(const std::string &input, std::shared_ptr<Connection>
 void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
                         Direction direction) {
     auto player = connection->GetPlayer();
+    if(player->IsAttacked()) {
+        // TODO: implement real attempt to run
+        auto attackers = player->GetAttackers();
+        std::random_device rd;
+        std::mt19937 mt(rd());
+        std::uniform_int_distribution<long> dist(1, 10 + attackers.size());
+        Logger::Info(player->GetName() + " attacker size: " + std::to_string(attackers.size()));
+        if(dist(mt) > 8 + attackers.size()) {
+            auto target = player->GetTarget();
+            player->Send("Escaped!\n");
+            if(target != nullptr) {
+                target->Send(player->GetName() + " escaped!\n");
+                player->StopFighting();
+            }
+            player->RemoveAllAttackers();
+            for(auto attacker: attackers) {
+                attacker->RemoveAttacker(player);
+                attacker->StopFighting();
+            }
+        }
+        else
+            player->Send("Failed to escape!\n");
+            return;
+    } else if(player->IsFighting()) {
+        player->StopFighting();
+    }
     auto area = player->GetLocation();
     auto departed_room = player->GetRoom();
     std::string arrive_string = "";
@@ -311,7 +344,7 @@ void PlayingState::CmdGoto(const std::string &input, std::shared_ptr<Connection>
     std::string room_number_string = Tokenizer::GetFirstToken(input_string);
     int newroom = 0;
     if (Utils::IsNumber(room_number_string)) {
-        newroom = std::atoi(room_number_string.c_str());
+        newroom = std::stoi(room_number_string);
     }
 
     auto player = connection->GetPlayer();
@@ -858,6 +891,7 @@ void PlayingState::CmdAttack(const std::string &input, std::shared_ptr<Connectio
         std::stringstream ss;
         ss << Format::YELLOW << "You attack " << match << "!" << Format::NL;
         Sender::Send(ss.str(), connection);
+        BeginCombat(player, target);
     }
     else {
         std::stringstream ss;
@@ -868,9 +902,5 @@ void PlayingState::CmdAttack(const std::string &input, std::shared_ptr<Connectio
 
 
 void PlayingState::BuildCommandVector() {
-//    for(auto const& item: m_cmd_map) {
-//        m_cmd_vect.push_back(item.first);
-//    }
-//    std::sort(m_cmd_vect.begin(), m_cmd_vect.end());
     m_cmd_vect = Utils::ExtractMapKeys(m_cmd_map);
 }
