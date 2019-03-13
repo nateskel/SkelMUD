@@ -14,17 +14,18 @@
 
 class Items {
 private:
-    std::map<std::string, Item> m_item_map;
-    Item ParseWeapon(std::shared_ptr<Node> node);
-    Item ParseRanged(std::shared_ptr<Node> node);
-    Item ParseMelee(std::shared_ptr<Node> node);
-    Item ParseArmor(std::shared_ptr<Node> node);
-    Item ParseConsumable(std::shared_ptr<Node> node);
+    std::map<std::string, std::shared_ptr<Item>> m_item_map;
+    std::shared_ptr<Item> ParseWeapon(std::shared_ptr<Node> node, std::shared_ptr<Item> item);
+    std::shared_ptr<Item> ParseRanged(std::shared_ptr<Node> node);
+    std::shared_ptr<Item> ParseMelee(std::shared_ptr<Node> node);
+    void ParseArmor(std::shared_ptr<Node> node, std::shared_ptr<Item> item);
+    void ParseConsumable(std::shared_ptr<Node> node, std::shared_ptr<Item> item);
 public:
     void LoadItems(std::string filename);
-    void AddItem(Item item);
-    std::map<std::string, Item> GetItems();
-    std::map<int, Item> EnumerateItems();
+    void AddItem(std::shared_ptr<Item> item);
+    std::map<std::string, std::shared_ptr<Item>> GetItems();
+    std::shared_ptr<Item> GetItem(std::string name);
+    std::map<int, std::shared_ptr<Item>> EnumerateItems();
 };
 
 

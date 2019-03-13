@@ -6,9 +6,10 @@
 #define SKELMUD_WEARABLE_H
 
 
+#include "ItemMixin.h"
 #include "Modifier.h"
 
-class Wearable {
+class Wearable : public ItemMixin {
 public:
     enum class Position { HEAD, ARMS, CHEST, FEET, HANDS, WAIST };
     enum class Type { CLOTH, LIGHT, MEDIUM, HEAVY };

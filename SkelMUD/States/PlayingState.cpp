@@ -15,6 +15,7 @@
 #include "../Areas/Room.h"
 #include "../GameData.h"
 #include "../Ships/Ship.h"
+#include "../Items/Consumable.h"
 
 void PlayingState::processInput(const std::string &input, std::shared_ptr<Connection> connection) {
     std::string input_string = input;
@@ -83,8 +84,8 @@ void PlayingState::BeginCombat(std::shared_ptr<Player> player,
     player->BeginFighting(target);
     if(!target->IsFighting()) {
         target->BeginFighting(player);
-        player->AddAttacker(target);
     }
+    player->AddAttacker(target);
     target->AddAttacker(player);
 }
 
@@ -245,11 +246,16 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
             for(auto attacker: attackers) {
                 attacker->RemoveAttacker(player);
                 attacker->StopFighting();
+                if(attacker->IsAttacked()) {
+                    attacker->BeginFighting(attacker->GetAttackers()[0]);
+                }
             }
         }
         else
+        {
             player->Send("Failed to escape!\n");
             return;
+        }
     } else if(player->IsFighting()) {
         player->StopFighting();
     }
@@ -814,7 +820,7 @@ void PlayingState::CmdInventory(const std::string &input, std::shared_ptr<Connec
     std::stringstream ss;
     ss << "Inventory:" << Format::NL;
     for(auto item : player->GetItems()) {
-        ss << item.first << Format::NL;
+        ss << item.first << ": " << item.second << Format::NL;
     }
     Sender::Send(ss.str(), connection);
 }
@@ -900,6 +906,35 @@ void PlayingState::CmdAttack(const std::string &input, std::shared_ptr<Connectio
     }
 }
 
+void PlayingState::CmdUse(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto items = player->GetItems();
+    auto keys = Utils::ExtractMapKeys(items);
+    auto match = Utils::FindMatch(keys, input);
+    if(match != "") {
+        auto item = game_data->GetItem(match);
+        std::stringstream err;
+        err << "Item: " << match << "Obj: " << item->GetItemName() << "\n";
+        Logger::Info(err.str());
+        if(item->HasMixin("Consumable")) {
+            UseConsumable(item, player);
+            player->RemoveItem(match);
+        }
+        else {
+            // Can't consume
+        }
+    }
+}
+
+void PlayingState::UseConsumable(std::shared_ptr<Item> item, std::shared_ptr<Player> player) {
+    auto mixin = item->GetMixin("Consumable");
+    auto consumable = std::dynamic_pointer_cast<Consumable>(mixin);
+    int hp = consumable->GetHP();
+    if(hp > 0) {
+        player->Heal(hp);
+    }
+}
 
 void PlayingState::BuildCommandVector() {
     m_cmd_vect = Utils::ExtractMapKeys(m_cmd_map);

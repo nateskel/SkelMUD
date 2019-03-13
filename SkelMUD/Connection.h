@@ -28,7 +28,6 @@ private:
     bool state_changed;
     int id;
     std::string m_send_buffer;
-//    std::string state;
     std::shared_ptr<GameState> m_state;
     std::list<std::string> m_receive_buffer;
     std::string owner_ip;

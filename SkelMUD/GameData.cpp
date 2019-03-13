@@ -79,6 +79,7 @@ GameData::GameData() {
     auto room = GetRoom(0, 1, false);
     for(auto item : m_items.GetItems()) {
         room->AddItem(item.first);
+        room->AddItem(item.first);
     }
     Logger::Debug("Resources Loaded");
 }
@@ -176,6 +177,10 @@ std::shared_ptr<Ship> GameData::GetShip(int id) {
 
 void GameData::SaveShip(int id) {
     m_ships.SaveShip(id);
+}
+
+std::shared_ptr<Item> GameData::GetItem(std::string name) {
+    return m_items.GetItem(name);
 }
 
 Configuration& GameData::GetConfiguration() {

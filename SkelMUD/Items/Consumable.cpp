@@ -19,98 +19,102 @@ Consumable::Consumable() {
     m_timer = 0;
 }
 
-int Consumable::GetM_hp() const {
+int Consumable::GetHP() const {
     return m_hp;
 }
 
-void Consumable::SetM_hp(int m_hp) {
+void Consumable::SetHP(int m_hp) {
     Consumable::m_hp = m_hp;
 }
 
-int Consumable::GetM_max_hp() const {
+int Consumable::GetMaxHP() const {
     return m_max_hp;
 }
 
-void Consumable::SetM_max_hp(int m_max_hp) {
+void Consumable::SetMaxHP(int m_max_hp) {
     Consumable::m_max_hp = m_max_hp;
 }
 
-int Consumable::GetM_sp() const {
+int Consumable::GetSP() const {
     return m_sp;
 }
 
-void Consumable::SetM_sp(int m_sp) {
+void Consumable::SetSP(int m_sp) {
     Consumable::m_sp = m_sp;
 }
 
-int Consumable::GetM_max_sp() const {
+int Consumable::GetMaxSP() const {
     return m_max_sp;
 }
 
-void Consumable::SetM_max_sp(int m_max_sp) {
+void Consumable::SetMaxSP(int m_max_sp) {
     Consumable::m_max_sp = m_max_sp;
 }
 
-int Consumable::GetM_stam() const {
+int Consumable::GetStamina() const {
     return m_stam;
 }
 
-void Consumable::SetM_stam(int m_stam) {
+void Consumable::SetStamina(int m_stam) {
     Consumable::m_stam = m_stam;
 }
 
-int Consumable::GetM_max_stam() const {
+int Consumable::GetMaxStamina() const {
     return m_max_stam;
 }
 
-void Consumable::SetM_max_stam(int m_max_stam) {
+void Consumable::SetMaxStamina(int m_max_stam) {
     Consumable::m_max_stam = m_max_stam;
 }
 
-int Consumable::GetM_str() const {
+int Consumable::GetStrength() const {
     return m_str;
 }
 
-void Consumable::SetM_str(int m_str) {
+void Consumable::SetStrength(int m_str) {
     Consumable::m_str = m_str;
 }
 
-int Consumable::GetM_end() const {
+int Consumable::GetEndurance() const {
     return m_end;
 }
 
-void Consumable::SetM_end(int m_end) {
+void Consumable::SetEndurance(int m_end) {
     Consumable::m_end = m_end;
 }
 
-int Consumable::GetM_int() const {
+int Consumable::GetIntelligence() const {
     return m_int;
 }
 
-void Consumable::SetM_int(int m_int) {
+void Consumable::SetIntelligence(int m_int) {
     Consumable::m_int = m_int;
 }
 
-int Consumable::GetM_dex() const {
+int Consumable::GetDexterity() const {
     return m_dex;
 }
 
-void Consumable::SetM_dex(int m_dex) {
+void Consumable::SetDexterity(int m_dex) {
     Consumable::m_dex = m_dex;
 }
 
-int Consumable::GetM_skill() const {
+int Consumable::GetSkill() const {
     return m_skill;
 }
 
-void Consumable::SetM_skill(int m_skill) {
+void Consumable::SetSkill(int m_skill) {
     Consumable::m_skill = m_skill;
 }
 
-int Consumable::GetM_timer() const {
+int Consumable::GetTimer() const {
     return m_timer;
 }
 
-void Consumable::SetM_timer(int m_timer) {
+void Consumable::SetTimer(int m_timer) {
     Consumable::m_timer = m_timer;
+}
+
+Consumable::~Consumable() {
+
 }

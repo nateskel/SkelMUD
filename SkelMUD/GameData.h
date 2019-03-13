@@ -64,6 +64,7 @@ public:
     std::shared_ptr<Area> GetArea(int ID, bool is_ship);
     std::shared_ptr<Room> GetRoom(int AreaID, int RoomID, bool is_ship);
     std::shared_ptr<Planet> GetPlanet(std::string name);
+    std::shared_ptr<Item> GetItem(std::string name);
     Planets& GetPlanets();
     Ships& GetShips();
     Configuration& GetConfiguration();

@@ -6,7 +6,9 @@
 #define SKELMUD_WIELDABLE_H
 
 
-class Wieldable {
+#include "ItemMixin.h"
+
+class Wieldable : public ItemMixin {
 
 };
 

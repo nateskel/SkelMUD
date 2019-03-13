@@ -10,6 +10,7 @@
 #include "GameState.h"
 #include "../Player.h"
 #include "../Connection.h"
+#include "../Items/Item.h"
 
 class Room;
 
@@ -62,6 +63,7 @@ public:
         m_cmd_map["drop"] = &CmdDrop;
         m_cmd_map["stats"] = &CmdStats;
         m_cmd_map["attack"] = &CmdAttack;
+        m_cmd_map["use"] = &CmdUse;
 
         BuildCommandVector();
     }
@@ -172,6 +174,9 @@ public:
     static void CmdAttack(const std::string &input, std::shared_ptr<Connection> connection,
                          std::shared_ptr<GameData> game_data);
 
+    static void CmdUse(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data);
+
 protected:
     std::map<std::string, void (*)(const std::string &, std::shared_ptr<Connection>,
                                    std::shared_ptr<GameData>)> m_cmd_map;
@@ -189,6 +194,8 @@ protected:
     static std::string GetValidDirections(Room &room);
 
     static void ChangeSpeed(double speed, std::shared_ptr<Ship> &ship);
+
+    static void UseConsumable(std::shared_ptr<Item> item, std::shared_ptr<Player> player);
 };
 
 

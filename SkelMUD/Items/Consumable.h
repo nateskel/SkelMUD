@@ -6,57 +6,61 @@
 #define SKELMUD_CONSUMABLE_H
 
 
-class Consumable {
+#include "ItemMixin.h"
+
+class Consumable : public ItemMixin {
 public:
     Consumable();
 
-    int GetM_hp() const;
+    virtual ~Consumable();
 
-    void SetM_hp(int m_hp);
+    int GetHP() const;
 
-    int GetM_max_hp() const;
+    void SetHP(int m_hp);
 
-    void SetM_max_hp(int m_max_hp);
+    int GetMaxHP() const;
 
-    int GetM_sp() const;
+    void SetMaxHP(int m_max_hp);
 
-    void SetM_sp(int m_sp);
+    int GetSP() const;
 
-    int GetM_max_sp() const;
+    void SetSP(int m_sp);
 
-    void SetM_max_sp(int m_max_sp);
+    int GetMaxSP() const;
 
-    int GetM_stam() const;
+    void SetMaxSP(int m_max_sp);
 
-    void SetM_stam(int m_stam);
+    int GetStamina() const;
 
-    int GetM_max_stam() const;
+    void SetStamina(int m_stam);
 
-    void SetM_max_stam(int m_max_stam);
+    int GetMaxStamina() const;
 
-    int GetM_str() const;
+    void SetMaxStamina(int m_max_stam);
 
-    void SetM_str(int m_str);
+    int GetStrength() const;
 
-    int GetM_end() const;
+    void SetStrength(int m_str);
 
-    void SetM_end(int m_end);
+    int GetEndurance() const;
 
-    int GetM_int() const;
+    void SetEndurance(int m_end);
 
-    void SetM_int(int m_int);
+    int GetIntelligence() const;
 
-    int GetM_dex() const;
+    void SetIntelligence(int m_int);
 
-    void SetM_dex(int m_dex);
+    int GetDexterity() const;
 
-    int GetM_skill() const;
+    void SetDexterity(int m_dex);
 
-    void SetM_skill(int m_skill);
+    int GetSkill() const;
 
-    int GetM_timer() const;
+    void SetSkill(int m_skill);
 
-    void SetM_timer(int m_timer);
+    int GetTimer() const;
+
+    void SetTimer(int m_timer);
 
 private:
     int m_hp;

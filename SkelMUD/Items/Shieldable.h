@@ -6,7 +6,9 @@
 #define SKELMUD_SHIELDABLE_H
 
 
-class Shieldable {
+#include "ItemMixin.h"
+
+class Shieldable : public ItemMixin {
 
 };
 

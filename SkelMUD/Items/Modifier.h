@@ -6,8 +6,9 @@
 #define SKELMUD_MODIFIER_H
 
 
-class Modifier {
-public:
+#include "ItemMixin.h"
+
+class Modifier : public ItemMixin {
 private:
     int m_max_hp;
     int m_max_sp;

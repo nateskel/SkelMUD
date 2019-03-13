@@ -7,33 +7,46 @@
 #include "../Utils.h"
 #include "../Logger.h"
 #include "../Tokenizer.h"
+#include "Consumable.h"
 
 void Items::LoadItems(std::string filename) {
     std::vector<std::string> files = Utils::GetFilenames(filename);
     for (std::string file : files) {
         std::shared_ptr<Node> item_node = SkexmlParser::Parse(file);
+        std::string item_type = item_node->GetName();
         auto children = item_node->GetChildren();
         for (auto child : children) {
             std::string item_name = child.first;
             std::shared_ptr<Node> child_node = child.second;
-            AddItem(Item(item_name));
+            std::shared_ptr<Item> item = std::make_shared<Item>(item_name);
+            if(item_type == "Consumables")
+                ParseConsumable(child_node, item);
+//            else if(item_type == "Armor")
+//                ParseArmor(child_node, item);
+//            else if(item_type == "Weapons")
+//                ParseWeapon(child_node, item);
+            AddItem(item);
         }
     }
 }
 
-void Items::AddItem(Item item) {
-    m_item_map[item.GetItemName()] = item;
+void Items::AddItem(std::shared_ptr<Item> item) {
+    m_item_map[item->GetItemName()] = item;
 }
 
-std::map<std::string, Item> Items::GetItems() {
+std::map<std::string, std::shared_ptr<Item>> Items::GetItems() {
     return m_item_map;
 }
 
-std::map<int, Item> Items::EnumerateItems() {
-    return std::map<int, Item>();
+std::shared_ptr<Item> Items::GetItem(std::string name) {
+    return m_item_map[name];
 }
 
-Item Items::ParseWeapon(std::shared_ptr<Node> node) {
+std::map<int, std::shared_ptr<Item>> Items::EnumerateItems() {
+    return std::map<int, std::shared_ptr<Item>>();
+}
+
+std::shared_ptr<Item> Items::ParseWeapon(std::shared_ptr<Node> node, std::shared_ptr<Item> item) {
     std::string w_class = node->GetAttribute("Class");
     if(w_class == "Ranged") {
         return ParseRanged(node);
@@ -42,19 +55,19 @@ Item Items::ParseWeapon(std::shared_ptr<Node> node) {
     } // Assume Melee
 }
 
-Item Items::ParseRanged(std::shared_ptr<Node> node) {
+std::shared_ptr<Item> Items::ParseRanged(std::shared_ptr<Node> node) {
     std::string name = node->GetName();
     std::string normalhit = node->GetAttribute("NormalHit");
     std::string criticalhit = node->GetAttribute("CriticalHit");
     std::string damage = node->GetAttribute("Damage");
     int min = std::stoi(Tokenizer::GetFirstToken(damage, ',', true));
     int max = std::stoi(Tokenizer::GetFirstToken(damage, ','));
-    Item item = Item(name);
+    std::shared_ptr<Item> item = std::make_shared<Item>(name);
 
     return item;
 }
 
-Item Items::ParseMelee(std::shared_ptr<Node> node) {
+std::shared_ptr<Item> Items::ParseMelee(std::shared_ptr<Node> node) {
     std::string name = node->GetName();
     std::string normalhit = node->GetAttribute("NormalHit");
     std::string criticalhit = node->GetAttribute("CriticalHit");
@@ -64,13 +77,13 @@ Item Items::ParseMelee(std::shared_ptr<Node> node) {
     //MeleeWeapon(name, min, max, normalhit, criticalhit);
 }
 
-Item Items::ParseArmor(std::shared_ptr<Node> node) {
-    std::string name = node->GetName();
-    Item item = Item(name);
+void Items::ParseArmor(std::shared_ptr<Node> node, std::shared_ptr<Item> item) {
 
-    return item;
 }
 
-Item Items::ParseConsumable(std::shared_ptr<Node> node) {
-    return Item();
+void Items::ParseConsumable(std::shared_ptr<Node> node, std::shared_ptr<Item> item) {
+    auto consumable = std::make_shared<Consumable>();
+    int hp = stoi(node->GetAttribute("HP"));
+    consumable->SetHP(hp);
+    item->AddMixin("Consumable", consumable);
 }
