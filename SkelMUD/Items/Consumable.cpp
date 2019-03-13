@@ -17,6 +17,8 @@ Consumable::Consumable() {
     m_int = 0;
     m_skill = 0;
     m_timer = 0;
+    m_eat = "";
+    m_drink = "";
 }
 
 int Consumable::GetHP() const {
@@ -113,6 +115,22 @@ int Consumable::GetTimer() const {
 
 void Consumable::SetTimer(int m_timer) {
     Consumable::m_timer = m_timer;
+}
+
+const std::string &Consumable::GetEat() const {
+    return m_eat;
+}
+
+void Consumable::SetEat(const std::string &m_eat) {
+    Consumable::m_eat = m_eat;
+}
+
+const std::string &Consumable::GetDrink() const {
+    return m_drink;
+}
+
+void Consumable::SetDrink(const std::string &m_drink) {
+    Consumable::m_drink = m_drink;
 }
 
 Consumable::~Consumable() {

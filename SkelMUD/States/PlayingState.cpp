@@ -478,7 +478,6 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
     auto player = connection->GetPlayer();
     auto room = player->GetRoom();
     bool found = false;
-//    std::string ship_name = Tokenizer::GetFirstToken(data);
     auto ships = room->GetShips();
     auto vals = Utils::ExtractMapValues(ships);
     std::vector<std::string> ship_names;
@@ -499,10 +498,8 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
                 auto ship_room = ship.second->GetRoom(0);
                 ship.second->AddPlayer(player->GetID());
                 ship_room->AddPlayer(player);
-                //player->SetShipID(ship.second->GetID());
                 player->SetShip(ship.second);
                 player->SetInShip(true);
-                //player->SetRoomID(0);
                 player->SetRoom(ship_room);
                 std::stringstream enter_ss;
                 enter_ss << player->GetPlayerName() << " entered the ship\n";
@@ -908,30 +905,80 @@ void PlayingState::CmdAttack(const std::string &input, std::shared_ptr<Connectio
 
 void PlayingState::CmdUse(const std::string &input, std::shared_ptr<Connection> connection,
                           std::shared_ptr<GameData> game_data) {
+    Use(input, connection, game_data, NONE);
+
+}
+
+void PlayingState::CmdEat(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    Use(input, connection, game_data, EAT);
+}
+
+void PlayingState::CmdDrink(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    Use(input, connection, game_data, DRINK);
+}
+
+void PlayingState::Use(const std::string &input, std::shared_ptr<Connection> connection,
+                       std::shared_ptr<GameData> game_data, Consume use_type) {
     auto player = connection->GetPlayer();
     auto items = player->GetItems();
     auto keys = Utils::ExtractMapKeys(items);
     auto match = Utils::FindMatch(keys, input);
-    if(match != "") {
-        auto item = game_data->GetItem(match);
-        std::stringstream err;
-        err << "Item: " << match << "Obj: " << item->GetItemName() << "\n";
-        Logger::Info(err.str());
+    auto item = game_data->GetItem(match);
+    if(item != nullptr) {
+        std::stringstream ss;
         if(item->HasMixin("Consumable")) {
-            UseConsumable(item, player);
+            auto mixin = item->GetMixin("Consumable");
+            auto consumable = std::dynamic_pointer_cast<Consumable>(mixin);
+            if(use_type == EAT) {
+                std::string eat = consumable->GetEat();
+                if(eat != "") {
+                    ss << eat << Format::NL;
+                    player->Send(ss.str());
+                }
+                else {
+                    ss << "You can't eat the " << item->GetItemName() << "!" << Format::NL;
+                    player->Send(ss.str());
+                    return;
+                }
+            }
+            else if(use_type == DRINK) {
+                std::string drink = consumable->GetDrink();
+                if(drink != "") {
+                    ss << drink << Format::NL;
+                    player->Send(ss.str());
+                }
+                else {
+                    ss << "You can't drink the " << item->GetItemName() << "!" << Format::NL;
+                    player->Send(ss.str());
+                    return;
+                }
+            }
+            else {
+                ss << "You use the " << item->GetItemName() << "." << Format::NL;
+                player->Send(ss.str());
+            }
+            UseConsumable(consumable, player);
             player->RemoveItem(match);
         }
         else {
-            // Can't consume
+            ss << "You can't ";
+            if(use_type == EAT)
+                ss << "eat";
+            else if(use_type == DRINK)
+                ss << "drink";
+            else
+                ss << "use";
+            ss << " the " << item->GetItemName() << "!" << Format::NL;
+            player->Send(ss.str());
         }
     }
 }
 
-void PlayingState::UseConsumable(std::shared_ptr<Item> item, std::shared_ptr<Player> player) {
-    auto mixin = item->GetMixin("Consumable");
-    auto consumable = std::dynamic_pointer_cast<Consumable>(mixin);
+void PlayingState::UseConsumable(std::shared_ptr<Consumable> consumable, std::shared_ptr<Player> player) {
     int hp = consumable->GetHP();
-    if(hp > 0) {
+    if(hp != 0) {
         player->Heal(hp);
     }
 }

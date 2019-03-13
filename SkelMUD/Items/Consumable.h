@@ -5,7 +5,7 @@
 #ifndef SKELMUD_CONSUMABLE_H
 #define SKELMUD_CONSUMABLE_H
 
-
+#include <string>
 #include "ItemMixin.h"
 
 class Consumable : public ItemMixin {
@@ -62,6 +62,14 @@ public:
 
     void SetTimer(int m_timer);
 
+    const std::string &GetEat() const;
+
+    void SetEat(const std::string &m_eat);
+
+    const std::string &GetDrink() const;
+
+    void SetDrink(const std::string &m_drink);
+
 private:
     int m_hp;
     int m_max_hp;
@@ -75,6 +83,8 @@ private:
     int m_dex;
     int m_skill;
     int m_timer;
+    std::string m_eat;
+    std::string m_drink;
 };
 
 

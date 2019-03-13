@@ -83,7 +83,14 @@ void Items::ParseArmor(std::shared_ptr<Node> node, std::shared_ptr<Item> item) {
 
 void Items::ParseConsumable(std::shared_ptr<Node> node, std::shared_ptr<Item> item) {
     auto consumable = std::make_shared<Consumable>();
-    int hp = stoi(node->GetAttribute("HP"));
-    consumable->SetHP(hp);
+    std::string hp_str = node->GetAttribute("HP");
+    std::string eat = node->GetAttribute("Eat");
+    std::string drink = node->GetAttribute("Drink");
+    if(hp_str != "") {
+        int hp = stoi(hp_str);
+        consumable->SetHP(hp);
+    }
+    consumable->SetEat(eat);
+    consumable->SetDrink(drink);
     item->AddMixin("Consumable", consumable);
 }

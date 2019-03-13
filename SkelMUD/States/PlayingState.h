@@ -11,6 +11,7 @@
 #include "../Player.h"
 #include "../Connection.h"
 #include "../Items/Item.h"
+#include "../Items/Consumable.h"
 
 class Room;
 
@@ -20,7 +21,11 @@ class PlayingState : public GameState {
 public:
     enum Direction {
         NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST, UP, DOWN
-    } direction;
+    };
+
+    enum Consume {
+        EAT, DRINK, NONE
+    };
 
     PlayingState(std::shared_ptr<GameData> data) : GameState(data) {
         m_cmd_map["help"] = &CmdHelp;
@@ -64,6 +69,8 @@ public:
         m_cmd_map["stats"] = &CmdStats;
         m_cmd_map["attack"] = &CmdAttack;
         m_cmd_map["use"] = &CmdUse;
+        m_cmd_map["eat"] = &CmdEat;
+        m_cmd_map["drink"] = &CmdDrink;
 
         BuildCommandVector();
     }
@@ -177,6 +184,15 @@ public:
     static void CmdUse(const std::string &input, std::shared_ptr<Connection> connection,
                           std::shared_ptr<GameData> game_data);
 
+    static void CmdEat(const std::string &input, std::shared_ptr<Connection> connection,
+                       std::shared_ptr<GameData> game_data);
+
+    static void CmdDrink(const std::string &input, std::shared_ptr<Connection> connection,
+                       std::shared_ptr<GameData> game_data);
+
+    static void Use(const std::string &input, std::shared_ptr<Connection> connection,
+                    std::shared_ptr<GameData> game_data, Consume use_type);
+
 protected:
     std::map<std::string, void (*)(const std::string &, std::shared_ptr<Connection>,
                                    std::shared_ptr<GameData>)> m_cmd_map;
@@ -195,7 +211,7 @@ protected:
 
     static void ChangeSpeed(double speed, std::shared_ptr<Ship> &ship);
 
-    static void UseConsumable(std::shared_ptr<Item> item, std::shared_ptr<Player> player);
+    static void UseConsumable(std::shared_ptr<Consumable> consumable, std::shared_ptr<Player> player);
 };
 
 
