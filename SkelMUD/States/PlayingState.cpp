@@ -175,7 +175,7 @@ void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection>
     if(room->GetItems().size() > 0) {
         ss << Format::MAGENTA << "Items:" << Format::NL;
         for (auto item : room->GetItems()) {
-            ss << item.first << Format::NL;
+            ss << item.first << ": " << item.second << Format::NL;
         }
         ss << Format::RESET;
     }
