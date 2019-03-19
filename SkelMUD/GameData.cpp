@@ -183,6 +183,10 @@ std::shared_ptr<Item> GameData::GetItem(std::string name) {
     return m_items.GetItem(name);
 }
 
+std::shared_ptr<NPC> GameData::GetNPC(std::string name) {
+    return m_npcs.GetNPCs()[name];
+}
+
 Configuration& GameData::GetConfiguration() {
     return m_configuration;
 }

@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "Entity.h"
+#include "Items/Item.h"
 #include <string>
 #include <memory>
 #include <sstream>
@@ -38,6 +39,8 @@ public:
 
     void AddItem(std::string item);
 
+    void AddItem(std::shared_ptr<Item> item);
+
     void RemoveItem(std::string item);
 
     void Send(std::string data);
@@ -46,6 +49,14 @@ public:
 
     std::map<std::string, int> GetItems();
 
+    void SetMainHand(std::shared_ptr<Item> item);
+
+    std::shared_ptr<Item> GetMainHand();
+
+    void SetOffHand(std::shared_ptr<Item> item);
+
+    std::shared_ptr<Item> GetOffHand();
+
 protected:
     int m_player_id;
     bool m_visible;
@@ -53,6 +64,8 @@ protected:
     std::string m_class;
     std::string m_race;
     std::stringstream m_send_queue;
+    std::shared_ptr<Item> m_main_hand_item;
+    std::shared_ptr<Item> m_off_hand_item;
 
 private:
     std::map<std::string, int> m_items;

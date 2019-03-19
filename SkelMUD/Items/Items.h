@@ -15,9 +15,7 @@
 class Items {
 private:
     std::map<std::string, std::shared_ptr<Item>> m_item_map;
-    std::shared_ptr<Item> ParseWeapon(std::shared_ptr<Node> node, std::shared_ptr<Item> item);
-    std::shared_ptr<Item> ParseRanged(std::shared_ptr<Node> node);
-    std::shared_ptr<Item> ParseMelee(std::shared_ptr<Node> node);
+    void ParseWeapon(std::shared_ptr<Node> node, std::shared_ptr<Item> item);
     void ParseArmor(std::shared_ptr<Node> node, std::shared_ptr<Item> item);
     void ParseConsumable(std::shared_ptr<Node> node, std::shared_ptr<Item> item);
 public:

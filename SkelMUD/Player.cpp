@@ -74,6 +74,10 @@ void Player::AddItem(std::string item) {
     }
 }
 
+void Player::AddItem(std::shared_ptr<Item> item) {
+    AddItem(item->GetItemName());
+}
+
 void Player::RemoveItem(std::string item) {
     if(m_items.find(item) != m_items.end()) {
         m_items[item]--;
@@ -95,4 +99,20 @@ std::string Player::GetCommData() {
 
 std::map<std::string, int> Player::GetItems() {
     return m_items;
+}
+
+void Player::SetMainHand(std::shared_ptr<Item> item) {
+    m_main_hand_item = item;
+}
+
+std::shared_ptr<Item> Player::GetMainHand() {
+    return m_main_hand_item;
+}
+
+void Player::SetOffHand(std::shared_ptr<Item> item) {
+    m_off_hand_item = item;
+}
+
+std::shared_ptr<Item> Player::GetOffHand() {
+    return m_off_hand_item;
 }

@@ -3,6 +3,7 @@
 #include "Sender.h"
 #include "States/StateFactory.h"
 #include "Format.h"
+#include "Items/Wieldable.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -11,6 +12,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <mutex>
+#include <random>
 
 #endif
 
@@ -86,7 +88,7 @@ void Game::Start() {
                 connection->ResetStateChanged();
             }
         }
-        if(std::time(nullptr) - elapsed >= 1) {
+        if(std::time(nullptr) - elapsed >= 3) {
             ProcessShips();
             ProcessCombat();
             elapsed = std::time(nullptr);
@@ -101,12 +103,63 @@ void Game::ProcessCombat() {
         if(player->IsFighting()) {
             auto target = player->GetTarget();
             std::stringstream ss;
-            ss << "You punch " << target->GetName() << " for 1 HP!" << Format::NL;
+            std::stringstream ts;
+            auto main_hand = player->GetMainHand();
+            auto off_hand = player->GetOffHand();
+            std::random_device rd;
+            std::mt19937 mt(rd());
+            std::uniform_int_distribution<int> crit_dist(1, 10);
+            if(main_hand != nullptr) {
+                bool crit = crit_dist(mt) > 9;
+                auto weapon = std::dynamic_pointer_cast<Wieldable>(main_hand->GetMixin("Wieldable"));
+                std::uniform_int_distribution<int> dist(weapon->GetMinDamage(), weapon->GetMaxDamage());
+                int damage = dist(mt);
+                std::string damage_text;
+                std::string damage_text_other;
+                if(!crit) {
+                    damage_text = weapon->GetNormalHit();
+                    damage_text_other = weapon->GetNormalHitOther();
+                }
+                else {
+                    damage_text = weapon->GetCriticalHit();
+                    damage_text_other = weapon->GetCriticalHitOther();
+                    damage *= 3;
+                }
+                ss << "You " << damage_text << " " << target->GetName();
+                ss << " for " << damage << " damage!" << Format::NL;
+                ts << player->GetName() << " " << damage_text_other;
+                ts << " you for " << damage << " damage!" <<Format::NL;
+                target->Damage(damage);
+            }
+            if(off_hand != nullptr) {
+                bool crit = crit_dist(mt) > 9;
+                auto weapon = std::dynamic_pointer_cast<Wieldable>(off_hand->GetMixin("Wieldable"));
+                std::uniform_int_distribution<int> dist(weapon->GetMinDamage(), weapon->GetMaxDamage());
+                int damage = dist(mt);
+                std::string damage_text;
+                std::string damage_text_other;
+                if(!crit) {
+                    damage_text = weapon->GetNormalHit();
+                    damage_text_other = weapon->GetNormalHitOther();
+                }
+                else {
+                    damage_text = weapon->GetCriticalHit();
+                    damage_text_other = weapon->GetCriticalHitOther();
+                    damage *= 3;
+                }
+                ss << "You " << damage_text << " " << target->GetName();
+                ss << " for " << damage << " damage!" << Format::NL;
+                ts << player->GetName() << " " << damage_text_other;
+                ts << " you for " << damage << " damage!" <<Format::NL;
+                target->Damage(damage);
+            }
+            if(main_hand == nullptr && off_hand == nullptr) {
+                ss << "You punch " << target->GetName() << " for 1 damage!" << Format::NL;
+                ts << player->GetName() << " punches you for 1 damage!" << Format::NL;
+                target->Damage(1);
+            }
             player->Send(ss.str());
-            std::stringstream ss2;
-            ss2 << player->GetName() << " punches you for 1 HP!" << Format::NL;
-            target->Send(ss2.str());
-            target->Damage(1);
+            target->Send(ts.str());
         }
     }
 }

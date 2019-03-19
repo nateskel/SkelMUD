@@ -71,7 +71,8 @@ public:
         m_cmd_map["use"] = &CmdUse;
         m_cmd_map["eat"] = &CmdEat;
         m_cmd_map["drink"] = &CmdDrink;
-
+        m_cmd_map["wield"] = &CmdWield;
+        m_cmd_map["unwield"] = &CmdUnWield;
         BuildCommandVector();
     }
 
@@ -189,6 +190,12 @@ public:
 
     static void CmdDrink(const std::string &input, std::shared_ptr<Connection> connection,
                        std::shared_ptr<GameData> game_data);
+
+    static void CmdWield(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdUnWield(const std::string &input, std::shared_ptr<Connection> connection,
+                                    std::shared_ptr<GameData> game_data);
 
     static void Use(const std::string &input, std::shared_ptr<Connection> connection,
                     std::shared_ptr<GameData> game_data, Consume use_type);

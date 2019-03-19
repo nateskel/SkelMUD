@@ -11,10 +11,13 @@ void NPCs::LoadNPCs(std::string filename) {
     std::vector<std::string> files = Utils::GetFilenames(filename);
     for(auto file: files) {
         std::shared_ptr<Node> npc_node = SkexmlParser::Parse(file);
-        std::string npc_name = npc_node->GetName();
+        std::string npc_name;
+        npc_name = npc_node->GetAttribute("FullName");
+        if(npc_name == "")
+            npc_name = npc_node->GetName();
         bool is_shopkeeper = npc_node->GetAttribute("ShopKeeper") == "True";
-        int room_id = atoi(npc_node->GetAttribute("Room").c_str());
-        int location_id = atoi(npc_node->GetAttribute("Planet").c_str());
+        int room_id = std::stoi(npc_node->GetAttribute("Room").c_str());
+        int location_id = std::stoi(npc_node->GetAttribute("Planet").c_str());
         auto npc = std::make_shared<NPC>(npc_name, is_shopkeeper);
         npc->SetInShip(false);
         npc->SetRoomID(room_id);

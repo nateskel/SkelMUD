@@ -16,6 +16,7 @@
 #include "../GameData.h"
 #include "../Ships/Ship.h"
 #include "../Items/Consumable.h"
+#include "../Items/Wieldable.h"
 
 void PlayingState::processInput(const std::string &input, std::shared_ptr<Connection> connection) {
     std::string input_string = input;
@@ -169,8 +170,9 @@ void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection>
     for (auto other_player: other_players) {
         ss << Format::BOLD << Format::BLUE << other_player << " is here." << Format::RESET << Format::NL;
     }
-    for (auto npc : room->GetNPCs()) {
-        ss << npc << " (NPC) is here." << Format::RESET << Format::NL;
+    for (auto npc_str : room->GetNPCs()) {
+        auto npc = game_data->GetNPC(npc_str);
+        ss << npc->GetName() << " (NPC) is here." << Format::RESET << Format::NL;
     }
     if(room->GetItems().size() > 0) {
         ss << Format::MAGENTA << "Items:" << Format::NL;
@@ -815,7 +817,20 @@ void PlayingState::CmdInventory(const std::string &input, std::shared_ptr<Connec
                                 std::shared_ptr<GameData> game_data) {
     auto player = connection->GetPlayer();
     std::stringstream ss;
-    ss << "Inventory:" << Format::NL;
+    ss << Format::RED << Format::BOLD << "Wielding:" << Format::NORMAL << Format::NL;
+    auto main_hand = player->GetMainHand();
+    auto off_hand = player->GetOffHand();
+    ss << "Main Hand: ";
+    if(main_hand != nullptr)
+        ss << main_hand->GetItemName() << Format::NL;
+    else
+        ss << "None" << Format::NL;
+    ss << "Off Hand: ";
+    if(off_hand != nullptr)
+        ss << off_hand->GetItemName() << Format::NL;
+    else
+        ss << "None" << Format::NL;
+    ss << Format::NL << Format::CYAN << Format::BOLD << "Inventory:" << Format::NORMAL << Format::NL;
     for(auto item : player->GetItems()) {
         ss << item.first << ": " << item.second << Format::NL;
     }
@@ -906,7 +921,6 @@ void PlayingState::CmdAttack(const std::string &input, std::shared_ptr<Connectio
 void PlayingState::CmdUse(const std::string &input, std::shared_ptr<Connection> connection,
                           std::shared_ptr<GameData> game_data) {
     Use(input, connection, game_data, NONE);
-
 }
 
 void PlayingState::CmdEat(const std::string &input, std::shared_ptr<Connection> connection,
@@ -917,6 +931,131 @@ void PlayingState::CmdEat(const std::string &input, std::shared_ptr<Connection> 
 void PlayingState::CmdDrink(const std::string &input, std::shared_ptr<Connection> connection,
                           std::shared_ptr<GameData> game_data) {
     Use(input, connection, game_data, DRINK);
+}
+
+void PlayingState::CmdWield(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto items = Utils::ExtractMapKeys(player->GetItems());
+    std::string match = Utils::FindMatch(items, input);
+    auto item = game_data->GetItem(match);
+    std::stringstream ss;
+    if(item == nullptr) {
+        ss << "You do not carry that item!" << Format::NL;
+        player->Send(ss.str());
+        return;
+    }
+    auto mixin = item->GetMixin("Wieldable");
+    if(mixin == nullptr) {
+        ss << item->GetItemName() << " can not be wielded!" << Format::NL;
+        player->Send(ss.str());
+        return;
+    }
+    auto wieldable = std::dynamic_pointer_cast<Wieldable>(mixin);
+    auto hand = wieldable->GetHandType();
+    if(hand == MAIN_HAND) {
+        auto main = player->GetMainHand();
+        std::stringstream ss;
+        if (main != nullptr) {
+            player->AddItem(main->GetItemName());
+            ss << "Removed " << main->GetItemName() << Format::NL;
+        }
+        player->SetMainHand(item);
+        player->RemoveItem(item->GetItemName());
+        ss << "Wielding " << item->GetItemName() << Format::NL;
+        player->Send(ss.str());
+    }
+    else if(hand == OFF_HAND) {
+        auto off = player->GetOffHand();
+        auto main = player->GetMainHand();
+        if(off != nullptr) {
+            player->AddItem(off->GetItemName());
+            ss << "Removed " << off->GetItemName() << Format::NL;
+        }
+        else if(main != nullptr) {
+            auto main_hand = std::dynamic_pointer_cast<Wieldable>(main->GetMixin("Wieldable"));
+            if (main_hand->GetHandType() == TWO_HAND) {
+                ss << "Remove two handed weapon before equipping!" << Format::NL;
+                player->Send(ss.str());
+                return;
+            }
+        }
+        player->SetOffHand(item);
+        player->RemoveItem(item->GetItemName());
+        ss << "Wielding " << item->GetItemName() << Format::NL;
+    }
+    else if(hand == EITHER_HAND) {
+        auto main = player->GetMainHand();
+        auto off = player->GetOffHand();
+        if(main != nullptr) {
+            auto main_hand = std::dynamic_pointer_cast<Wieldable>(main->GetMixin("Wieldable"));
+            if(off == nullptr and main_hand->GetHandType() != TWO_HAND) {
+                player->SetOffHand(item);
+                player->RemoveItem(item->GetItemName());
+                ss << "Wielding " << item->GetItemName() << " in off hand" << Format::NL;
+            }
+            else {
+                player->SetMainHand(item);
+                player->RemoveItem(item->GetItemName());
+                player->AddItem(main->GetItemName());
+                ss << "Unwielded " << main->GetItemName() << Format::NL;
+                ss << "Wielding " << item->GetItemName() << " in main hand" << Format::NL;
+            }
+        }
+        else {
+            player->SetMainHand(item);
+            player->RemoveItem(item->GetItemName());
+            ss << "Wielding " << item->GetItemName() << " in main hand" << Format::NL;
+        }
+    }
+    else if(hand == TWO_HAND) {
+        auto main = player->GetMainHand();
+        auto off = player->GetOffHand();
+        if(main != nullptr) {
+            player->AddItem(main->GetItemName());
+            ss << "Unwielded " << main->GetItemName() << Format::NL;
+        }
+        if(off != nullptr) {
+            player->AddItem(off->GetItemName());
+            player->SetOffHand(nullptr);
+            ss << "Unwielded " << off->GetItemName() << Format::NL;
+        }
+        player->SetMainHand(item);
+        player->RemoveItem(item->GetItemName());
+        ss << "Wielding " << item->GetItemName() << " in main hand" << Format::NL;
+    }
+    player->Send(ss.str());
+}
+
+void PlayingState::CmdUnWield(const std::string &input, std::shared_ptr<Connection> connection,
+                              std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto match = Utils::FindMatch({"main", "off"}, input);
+    std::stringstream ss;
+    if(match == "main") {
+        auto main = player->GetMainHand();
+        if (main != nullptr) {
+            player->SetMainHand(nullptr);
+            player->AddItem(main);
+            ss << "Unwielded " << main->GetItemName() << Format::NL;
+        } else {
+            ss << "Nothing to unwield" << Format::NL;
+        }
+    }
+    else if(match == "off") {
+        auto off = player->GetOffHand();
+        if(off != nullptr) {
+            player->SetOffHand(nullptr);
+            player->AddItem(off);
+            ss << "Unwielded " << off->GetItemName() << Format::NL;
+        } else {
+            ss << "Nothing to unwield" << Format::NL;
+        }
+    }
+    else {
+        ss << "Please indicate <main> or <off> hand" << Format::NL;
+    }
+    player->Send(ss.str());
 }
 
 void PlayingState::Use(const std::string &input, std::shared_ptr<Connection> connection,
