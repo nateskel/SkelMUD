@@ -22,6 +22,10 @@ std::string GameState::GetPrompt(Connection connection) {
     return Format::YELLOW + "> \r\n";
 }
 
+std::string GameState::GetLastPrompt() {
+    return m_prev_prompt;
+}
+
 bool GameState::IsDirty(std::string prompt) {
     return prompt != m_prev_prompt;
 }

@@ -21,6 +21,7 @@ public:
     virtual void init(std::shared_ptr<Connection> connection);
     virtual void Shutdown(std::shared_ptr<Connection> connection) = 0;
     virtual std::string GetPrompt(Connection connection);
+    std::string GetLastPrompt();
     bool IsDirty(std::string prompt);
     bool IsDirty(Connection connection);
     void CleanPrompt(std::string prompt);

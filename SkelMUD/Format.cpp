@@ -19,7 +19,8 @@ const std::string Format::WHITE = "\33[37m";
 
 const std::string Format::UP = "\33[1A";
 const std::string Format::NL = "\r\n";
-const std::string Format::FRONT_LINE = "\33[G";
+//const std::string Format::FRONT_LINE = "\33[G";
+const std::string Format::FRONT_LINE = "\33[1000D";
 const std::string Format::ERASE = "\33[2K";
 
 const std::string Format::SAVE = "\33[s";

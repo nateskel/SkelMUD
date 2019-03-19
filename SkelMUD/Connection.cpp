@@ -64,10 +64,15 @@ void Connection::FlushOutput() {
 }
 
 void Connection::UpdatePrompt() {
+    long size = Tokenizer::GetAllTokens(GetState()->GetLastPrompt(), '\n').size();
     m_state->CleanPrompt(*this);
     prompt_tick = 0;
     auto prompt = GetState()->GetPrompt(*this);
-    m_send_buffer.append(prompt + Format::RESET);
+    for(int i = 0; i < size; ++i) {
+        m_send_buffer.insert(0, Format::UP + Format::ERASE);
+    }
+    m_send_buffer.insert(0, Format::SAVE + Format::FRONT_LINE);
+    m_send_buffer.append(prompt + Format::RESTORE + Format::RESET);
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');
     int sent = dataSocket.Send(&output[0]);
