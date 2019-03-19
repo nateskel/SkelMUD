@@ -60,26 +60,13 @@ void Connection::AddOutput(std::string output) {
 void Connection::FlushOutput() {
     if (m_send_buffer == "")
         return;
-    m_dirty_prompt = false;
-    Logger::Debug("FLUSH");
-    //m_send_buffer.append(GetPrompt() + Format::RESET);
     UpdatePrompt();
-//    std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
-//    output.push_back('\0');
-//    int sent = dataSocket.Send(&output[0]);
-//    if (sent == -1) {
-//        is_connected = false;
-//    }
-//    m_send_buffer.clear();
-//    prompt_tick = MAX_TICK + 1;
 }
 
 void Connection::UpdatePrompt() {
-    Logger::Debug("UPDATE");
     m_state->CleanPrompt(*this);
     prompt_tick = 0;
     auto prompt = GetState()->GetPrompt(*this);
-    //m_send_buffer.append(GetPrompt() + Format::RESET);
     m_send_buffer.append(prompt + Format::RESET);
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');

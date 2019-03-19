@@ -50,7 +50,6 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
     player->SetID(connection->GetID());
     ss << "Welcome to SkelMUD, " << connection->GetCharacterName() << "!" << Format::NL;
     Sender::Send(ss.str(), connection);
-    //connection->SetPrompt(GetPrompt(*connection));
     CleanPrompt(*connection);
     connection->SetLoggedIn(true);
 //    player->SetVisible(true);
@@ -62,10 +61,12 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
 }
 
 std::string PlayingState::GetPrompt(Connection connection) {
-    std::stringstream ss;
-    ss << Format::YELLOW << "<" + Format::BLUE << connection.GetCharacterName() << Format::YELLOW << "> ";
-    ss << Format::RED << "<" << connection.GetHealth() << "> \n";
     auto player = connection.GetPlayer();
+    std::stringstream ss;
+    // ss << Format::YELLOW << "<" + Format::BLUE << connection.GetCharacterName() << Format::YELLOW << "> ";
+    ss << Format::RED << "<HP: " << player->GetHP() << "/" << player->GetMaxHP() << "> ";
+    ss << Format::BLUE << "<SP: " << player->GetSP() << "/" << player->GetMaxSP() << "> ";
+    ss << Format::YELLOW << "<Stam: " << player->GetStamina() << "/" << player->GetMaxStamina() << "> " << Format::NL;
     if (player->IsInShip()) {
         auto ship = player->GetShip();
         if (ship->IsInOrbit()) {
@@ -231,36 +232,9 @@ void PlayingState::CmdDown(const std::string &input, std::shared_ptr<Connection>
 void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
                         Direction direction) {
     auto player = connection->GetPlayer();
-    if(player->IsAttacked()) {
-        // TODO: implement real attempt to run
-        auto attackers = player->GetAttackers();
-        std::random_device rd;
-        std::mt19937 mt(rd());
-        std::uniform_int_distribution<long> dist(1, 10 + attackers.size());
-        Logger::Info(player->GetName() + " attacker size: " + std::to_string(attackers.size()));
-        if(dist(mt) > 8 + attackers.size()) {
-            auto target = player->GetTarget();
-            player->Send("Escaped!\n");
-            if(target != nullptr) {
-                target->Send(player->GetName() + " escaped!\n");
-                player->StopFighting();
-            }
-            player->RemoveAllAttackers();
-            for(auto attacker: attackers) {
-                attacker->RemoveAttacker(player);
-                attacker->StopFighting();
-                if(attacker->IsAttacked()) {
-                    attacker->BeginFighting(attacker->GetAttackers()[0]);
-                }
-            }
-        }
-        else
-        {
-            player->Send("Failed to escape!\n");
+    if(player->IsFighting()) {
+        if(!AttemptEscape(player))
             return;
-        }
-    } else if(player->IsFighting()) {
-        player->StopFighting();
     }
     auto area = player->GetLocation();
     auto departed_room = player->GetRoom();
@@ -315,6 +289,7 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
             Sender::SendToMultiple(arrived_ss.str(), game_data->GetLoggedInConnections(),
                                    new_room->GetVisiblePlayers(connection->GetID()));
         }
+        player->RegenStam(-2);
         CmdLook("", connection, game_data);
     }
     else
@@ -355,8 +330,8 @@ void PlayingState::CmdGoto(const std::string &input, std::shared_ptr<Connection>
     if (Utils::IsNumber(room_number_string)) {
         newroom = std::stoi(room_number_string);
     }
-
     auto player = connection->GetPlayer();
+    Escape(player);
     auto planet = player->GetPlanet();
     if (planet->ChangeRoom(player->GetRoomID(), newroom, player)) {
         CmdLook("", connection, game_data);
@@ -365,7 +340,6 @@ void PlayingState::CmdGoto(const std::string &input, std::shared_ptr<Connection>
         Sender::Send("Room does not exist!\n", connection);
     }
 }
-
 
 void PlayingState::CmdOpen(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
@@ -479,6 +453,10 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
                             std::shared_ptr<GameData> game_data) {
     std::string data = input;
     auto player = connection->GetPlayer();
+    if(player->IsFighting()) {
+        if(!AttemptEscape(player))
+            return;
+    }
     auto room = player->GetRoom();
     bool found = false;
     auto ships = room->GetShips();
@@ -524,7 +502,10 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
 void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
     auto player = connection->GetPlayer();
-
+    if(player->IsFighting()) {
+        if(!AttemptEscape(player))
+            return;
+    }
     if (player->IsInShip()) {
         auto ship = player->GetShip();
         if (player->GetRoomID() == 0) {
@@ -1121,6 +1102,38 @@ void PlayingState::UseConsumable(std::shared_ptr<Consumable> consumable, std::sh
     if(hp != 0) {
         player->Heal(hp);
     }
+}
+
+void PlayingState::Escape(std::shared_ptr<Player> player) {
+    auto target = player->GetTarget();
+    player->StopFighting();
+    for(auto attacker: player->GetAttackers()) {
+        attacker->StopFighting();
+        attacker->RemoveAttacker(player);
+        if(attacker->IsAttacked()) {
+            attacker->BeginFighting(attacker->GetAttackers()[0]);
+        }
+    }
+    player->RemoveAttacker(target);
+}
+
+bool PlayingState::AttemptEscape(std::shared_ptr<Player> player) {
+    // TODO: implement real attempt to run
+    auto attackers = player->GetAttackers();
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<long> dist(1, 10 + attackers.size());
+    if (dist(mt) > 8 + attackers.size()) {
+        auto target = player->GetTarget();
+        player->Send("Escaped!\n");
+        if (target != nullptr)
+            target->Send(player->GetName() + " escaped!\n");
+        Escape(player);
+    } else {
+        player->Send("Failed to escape!\n");
+        return false;
+    }
+    return true;
 }
 
 void PlayingState::BuildCommandVector() {

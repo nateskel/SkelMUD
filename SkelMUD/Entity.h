@@ -104,6 +104,12 @@ public:
 
     void Heal(int amount);
 
+    void RegenSP(int amount);
+
+    void RegenStam(int amount);
+
+    void Regen(bool fighting);
+
     virtual void Send(std::string data);
 
 protected:

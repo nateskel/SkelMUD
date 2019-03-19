@@ -15,7 +15,7 @@ Entity::Entity(int max_hp, int max_sp, int max_stamina) {
 }
 
 Entity::Entity() {
-    m_max_hp = m_hp = 100;
+    m_max_hp = m_hp = 200;
     m_max_sp = m_sp = 100;
     m_max_stamina = m_stamina = 100;
     m_in_ship = false;
@@ -164,7 +164,6 @@ void Entity::BeginFighting(std::shared_ptr<Entity> target) {
 }
 
 void Entity::AddAttacker(std::shared_ptr<Entity> attacker) {
-    Logger::Info(GetName() + ": add attacker " + attacker->GetName());
     m_attackers.push_back(attacker);
 }
 
@@ -175,6 +174,7 @@ std::vector<std::shared_ptr<Entity>> Entity::GetAttackers() {
 void Entity::RemoveAttacker(std::shared_ptr<Entity> attacker) {
     auto found = std::find(m_attackers.begin(), m_attackers.end(), attacker);
     if(found != m_attackers.end())
+        Logger::Debug("Removed " + attacker->GetName());
         m_attackers.erase(found);
 }
 
@@ -204,7 +204,27 @@ bool Entity::Damage(int amount) {
 }
 
 void Entity::Heal(int amount) {
-    Damage(-amount);
+    m_hp = std::min(amount + m_hp, m_max_hp);
+}
+
+void Entity::RegenSP(int amount) {
+    m_sp = std::min(amount + m_sp, m_max_sp);
+}
+
+void Entity::RegenStam(int amount) {
+    m_stamina = std::min(amount + m_stamina, m_max_stamina);
+}
+
+void Entity::Regen(bool fighting) {
+    if(fighting) {
+        RegenSP(1);
+        RegenStam(3);
+    }
+    else {
+        Heal(3);
+        RegenSP(2);
+        RegenStam(6);
+    }
 }
 
 void Entity::Send(std::string data) {

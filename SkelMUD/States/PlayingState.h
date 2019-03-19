@@ -219,6 +219,10 @@ protected:
     static void ChangeSpeed(double speed, std::shared_ptr<Ship> &ship);
 
     static void UseConsumable(std::shared_ptr<Consumable> consumable, std::shared_ptr<Player> player);
+
+    static void Escape(std::shared_ptr<Player> player);
+
+    static bool AttemptEscape(std::shared_ptr<Player> player);
 };
 
 

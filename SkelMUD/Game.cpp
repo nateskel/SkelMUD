@@ -21,7 +21,8 @@ Game::Game() {
     Logger::Debug("Setting up GameData");
     m_game_data = std::make_shared<GameData>();
     connection_id = 0;
-    elapsed = std::time(nullptr);
+    main_elapsed = std::time(nullptr);
+    regen_elapsed = std::time(nullptr);
     Logger::Debug("Initializing States");
 }
 
@@ -47,10 +48,6 @@ void Game::Start() {
         {
             std::lock_guard<std::mutex> lock(Game::game_mutex);
             std::shared_ptr<Connection> connection = connection_map_entry.second;
-            if(std::time(nullptr) - elapsed >= 1) {
-                std::shared_ptr<GameState> state = connection->GetState();
-                //connection->SetPrompt(state->GetPrompt(*connection));
-            }
             if(!connection->IsConnected())
             {
                 if(connection->IsLoggedIn()) {
@@ -66,7 +63,6 @@ void Game::Start() {
                 continue;
             }
             if(connection->IsPromptTick()) {
-                Logger::Debug("TICK");
                 Sender::UpdatePrompt(connection);
             }
             std::string received = connection->GetNextReceived();
@@ -89,12 +85,23 @@ void Game::Start() {
                 connection->ResetStateChanged();
             }
         }
-        if(std::time(nullptr) - elapsed >= 3) {
+        if(std::time(nullptr) - main_elapsed >= 3) {
             ProcessShips();
             ProcessCombat();
-            elapsed = std::time(nullptr);
+            main_elapsed = std::time(nullptr);
+        }
+        if(std::time(nullptr) - regen_elapsed >= 5) {
+            ProcessRegen();
+            regen_elapsed = std::time(nullptr);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+void Game::ProcessRegen() {
+    for(auto item: m_game_data->GetPlayers()) {
+        auto player = item.second;
+        player->Regen(player->IsFighting());
     }
 }
 
@@ -198,7 +205,6 @@ void Game::ProcessShips() {
                                            ship.second->GetPlayerIDs());
                     ship.second->SetVelocity(0, 0, 0);
                 }
-                //ship.second->SetCoordinates(ship.second->GetDestination());
             }
         }
     }
@@ -212,9 +218,7 @@ void Game::listenerThread() {
         auto connection = std::make_shared<Connection>(dataSocket);
         connection->SetState(GameStates::LOGIN, m_game_data);
         connection->GetState()->init(connection);
-//        state_map[USERNAME]->init(connection);
         connection->ResetStateChanged();
-        // Sender::Send(connection->GetPrompt(), connection);
         std::lock_guard<std::mutex> guard(Game::game_mutex);
         // TODO: connection_id temporary for debugging
         // TODO: eventually connection_id could increment beyond the size of int
@@ -224,10 +228,3 @@ void Game::listenerThread() {
         connection->Run();
     }
 }
-
-//void Game::initStates() {
-//    state_map[USERNAME] = std::make_shared<LoginState>(m_game_data);
-//    state_map[PLAYING] = std::make_shared<PlayingState>(m_game_data);
-//    state_map[CHARACTERCREATION] = std::make_shared<CreateCharacterState>(m_game_data);
-//    state_map[BUILDING] = std::make_shared<BuildingState>(m_game_data);
-//}
