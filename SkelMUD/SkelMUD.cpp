@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
         // TODO: process each command and error check
         port = std::atoi(argv[i]);
     }
-    Logger::SetOutputLevel(Logger::L_INFO);
+    Logger::SetOutputLevel(Logger::L_DEBUG);
     Logger::Info("Initializing...");
     Game game = Game();
     Logger::Info("Starting...");

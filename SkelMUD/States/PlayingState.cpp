@@ -50,7 +50,8 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
     player->SetID(connection->GetID());
     ss << "Welcome to SkelMUD, " << connection->GetCharacterName() << "!" << Format::NL;
     Sender::Send(ss.str(), connection);
-    connection->SetPrompt(GetPrompt(*connection));
+    //connection->SetPrompt(GetPrompt(*connection));
+    CleanPrompt(*connection);
     connection->SetLoggedIn(true);
 //    player->SetVisible(true);
     CmdLook("", connection, game_data);

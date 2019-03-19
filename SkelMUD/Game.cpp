@@ -49,7 +49,7 @@ void Game::Start() {
             std::shared_ptr<Connection> connection = connection_map_entry.second;
             if(std::time(nullptr) - elapsed >= 1) {
                 std::shared_ptr<GameState> state = connection->GetState();
-                connection->SetPrompt(state->GetPrompt(*connection));
+                //connection->SetPrompt(state->GetPrompt(*connection));
             }
             if(!connection->IsConnected())
             {
@@ -66,6 +66,7 @@ void Game::Start() {
                 continue;
             }
             if(connection->IsPromptTick()) {
+                Logger::Debug("TICK");
                 Sender::UpdatePrompt(connection);
             }
             std::string received = connection->GetNextReceived();

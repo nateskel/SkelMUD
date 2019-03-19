@@ -4,7 +4,6 @@
 
 #include "GameState.h"
 #include "../Format.h"
-#include "../Connection.h"
 #include "../GameData.h"
 
 //void GameState::processInput(std::string input, std::shared_ptr<Connection> connection) {
@@ -21,4 +20,20 @@ GameState::GameState(std::shared_ptr<GameData> data) {
 
 std::string GameState::GetPrompt(Connection connection) {
     return Format::YELLOW + "> \r\n";
+}
+
+bool GameState::IsDirty(std::string prompt) {
+    return prompt != m_prev_prompt;
+}
+
+void GameState::CleanPrompt(std::string prompt) {
+    m_prev_prompt = prompt;
+}
+
+bool GameState::IsDirty(Connection connection) {
+    return GetPrompt(connection) != m_prev_prompt;
+}
+
+void GameState::CleanPrompt(Connection connection) {
+    m_prev_prompt = GetPrompt(connection);
 }

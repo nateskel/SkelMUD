@@ -21,8 +21,14 @@ public:
     virtual void init(std::shared_ptr<Connection> connection);
     virtual void Shutdown(std::shared_ptr<Connection> connection) = 0;
     virtual std::string GetPrompt(Connection connection);
+    bool IsDirty(std::string prompt);
+    bool IsDirty(Connection connection);
+    void CleanPrompt(std::string prompt);
+    void CleanPrompt(Connection connection);
 protected:
     std::shared_ptr<GameData> game_data;
+    bool m_dirty_prompt;
+    std::string m_prev_prompt = "";
 };
 
 #endif //SKELMUD_GAMESTATE_H

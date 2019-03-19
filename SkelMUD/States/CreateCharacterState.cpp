@@ -39,7 +39,7 @@ void CreateCharacterState::processInput(const std::string& input, std::shared_pt
 }
 
 void CreateCharacterState::init(std::shared_ptr<Connection> connection) {
-//    Sender::Send("Placeholder Character Select/Creation\r\nEnter anything to continue\r\n", connection);
+    CleanPrompt(*connection);
     std::stringstream ss;
     ss << connection->GetAccount().GetCharacterList() << "\r\n";
     ss << "Choose a character or enter <N> to create a new character\r\n";

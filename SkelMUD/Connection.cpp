@@ -61,19 +61,23 @@ void Connection::FlushOutput() {
     if (m_send_buffer == "")
         return;
     m_dirty_prompt = false;
-    m_send_buffer.append(GetPrompt() + Format::RESET);
-    std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
-    output.push_back('\0');
-    int sent = dataSocket.Send(&output[0]);
-    if (sent == -1) {
-        is_connected = false;
-    }
-    m_send_buffer.clear();
+    Logger::Debug("FLUSH");
+    //m_send_buffer.append(GetPrompt() + Format::RESET);
+    UpdatePrompt();
+//    std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
+//    output.push_back('\0');
+//    int sent = dataSocket.Send(&output[0]);
+//    if (sent == -1) {
+//        is_connected = false;
+//    }
+//    m_send_buffer.clear();
 //    prompt_tick = MAX_TICK + 1;
 }
 
 void Connection::UpdatePrompt() {
-    m_dirty_prompt = false;
+    Logger::Debug("UPDATE");
+    m_state->CleanPrompt(*this);
+    prompt_tick = 0;
     auto prompt = GetState()->GetPrompt(*this);
     //m_send_buffer.append(GetPrompt() + Format::RESET);
     m_send_buffer.append(prompt + Format::RESET);
@@ -166,16 +170,17 @@ void Connection::ResetStateChanged() {
 }
 
 std::string Connection::GetPrompt() {
-    return m_prompt;
+    return "";
+    //return m_prompt;
 }
 
 bool Connection::IsPromptTick() {
-    if(!m_dirty_prompt)
+    if(!m_state->IsDirty(*this))
         return false;
     if(prompt_tick > MAX_TICK)
     {
         prompt_tick = 0;
-        m_dirty_prompt = false;
+        m_state->CleanPrompt(*this);
         return true;
     }
     else

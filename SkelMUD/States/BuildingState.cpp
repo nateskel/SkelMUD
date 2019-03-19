@@ -15,7 +15,8 @@
 
 void BuildingState::init(std::shared_ptr<Connection> connection) {
     Sender::Send("Build Mode\r\n", connection);
-    connection->SetPrompt(GetPrompt(*connection));
+    CleanPrompt(*connection);
+    //connection->SetPrompt(GetPrompt(*connection));
 //    auto player = connection->GetPlayer();
 //    player->SetVisible(false);
     CmdLook("", connection, game_data);
