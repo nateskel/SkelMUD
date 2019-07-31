@@ -873,6 +873,7 @@ void PlayingState::CmdStats(const std::string &input, std::shared_ptr<Connection
     std::string p_class = player->GetPlayerClass();
     std::stringstream ss;
     ss << p_name << " the " << p_race << " " << p_class << Format::NL;
+    ss << "Credits       : " << player->GetCredits() << Format::NL;
     ss << "Strength      : " << player->GetNetStrength() << Format::NL;
     ss << "Endurance     : " << player->GetNetEndurance() << Format::NL;
     ss << "Intelligence  : " << player->GetNetIntelligence() << Format::NL;
@@ -1061,6 +1062,57 @@ void PlayingState::CmdAdvancedPrompt(const std::string &input, std::shared_ptr<C
         player->Send(ss.str());
     }
     connection->AdvancedPrompt(input != "off");
+}
+
+void PlayingState::CmdStore(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    for(auto npc_str: room->GetNPCs()) {
+        auto npc = game_data->GetNPC(npc_str);
+        if(npc->IsShopKeeper()) {
+            std::stringstream ss;
+            ss << npc->GetName() <<"'s wares" << Format::NL;
+            auto sk = std::dynamic_pointer_cast<ShopKeeper>(npc->GetMixin("Shopkeeper"));
+            for(auto item : sk->GetItems()) {
+                ss << item.first << " Quantity: " << item.second << " Price: ";
+                ss << sk->GetBuyCost(game_data->GetItem(item.first)->GetValue()) << Format::NL;
+            }
+            Sender::Send(ss.str(), connection);
+        } else {
+            Sender::Send("No Shopkeeper NPCs here!\r\n", connection);
+        }
+    }
+}
+
+void PlayingState::CmdBuy(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    for(auto npc_str: room->GetNPCs()) {
+        auto npc = game_data->GetNPC(npc_str);
+        if(npc->IsShopKeeper()) {
+            std::stringstream ss;
+            auto sk = std::dynamic_pointer_cast<ShopKeeper>(npc->GetMixin("Shopkeeper"));
+            auto items = Utils::ExtractMapKeys(sk->GetItems());
+            std::string match = Utils::FindMatch(items, input);
+            // check if enough credits
+            int cost = sk->GetBuyCost(game_data->GetItem(match)->GetValue());
+            if(cost > player->GetCredits())
+            {
+                ss << "You do not have enough credits to buy " << match << "!" << Format::NL;
+            }
+            else {
+                sk->RemoveItem(match);
+                player->AddItem(match);
+                player->RemoveCredits(cost);
+                ss << "You bought " << match << " for " << cost << " credits." << Format::NL;
+            }
+            Sender::Send(ss.str(), connection);
+        } else {
+            Sender::Send("No Shopkeeper NPCs here!\r\n", connection);
+        }
+    }
 }
 
 void PlayingState::Use(const std::string &input, std::shared_ptr<Connection> connection,

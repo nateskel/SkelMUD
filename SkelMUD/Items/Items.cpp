@@ -20,6 +20,8 @@ void Items::LoadItems(std::string filename) {
             std::string item_name = child.first;
             std::shared_ptr<Node> child_node = child.second;
             std::shared_ptr<Item> item = std::make_shared<Item>(item_name);
+            int value = stoi(child_node->GetAttribute("Value"));
+            item->SetValue(value);
             if(item_type == "Consumables")
                 ParseConsumable(child_node, item);
 //            else if(item_type == "Armor")

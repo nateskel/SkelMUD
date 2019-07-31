@@ -74,6 +74,8 @@ public:
         m_cmd_map["wield"] = &CmdWield;
         m_cmd_map["unwield"] = &CmdUnWield;
         m_cmd_map["advancedprompt"] = &CmdAdvancedPrompt;
+        m_cmd_map["store"] = &CmdStore;
+        m_cmd_map["buy"] = &CmdBuy;
         BuildCommandVector();
     }
 
@@ -203,6 +205,12 @@ public:
 
     static void CmdAdvancedPrompt(const std::string &input, std::shared_ptr<Connection> connection,
                                      std::shared_ptr<GameData> game_data);
+
+    static void CmdStore(const std::string &input, std::shared_ptr<Connection> connection,
+                                  std::shared_ptr<GameData> game_data);
+
+    static void CmdBuy(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
 
 protected:
     std::map<std::string, void (*)(const std::string &, std::shared_ptr<Connection>,

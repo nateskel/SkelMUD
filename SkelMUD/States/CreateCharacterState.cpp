@@ -168,6 +168,7 @@ void CreateCharacterState::processConfirmCharacter(const std::string &input, std
         player->SetSkill(m_skill);
         player->SetAttributePoints(m_att_points);
         player->SetPlayerRace(game_data->GetRace(player->GetPlayerRaceStr()));
+        player->SetCredits(50000);
         game_data->AddCharacter(connection->GetUsername(), player);
         game_data->SaveCharacters(GameData::CHARACTER_FILE);
         game_data->SaveAccounts(GameData::ACCOUNT_FILE);

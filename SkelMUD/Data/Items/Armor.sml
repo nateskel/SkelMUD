@@ -1,5 +1,6 @@
 [Armor]
 [Leather Chestplate]
+[Value]500[/Value]
 [Class]Chest[/Class]
 [Type]Light[/Type]
 [Level]1[/Level]

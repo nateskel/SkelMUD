@@ -89,27 +89,27 @@ void Player::SetVisible(const bool visible) {
     m_visible = visible;
 }
 
-void Player::AddItem(std::string item) {
-    if(m_items.find(item) == m_items.end()) {
-        m_items[item] = 1;
-    }
-    else {
-        m_items[item]++;
-    }
-}
-
-void Player::AddItem(std::shared_ptr<Item> item) {
-    AddItem(item->GetItemName());
-}
-
-void Player::RemoveItem(std::string item) {
-    if(m_items.find(item) != m_items.end()) {
-        m_items[item]--;
-        if(m_items[item] == 0) {
-            m_items.erase(item);
-        }
-    }
-}
+//void Player::AddItem(std::string item) {
+//    if(m_items.find(item) == m_items.end()) {
+//        m_items[item] = 1;
+//    }
+//    else {
+//        m_items[item]++;
+//    }
+//}
+//
+//void Player::AddItem(std::shared_ptr<Item> item) {
+//    AddItem(item->GetItemName());
+//}
+//
+//void Player::RemoveItem(std::string item) {
+//    if(m_items.find(item) != m_items.end()) {
+//        m_items[item]--;
+//        if(m_items[item] == 0) {
+//            m_items.erase(item);
+//        }
+//    }
+//}
 
 void Player::Send(std::string data) {
     m_send_queue << data;
@@ -119,10 +119,6 @@ std::string Player::GetCommData() {
     std::string data = m_send_queue.str();
     m_send_queue.str(std::string());
     return data;
-}
-
-std::map<std::string, int> Player::GetItems() {
-    return m_items;
 }
 
 void Player::SetMainHand(std::shared_ptr<Item> item) {
@@ -207,4 +203,20 @@ int Player::GetAttributePoints() const {
 
 void Player::SetAttributePoints(int m_attribute_points) {
     Player::m_attribute_points = m_attribute_points;
+}
+
+int Player::GetCredits() const {
+    return m_credits;
+}
+
+void Player::SetCredits(int value) {
+    m_credits = value;
+}
+
+void Player::AddCredits(int amount) {
+    m_credits += amount;
+}
+
+void Player::RemoveCredits(int amount) {
+    m_credits -= amount;
 }

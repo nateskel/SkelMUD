@@ -22,6 +22,7 @@ void Characters::LoadCharacters(std::string filename) {
         std::string end = child_node->GetAttribute("END");
         std::string skill = child_node->GetAttribute("SKILL");
         std::string att_points = child_node->GetAttribute("Attribute Points");
+        std::string credits = child_node->GetAttribute("Credits");
         std::shared_ptr<Player> character = std::make_shared<Player>(-1, character_name, char_class, race);
         character->SetStrength(stoi(str));
         character->SetDexterity(stoi(dex));
@@ -29,6 +30,7 @@ void Characters::LoadCharacters(std::string filename) {
         character->SetEndurance(stoi(end));
         character->SetSkill(stoi(skill));
         character->SetAttributePoints(stoi(att_points));
+        character->SetCredits(stoi(credits));
         AddCharacter(character);
     }
 }
@@ -49,6 +51,7 @@ void Characters::SaveCharacters(std::string filename) {
         child->AddAttribute("END", std::to_string(player->GetEndurance()));
         child->AddAttribute("SKILL", std::to_string(player->GetSkill()));
         child->AddAttribute("Attribute Points", std::to_string(player->GetAttributePoints()));
+        child->AddAttribute("Credits", std::to_string(player->GetCredits()));
         parent->AddChild(child);
     }
     SkexmlParser::BuildSkeXML(filename, parent);

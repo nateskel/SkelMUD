@@ -2,7 +2,6 @@
 // Created by skelton on 10/22/17.
 //
 
-#include <memory>
 #include "Item.h"
 
 void Item::SetItemName(std::string name) {
@@ -16,6 +15,12 @@ std::string Item::GetItemName() {
 Item::Item(std::string item_name) {
     m_item_name = item_name;
     m_mixins = {};
+    m_value = 0;
+}
+Item::Item(std::string item_name, int value) {
+    m_item_name = item_name;
+    m_mixins = {};
+    m_value = value;
 }
 
 Item::Item() {
@@ -37,4 +42,12 @@ std::shared_ptr<ItemMixin> Item::GetMixin(std::string mixin) {
 
 std::map<std::string, std::shared_ptr<ItemMixin>> Item::GetMixins() {
     return std::map<std::string, std::shared_ptr<ItemMixin>>();
+}
+
+void Item::SetValue(int value) {
+ m_value = value;
+}
+
+int Item::GetValue() {
+    return m_value;
 }

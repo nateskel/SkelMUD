@@ -14,7 +14,10 @@
 class Node {
 public:
     Node();
-    Node(const std::string &_name) : _name(_name) { }
+    Node(const std::string &_name) : _name(_name) {
+        _parent = nullptr;
+        _is_list = false;
+    }
     Node(const std::string &_name, const bool is_list) : _name(_name), _is_list(is_list) { }
     std::shared_ptr<Node> GetParent();
     void SetParent(std::shared_ptr<Node> parent);

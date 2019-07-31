@@ -4,13 +4,14 @@
 #include "Entity.h"
 #include "Items/Item.h"
 #include "Races/Race.h"
+#include "Items/ItemContainer.h"
 #include <string>
 #include <memory>
 #include <sstream>
 
 class Planet;
 
-class Player : public Entity {
+class Player : public Entity, public ItemContainer {
 public:
     Player();
     //Player(int player_id, std::string player_name, std::string player_class, Race player_race);
@@ -28,12 +29,11 @@ public:
     void SetPlayerRace(const std::shared_ptr<Race> & race);
     bool IsVisible();
     void SetVisible(const bool visible);
-    void AddItem(std::string item);
-    void AddItem(std::shared_ptr<Item> item);
-    void RemoveItem(std::string item);
+//    void AddItem(std::string item);
+//    void AddItem(std::shared_ptr<Item> item);
+//    void RemoveItem(std::string item);
     void Send(std::string data);
     std::string GetCommData();
-    std::map<std::string, int> GetItems();
     void SetMainHand(std::shared_ptr<Item> item);
     std::shared_ptr<Item> GetMainHand();
     void SetOffHand(std::shared_ptr<Item> item);
@@ -55,6 +55,10 @@ public:
     void SetSkill(int value);
     int GetAttributePoints() const;
     void SetAttributePoints(int m_attribute_points);
+    int GetCredits() const;
+    void SetCredits(int value);
+    void AddCredits(int amount);
+    void RemoveCredits(int amount);
 
 protected:
     int m_player_id;
@@ -72,11 +76,12 @@ protected:
     int m_dexterity;
     int m_skill;
     int m_attribute_points;
+    int m_credits;
     int m_xp;
     int m_xp_next_level;
 
 private:
-    std::map<std::string, int> m_items;
+//    std::map<std::string, int> m_items;
 };
 
 #endif // PLAYER_H

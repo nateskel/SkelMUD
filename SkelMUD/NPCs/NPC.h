@@ -7,15 +7,21 @@
 
 
 #include "../Entity.h"
+#include "NPCMixin.h"
 #include <string>
 
 class NPC : public Entity {
 public:
     NPC();
-    NPC(std::string name, bool is_shopkeeper);
+    NPC(std::string name);
     bool IsShopKeeper();
+    void AddMixin(std::string mixin_name, std::shared_ptr<NPCMixin> mixin);
+    bool HasMixin(std::string mixin_name);
+    std::shared_ptr<NPCMixin> GetMixin(std::string mixin);
+    std::map<std::string, std::shared_ptr<NPCMixin>> GetMixins();
+
 private:
-    bool m_is_shopkeeper;
+    std::map<std::string, std::shared_ptr<NPCMixin>> m_mixins;
 };
 
 
