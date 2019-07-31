@@ -28,6 +28,8 @@ public:
 
     static std::string LowerCase(std::string data);
 
+    static int CountLines(std::string data);
+
 protected:
 private:
     static std::vector<std::string> GetAllTokens(std::string data, char delimiter, std::vector<std::string> &output);

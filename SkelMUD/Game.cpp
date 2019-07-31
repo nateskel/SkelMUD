@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <mutex>
 #include <random>
+#include <math.h>
 
 #endif
 
@@ -122,6 +123,8 @@ void Game::ProcessCombat() {
                 auto weapon = std::dynamic_pointer_cast<Wieldable>(main_hand->GetMixin("Wieldable"));
                 std::uniform_int_distribution<int> dist(weapon->GetMinDamage(), weapon->GetMaxDamage());
                 int damage = dist(mt);
+                auto weapon_scale = weapon->GetScale();
+                damage = int(round(damage * GetScaledModifier(player, weapon_scale)));
                 std::string damage_text;
                 std::string damage_text_other;
                 if(!crit) {
@@ -227,4 +230,26 @@ void Game::listenerThread() {
         m_game_data->AddConnection(connection);
         connection->Run();
     }
+}
+
+float Game::GetScaledModifier(std::shared_ptr<Player> player, ScaleAttribute scaled) {
+    float result = 0;
+    switch(scaled) {
+        case STR:
+            result = player->GetNetStrength() / 10.0f;
+            break;
+        case DEX:
+            result = player->GetNetDexterity() / 10.0f;
+            break;
+        case END:
+            result = player->GetNetEndurance() / 10.0f;
+            break;
+        case INT:
+            result = player->GetNetIntelligence() / 10.0f;
+            break;
+        case SKILL:
+            result = player->GetNetSkill() / 10.0f;
+            break;
+    }
+    return result;
 }

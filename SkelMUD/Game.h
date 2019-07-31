@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "States/GameState.h"
 #include "GameData.h"
+#include "Items/Wieldable.h"
 #include <map>
 #include <mutex>
 
@@ -43,6 +44,7 @@ private:
     void ProcessShips();
     void ProcessCombat();
     void ProcessRegen();
+    float GetScaledModifier(std::shared_ptr<Player> player, ScaleAttribute scaled);
 };
 
 #endif // GAME_H

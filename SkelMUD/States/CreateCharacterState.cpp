@@ -58,7 +58,7 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
         std::stringstream ss;
         for(auto race : m_race_map)
         {
-            ss << race.first << " " << race.second.getRace_name() << "\r\n";
+            ss << race.first << " " << race.second->getRace_name() << "\r\n";
         }
         ss << "Choose a race\r\n";
         Sender::Send(ss.str(), connection);
@@ -69,7 +69,7 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
         auto characters = game_data->GetAccount(connection->GetUsername()).GetCharacters();
         int selection = 0;
         if(Utils::IsNumber(input))
-            selection = atoi(input.c_str());
+            selection = std::stoi(input.c_str());
         if(selection < 1 or selection > characters.size())
         {
             Sender::Send("Invalid Selection\n", connection);
@@ -81,7 +81,7 @@ void CreateCharacterState::processSelectCharacter(const std::string &input, std:
             connection->SetPlayer(player);
             connection->SetCharacterName(player->GetPlayerName());
             connection->SetCharacterClass(player->GetPlayerClass());
-            connection->SetCharacterRace(player->GetPlayerRace());
+            connection->SetCharacterRace(player->GetPlayerRaceStr());
             Sender::Send("Character Selected\r\n", connection);
             connection->SetState(GameStates::PLAYING, game_data);
         }
@@ -99,7 +99,7 @@ void CreateCharacterState::processChooseRace(const std::string &input, std::shar
     }
     if(valid)
     {
-        connection->SetCharacterRace(m_race_map[choice].getRace_name());
+        connection->SetCharacterRace(m_race_map[choice]->getRace_name());
         std::stringstream ss;
         for(auto char_class : m_class_map)
         {
@@ -125,8 +125,11 @@ void CreateCharacterState::processChooseClass(const std::string &input, std::sha
     }
     if(valid) {
         connection->SetCharacterClass(m_class_map[choice].GetName());
-        Sender::Send("Class Selected\r\nEnter name for character\r\n", connection);
-        m_state_map[connection->GetID()] = NAME_CHARACTER;
+        //Sender::Send("Class Selected\r\nEnter name for character\r\n", connection);
+        std::stringstream ss;
+        ss << "Class Selected\r\n" << ShowStats() << "\r\n" <<  "Choose a stat (1-5), <R>eset, or <A>ccept\r\n";
+        Sender::Send(ss.str(), connection);
+        m_state_map[connection->GetID()] = ROLL_STATS;
     }
     else {
         std::stringstream ss;
@@ -155,8 +158,16 @@ void CreateCharacterState::processConfirmCharacter(const std::string &input, std
     std::string command = input;
     Tokenizer::LowerCase(input);
     if(command == "y" or command == "yes") {
+        auto character_race = game_data->GetRace(connection->GetCharacterRace());
         std::shared_ptr<Player> player = std::make_shared<Player>(connection->GetID(), connection->GetCharacterName(),
-                                                                  connection->GetCharacterClass(), connection->GetCharacterRace());
+                                                                  connection->GetCharacterClass(), character_race->getRace_name());
+        player->SetStrength(m_str);
+        player->SetEndurance(m_end);
+        player->SetIntelligence(m_int);
+        player->SetDexterity(m_dex);
+        player->SetSkill(m_skill);
+        player->SetAttributePoints(m_att_points);
+        player->SetPlayerRace(game_data->GetRace(player->GetPlayerRaceStr()));
         game_data->AddCharacter(connection->GetUsername(), player);
         game_data->SaveCharacters(GameData::CHARACTER_FILE);
         game_data->SaveAccounts(GameData::ACCOUNT_FILE);
@@ -169,16 +180,56 @@ void CreateCharacterState::processConfirmCharacter(const std::string &input, std
 
 void CreateCharacterState::processRollStats(const std::string &input, std::shared_ptr<Connection> connection) {
     if(input == "R" or input == "r") {
-        Sender::Send("Stats Rolled, enter <R> to <R>eroll, or <A> to <A>ccept\r\n", connection);
+        m_str = 1;
+        m_skill = 1;
+        m_dex = 1;
+        m_int = 1;
+        m_end = 1;
+        m_att_points = INIT_ATTRIBUTE_POINTS;
+        Sender::Send(ShowStats(), connection);
+    }
+    if(input == "1" || input == "2" || input == "3" || input == "4" || input == "5") {
+        if (m_att_points == 0) {
+            Sender::Send("No more points to distribute\r\n", connection);
+            Sender::Send(ShowStats(), connection);
+            Sender::Send("<R>eset, or <A>ccept\r\n", connection);
+        } else {
+        if (input == "1") {
+                m_str++;
+            } else if (input == "2") {
+                m_end++;
+            } else if (input == "3") {
+                m_int++;
+            } else if (input == "4") {
+                m_dex++;
+            } else if (input == "5") {
+                m_skill++;
+            }
+            m_att_points--;
+            Sender::Send(ShowStats(), connection);
+            Sender::Send("Choose a stat (1-5), <R>eset, or <A>ccept\r\n", connection);
+        }
+    }
+    else if(input == "A"){
+        //connection->SetState(GameStates::PLAYING, game_data);
+        Sender::Send("Attributes confirmed\r\nEnter name for character\r\n", connection);
+        m_state_map[connection->GetID()] = NAME_CHARACTER;
     }
     else {
-        connection->SetState(GameStates::PLAYING, game_data);
+        Sender::Send("Choose a stat (1-5), <R>eset, or <A>ccept\r\n", connection);
     }
 }
 
 
-std::string CreateCharacterState::rollStats() {
-    return "Some stats";
+std::string CreateCharacterState::ShowStats() {
+    std::stringstream ss;
+    ss << "1 Strength      : " << m_str << "\r\n";
+    ss << "2 Endurance     : " << m_end << "\r\n";
+    ss << "3 Intelligence  : " << m_int << "\r\n";
+    ss << "4 Dexterity     : " << m_dex << "\r\n";
+    ss << "5 Skill         : " << m_skill << "\r\n";
+    ss << "Points remaining: " << m_att_points << "\r\n";
+    return ss.str();
 }
 
 

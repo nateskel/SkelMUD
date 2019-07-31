@@ -6,16 +6,17 @@
 #define SKELMUD_RACES_H
 
 #include <string>
+#include <memory>
 #include "Race.h"
 
 class Races {
 private:
-    std::map<std::string, Race> m_race_map;
+    std::map<std::string, std::shared_ptr<Race>> m_race_map;
 public:
     void LoadRaces(std::string filename);
-    void AddRace(Race race);
-    std::map<std::string, Race> GetRaces();
-    std::map<int, Race> EnumerateRaces();
+    void AddRace(std::shared_ptr<Race> race);
+    std::map<std::string, std::shared_ptr<Race>> GetRaces();
+    std::map<int, std::shared_ptr<Race>> EnumerateRaces();
 };
 
 

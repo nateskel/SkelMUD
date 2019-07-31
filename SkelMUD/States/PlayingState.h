@@ -73,6 +73,7 @@ public:
         m_cmd_map["drink"] = &CmdDrink;
         m_cmd_map["wield"] = &CmdWield;
         m_cmd_map["unwield"] = &CmdUnWield;
+        m_cmd_map["advancedprompt"] = &CmdAdvancedPrompt;
         BuildCommandVector();
     }
 
@@ -199,6 +200,9 @@ public:
 
     static void Use(const std::string &input, std::shared_ptr<Connection> connection,
                     std::shared_ptr<GameData> game_data, Consume use_type);
+
+    static void CmdAdvancedPrompt(const std::string &input, std::shared_ptr<Connection> connection,
+                                     std::shared_ptr<GameData> game_data);
 
 protected:
     std::map<std::string, void (*)(const std::string &, std::shared_ptr<Connection>,

@@ -1,6 +1,7 @@
 #include "Tokenizer.h"
 #include "Utils.h"
 #include <algorithm>
+#include <sstream>
 
 std::string Tokenizer::GetFirstToken(std::string &data, char delimiter, bool doPop) {
     std::string::size_type n = data.find(delimiter);
@@ -100,4 +101,18 @@ std::vector<int> Tokenizer::GetAllTokenIndexes(std::string data, std::vector<int
 std::vector<int> Tokenizer::GetAllTokenIndexes(std::string data) {
     std::vector<int> output;
     return GetAllTokenIndexes(data, output, 0);
+}
+
+int Tokenizer::CountLines(std::string data) {
+    if(data == "")
+        return 0;
+    int num = 0;
+    std::stringstream ss;
+    ss << data;
+    std::string s;
+    while(getline(ss, s)){
+        ++num;
+    }
+    return num;
+
 }

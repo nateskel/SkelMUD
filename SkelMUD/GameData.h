@@ -50,6 +50,7 @@ public:
     std::shared_ptr<Player> GetPlayer(std::string name);
     std::map<std::string, std::shared_ptr<Player>> GetPlayers();
     Races GetRaces();
+    std::shared_ptr<Race> GetRace(std::string race_name);
     CharacterClasses GetClasses();
     void AddAccount(Account account);
     void SaveAccounts(std::string filename);
@@ -73,6 +74,7 @@ public:
 private:
     void PopulateShips();
     void PopulateNPCs();
+    void PopulateRaces();
     std::map<int, std::shared_ptr<Connection>> m_connections;
     Accounts m_accounts;
     Races m_races;

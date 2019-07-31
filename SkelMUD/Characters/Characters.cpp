@@ -16,7 +16,19 @@ void Characters::LoadCharacters(std::string filename) {
         std::shared_ptr<Node> child_node = child.second;
         std::string char_class = child_node->GetAttribute("Class");
         std::string race = child_node->GetAttribute("Race");
+        std::string str = child_node->GetAttribute("STR");
+        std::string dex = child_node->GetAttribute("DEX");
+        std::string intel = child_node->GetAttribute("INT");
+        std::string end = child_node->GetAttribute("END");
+        std::string skill = child_node->GetAttribute("SKILL");
+        std::string att_points = child_node->GetAttribute("Attribute Points");
         std::shared_ptr<Player> character = std::make_shared<Player>(-1, character_name, char_class, race);
+        character->SetStrength(stoi(str));
+        character->SetDexterity(stoi(dex));
+        character->SetIntelligence(stoi(intel));
+        character->SetEndurance(stoi(end));
+        character->SetSkill(stoi(skill));
+        character->SetAttributePoints(stoi(att_points));
         AddCharacter(character);
     }
 }
@@ -30,7 +42,13 @@ void Characters::SaveCharacters(std::string filename) {
         std::shared_ptr<Player> player = character.second;
         std::shared_ptr<Node> child = std::make_shared<Node>(character_name);
         child->AddAttribute("Class", player->GetPlayerClass());
-        child->AddAttribute("Race", player->GetPlayerRace());
+        child->AddAttribute("Race", player->GetPlayerRaceStr());
+        child->AddAttribute("STR", std::to_string(player->GetStrength()));
+        child->AddAttribute("DEX", std::to_string(player->GetDexterity()));
+        child->AddAttribute("INT", std::to_string(player->GetIntelligence()));
+        child->AddAttribute("END", std::to_string(player->GetEndurance()));
+        child->AddAttribute("SKILL", std::to_string(player->GetSkill()));
+        child->AddAttribute("Attribute Points", std::to_string(player->GetAttributePoints()));
         parent->AddChild(child);
     }
     SkexmlParser::BuildSkeXML(filename, parent);

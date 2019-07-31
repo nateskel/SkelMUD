@@ -76,6 +76,7 @@ GameData::GameData() {
     m_configuration.LoadConfig(CONFIG_FILE);
     PopulateShips();
     PopulateNPCs();
+    PopulateRaces();
     auto room = GetRoom(0, 1, false);
     for(auto item : m_items.GetItems()) {
         room->AddItem(item.first);
@@ -106,6 +107,10 @@ void GameData::SaveCharacters(std::string filename) {
 
 Races GameData::GetRaces() {
     return m_races;
+}
+
+std::shared_ptr<Race> GameData::GetRace(std::string race_name) {
+    return m_races.GetRaces()[race_name];
 }
 
 CharacterClasses GameData::GetClasses() {
@@ -210,6 +215,13 @@ void GameData::PopulateNPCs() {
         auto room = area->GetRoom(npc.second->GetRoomID());
         npc.second->SetRoom(room);
         room->AddNPC(npc.second);
+    }
+}
+
+void GameData::PopulateRaces() {
+    for (auto entity : m_characters.GetCharacters()) {
+        auto player = entity.second;
+        player->SetPlayerRace(GetRace(player->GetPlayerRaceStr()));
     }
 }
 

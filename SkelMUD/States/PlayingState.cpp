@@ -869,10 +869,16 @@ void PlayingState::CmdStats(const std::string &input, std::shared_ptr<Connection
                             std::shared_ptr<GameData> game_data) {
     auto player = connection->GetPlayer();
     std::string p_name = player->GetPlayerName();
-    std::string p_race = player->GetPlayerRace();
+    std::string p_race = player->GetPlayerRaceStr();
     std::string p_class = player->GetPlayerClass();
     std::stringstream ss;
     ss << p_name << " the " << p_race << " " << p_class << Format::NL;
+    ss << "Strength      : " << player->GetNetStrength() << Format::NL;
+    ss << "Endurance     : " << player->GetNetEndurance() << Format::NL;
+    ss << "Intelligence  : " << player->GetNetIntelligence() << Format::NL;
+    ss << "Dexterity     : " << player->GetNetDexterity() << Format::NL;
+    ss << "Skill         : " << player->GetNetSkill() << Format::NL;
+    ss << "Points remaining: " << player->GetAttributePoints() << Format::NL;
     Sender::Send(ss.str(), connection);
 }
 
@@ -1038,6 +1044,23 @@ void PlayingState::CmdUnWield(const std::string &input, std::shared_ptr<Connecti
         ss << "Please indicate <main> or <off> hand" << Format::NL;
     }
     player->Send(ss.str());
+}
+
+void PlayingState::CmdAdvancedPrompt(const std::string &input, std::shared_ptr<Connection> connection,
+                                    std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    std::stringstream ss;
+    ss << "Advanced Prompt ";
+    if(input == "off") {
+        connection->AdvancedPrompt(false);
+        ss << "off" << Format::NL;
+        player->Send(ss.str());
+    } else {
+        connection->AdvancedPrompt(true);
+        ss << "on" << Format::NL;
+        player->Send(ss.str());
+    }
+    connection->AdvancedPrompt(input != "off");
 }
 
 void PlayingState::Use(const std::string &input, std::shared_ptr<Connection> connection,

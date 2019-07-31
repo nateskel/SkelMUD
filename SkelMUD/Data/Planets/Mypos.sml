@@ -1,0 +1,11 @@
+[Mypos]
+[0]
+[Landing]1[/Landing]
+[Ships]
+[/Ships]
+[ShortDescription]Landing Pad[/ShortDescription]
+[LongDescription]
+Landing Pad of Mypos
+[/LongDescription]
+[/0]
+[/Mypos]

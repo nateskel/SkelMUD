@@ -127,6 +127,8 @@ protected:
     int m_sp;
     int m_max_stamina;
     int m_stamina;
+    int m_level;
+    int m_xp;
     std::shared_ptr<Entity> m_target;
     std::vector<std::shared_ptr<Entity>> m_attackers;
 //    std::map<int, Item> inventory;
