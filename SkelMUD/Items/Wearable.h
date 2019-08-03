@@ -8,8 +8,9 @@
 
 #include "ItemMixin.h"
 #include "Modifier.h"
+#include "../Mixin.h"
 
-class Wearable : public ItemMixin {
+class Wearable : public Mixin {
 public:
     enum class Position { HEAD, ARMS, CHEST, FEET, HANDS, WAIST };
     enum class Type { CLOTH, LIGHT, MEDIUM, HEAVY };

@@ -7,8 +7,9 @@
 
 
 #include "ItemMixin.h"
+#include "../Mixin.h"
 
-class Ammo : public ItemMixin {
+class Ammo : public Mixin {
 
 };
 

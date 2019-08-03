@@ -14,34 +14,15 @@ std::string Item::GetItemName() {
 
 Item::Item(std::string item_name) {
     m_item_name = item_name;
-    m_mixins = {};
     m_value = 0;
 }
 Item::Item(std::string item_name, int value) {
     m_item_name = item_name;
-    m_mixins = {};
     m_value = value;
 }
 
-Item::Item() {
+Item::Item() : MixinContainer() {
     m_item_name = "";
-}
-
-void Item::AddMixin(std::string mixin_name, std::shared_ptr<ItemMixin> mixin) {
-    m_mixins[mixin_name] = mixin;
-}
-
-bool Item::HasMixin(std::string mixin_name) {
-    auto mixin = m_mixins.find(mixin_name);
-    return mixin != m_mixins.end();
-}
-
-std::shared_ptr<ItemMixin> Item::GetMixin(std::string mixin) {
-    return m_mixins[mixin];
-}
-
-std::map<std::string, std::shared_ptr<ItemMixin>> Item::GetMixins() {
-    return std::map<std::string, std::shared_ptr<ItemMixin>>();
 }
 
 void Item::SetValue(int value) {

@@ -7,8 +7,9 @@
 
 #include <string>
 #include "ItemMixin.h"
+#include "../Mixin.h"
 
-class Consumable : public ItemMixin {
+class Consumable : public Mixin {
 public:
     Consumable();
 

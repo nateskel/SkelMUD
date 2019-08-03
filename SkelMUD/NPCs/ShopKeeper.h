@@ -8,7 +8,7 @@
 #include <list>
 #include <tuple>
 
-class ShopKeeper : public NPCMixin, public ItemContainer {
+class ShopKeeper : public Mixin, public ItemContainer {
 public:
     ShopKeeper();
     int GetBuyCost(int value);

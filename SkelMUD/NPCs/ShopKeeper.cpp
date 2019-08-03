@@ -13,7 +13,7 @@ int ShopKeeper::GetSellCost(int value) {
     return (int)round(value + value * m_sell_modifier);
 }
 
-ShopKeeper::ShopKeeper() : NPCMixin(), ItemContainer() {
+ShopKeeper::ShopKeeper() : ItemContainer() {
     m_buy_modifier = 0.10;
     m_sell_modifier = 0.10;
 }

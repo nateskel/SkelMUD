@@ -7,8 +7,9 @@
 
 
 #include "ItemMixin.h"
+#include "../Mixin.h"
 
-class Shieldable : public ItemMixin {
+class Shieldable : public Mixin {
 
 };
 

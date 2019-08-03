@@ -8,12 +8,13 @@
 
 #include <string>
 #include "ItemMixin.h"
+#include "../Mixin.h"
 
 enum WeaponClass {RANGED, MELEE};
 enum HandType {MAIN_HAND, OFF_HAND, EITHER_HAND, TWO_HAND};
 enum ScaleAttribute {STR, DEX, INT, END, SKILL};
 
-class Wieldable : public ItemMixin {
+class Wieldable : public Mixin {
 public:
     Wieldable();
 
