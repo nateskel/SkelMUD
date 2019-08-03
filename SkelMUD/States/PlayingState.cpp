@@ -1089,7 +1089,7 @@ void PlayingState::CmdBuy(const std::string &input, std::shared_ptr<Connection> 
                           std::shared_ptr<GameData> game_data) {
     auto player = connection->GetPlayer();
     auto room = player->GetRoom();
-    for(auto npc_str: room->GetNPCs()) {
+    for(auto const &npc_str: room->GetNPCs()) {
         auto npc = game_data->GetNPC(npc_str);
         if(npc->IsShopKeeper()) {
             std::stringstream ss;
@@ -1097,16 +1097,16 @@ void PlayingState::CmdBuy(const std::string &input, std::shared_ptr<Connection> 
             auto items = Utils::ExtractMapKeys(sk->GetItems());
             std::string match = Utils::FindMatch(items, input);
             // check if enough credits
-            int cost = sk->GetBuyCost(game_data->GetItem(match)->GetValue());
-            if(cost > player->GetCredits())
+            int price = sk->GetBuyCost(game_data->GetItem(match)->GetValue());
+            if(price > player->GetCredits())
             {
                 ss << "You do not have enough credits to buy " << match << "!" << Format::NL;
             }
             else {
                 sk->RemoveItem(match);
                 player->AddItem(match);
-                player->RemoveCredits(cost);
-                ss << "You bought " << match << " for " << cost << " credits." << Format::NL;
+                player->RemoveCredits(price);
+                ss << "You bought " << match << " for " << price << " credits." << Format::NL;
             }
             Sender::Send(ss.str(), connection);
         } else {
@@ -1115,8 +1115,31 @@ void PlayingState::CmdBuy(const std::string &input, std::shared_ptr<Connection> 
     }
 }
 
-void PlayingState::Use(const std::string &input, std::shared_ptr<Connection> connection,
-                       std::shared_ptr<GameData> game_data, Consume use_type) {
+void PlayingState::CmdSell(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    for(auto const &npc_str: room->GetNPCs()) {
+        auto npc = game_data->GetNPC(npc_str);
+        if(npc->IsShopKeeper()) {
+            std::stringstream ss;
+            auto sk = std::dynamic_pointer_cast<ShopKeeper>(npc->GetMixin("Shopkeeper"));
+            auto items = Utils::ExtractMapKeys(player->GetItems());
+            std::string match = Utils::FindMatch(items, input);
+            int price = sk->GetSellCost(game_data->GetItem(match)->GetValue());
+            sk->AddItem(match);
+            player->RemoveItem(match);
+            player->AddCredits(price);
+            ss << "You sold " << match << " for " << price << " credits." << Format::NL;
+            Sender::Send(ss.str(), connection);
+        } else {
+            Sender::Send("No Shopkeeper NPCs here!\r\n", connection);
+        }
+    }
+}
+
+void PlayingState::Use(const std::string &input, const std::shared_ptr<Connection> &connection,
+                       const std::shared_ptr<GameData> &game_data, Consume use_type) {
     auto player = connection->GetPlayer();
     auto items = player->GetItems();
     auto keys = Utils::ExtractMapKeys(items);
@@ -1129,7 +1152,7 @@ void PlayingState::Use(const std::string &input, std::shared_ptr<Connection> con
             auto consumable = std::dynamic_pointer_cast<Consumable>(mixin);
             if(use_type == EAT) {
                 std::string eat = consumable->GetEat();
-                if(eat != "") {
+                if(eat.empty()) {
                     ss << eat << Format::NL;
                     player->Send(ss.str());
                 }
@@ -1141,7 +1164,7 @@ void PlayingState::Use(const std::string &input, std::shared_ptr<Connection> con
             }
             else if(use_type == DRINK) {
                 std::string drink = consumable->GetDrink();
-                if(drink != "") {
+                if(drink.empty()) {
                     ss << drink << Format::NL;
                     player->Send(ss.str());
                 }
@@ -1172,7 +1195,7 @@ void PlayingState::Use(const std::string &input, std::shared_ptr<Connection> con
     }
 }
 
-void PlayingState::UseConsumable(std::shared_ptr<Consumable> consumable, std::shared_ptr<Player> player) {
+void PlayingState::UseConsumable(const std::shared_ptr<Consumable> &consumable, const std::shared_ptr<Player> &player) {
     int hp = consumable->GetHP();
     if(hp != 0) {
         player->Heal(hp);
@@ -1182,7 +1205,7 @@ void PlayingState::UseConsumable(std::shared_ptr<Consumable> consumable, std::sh
 void PlayingState::Escape(std::shared_ptr<Player> player) {
     auto target = player->GetTarget();
     player->StopFighting();
-    for(auto attacker: player->GetAttackers()) {
+    for(auto const &attacker: player->GetAttackers()) {
         attacker->StopFighting();
         attacker->RemoveAttacker(player);
         if(attacker->IsAttacked()) {

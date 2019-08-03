@@ -175,6 +175,10 @@ void Game::ProcessCombat() {
     }
 }
 
+void Game::ProcessSkill(std::shared_ptr<Skill> skill) {
+
+}
+
 void Game::ProcessShips() {
     for(auto ship : m_game_data->GetShips().GetShips()) {
         if(!ship.second->IsInOrbit()) {

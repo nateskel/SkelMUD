@@ -10,6 +10,7 @@
 #include "States/GameState.h"
 #include "GameData.h"
 #include "Items/Wieldable.h"
+#include "Skills/Skill.h"
 #include <map>
 #include <mutex>
 
@@ -43,6 +44,7 @@ private:
 //    void initStates();
     void ProcessShips();
     void ProcessCombat();
+    void ProcessSkill(std::shared_ptr<Skill> skill);
     void ProcessRegen();
     float GetScaledModifier(std::shared_ptr<Player> player, ScaleAttribute scaled);
 };

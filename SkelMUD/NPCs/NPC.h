@@ -7,7 +7,6 @@
 
 
 #include "../Entity.h"
-#include "NPCMixin.h"
 #include "../Mixin.h"
 #include <string>
 
