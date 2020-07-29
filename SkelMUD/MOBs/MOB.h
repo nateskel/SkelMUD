@@ -14,7 +14,6 @@ private:
     int m_xp;
     int m_damage_min;
     int m_damage_max;
-    float
 };
 
 
