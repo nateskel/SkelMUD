@@ -1152,7 +1152,7 @@ void PlayingState::Use(const std::string &input, const std::shared_ptr<Connectio
             auto consumable = std::dynamic_pointer_cast<Consumable>(mixin);
             if(use_type == EAT) {
                 std::string eat = consumable->GetEat();
-                if(eat.empty()) {
+                if(!eat.empty()) {
                     ss << eat << Format::NL;
                     player->Send(ss.str());
                 }
@@ -1164,7 +1164,7 @@ void PlayingState::Use(const std::string &input, const std::shared_ptr<Connectio
             }
             else if(use_type == DRINK) {
                 std::string drink = consumable->GetDrink();
-                if(drink.empty()) {
+                if(!drink.empty()) {
                     ss << drink << Format::NL;
                     player->Send(ss.str());
                 }
