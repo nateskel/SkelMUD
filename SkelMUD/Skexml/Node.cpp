@@ -13,6 +13,8 @@ Node::Node() {
 
 std::shared_ptr<Node> Node::GetChild(std::string child_name) {
     auto node = _children[child_name];
+    if(node == nullptr)
+        return nullptr;
     if(node->IsList())
         return nullptr;
     return _children[child_name];

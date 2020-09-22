@@ -42,7 +42,8 @@ void LoginState::reset(std::shared_ptr<Connection> connection) {
 void LoginState::init(std::shared_ptr<Connection> connection) {
     GameState::init(connection);
     Sender::Send("Welcome to SkelMUD!\r\nPlease enter your username\r\n", connection);
-    connection->SetPrompt(GetPrompt(connection));
+    CleanPrompt(*connection);
+    //connection->SetPrompt(GetPrompt(*connection));
     int connection_id = connection->GetID();
     if(m_state_map.find(connection_id) == m_state_map.end())
         m_state_map[connection_id] = USERNAME;

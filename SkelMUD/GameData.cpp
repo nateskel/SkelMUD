@@ -6,7 +6,7 @@
 #include "GameData.h"
 #include "Logger.h"
 
-const std::string GameData::BASE_PATH = "./Data/";
+const std::string GameData::BASE_PATH = "/mnt/c/users/skelt/clionprojects/skelmud/skelmud/data/";
 const std::string GameData::ACCOUNT_FILE = BASE_PATH + "Accounts.sml";
 const std::string GameData::RACE_FILE = BASE_PATH + "Races.sml";
 const std::string GameData::CLASS_FILE = BASE_PATH + "Classes.sml";
@@ -76,8 +76,10 @@ GameData::GameData() {
     m_configuration.LoadConfig(CONFIG_FILE);
     PopulateShips();
     PopulateNPCs();
+    PopulateRaces();
     auto room = GetRoom(0, 1, false);
     for(auto item : m_items.GetItems()) {
+        room->AddItem(item.first);
         room->AddItem(item.first);
     }
     Logger::Debug("Resources Loaded");
@@ -107,6 +109,10 @@ Races GameData::GetRaces() {
     return m_races;
 }
 
+std::shared_ptr<Race> GameData::GetRace(std::string race_name) {
+    return m_races.GetRaces()[race_name];
+}
+
 CharacterClasses GameData::GetClasses() {
     return m_classes;
 }
@@ -118,6 +124,10 @@ void GameData::AddCharacter(std::string username, std::shared_ptr<Player> player
 
 std::shared_ptr<Player> GameData::GetPlayer(std::string name) {
     return m_characters.GetCharacters()[name];
+}
+
+std::map<std::string, std::shared_ptr<Player>> GameData::GetPlayers() {
+    return m_characters.GetCharacters();
 }
 
 std::shared_ptr<Connection> GameData::GetConnection(std::string character_name) {
@@ -174,6 +184,14 @@ void GameData::SaveShip(int id) {
     m_ships.SaveShip(id);
 }
 
+std::shared_ptr<Item> GameData::GetItem(std::string name) {
+    return m_items.GetItem(name);
+}
+
+std::shared_ptr<NPC> GameData::GetNPC(std::string name) {
+    return m_npcs.GetNPCs()[name];
+}
+
 Configuration& GameData::GetConfiguration() {
     return m_configuration;
 }
@@ -197,6 +215,13 @@ void GameData::PopulateNPCs() {
         auto room = area->GetRoom(npc.second->GetRoomID());
         npc.second->SetRoom(room);
         room->AddNPC(npc.second);
+    }
+}
+
+void GameData::PopulateRaces() {
+    for (auto entity : m_characters.GetCharacters()) {
+        auto player = entity.second;
+        player->SetPlayerRace(GetRace(player->GetPlayerRaceStr()));
     }
 }
 

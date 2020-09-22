@@ -5,6 +5,7 @@
 #include <sstream>
 #include <math.h>
 #include <algorithm>
+#include <random>
 #include "PlayingState.h"
 #include "../Tokenizer.h"
 #include "../Sender.h"
@@ -14,6 +15,8 @@
 #include "../Areas/Room.h"
 #include "../GameData.h"
 #include "../Ships/Ship.h"
+#include "../Items/Consumable.h"
+#include "../Items/Wieldable.h"
 
 void PlayingState::processInput(const std::string &input, std::shared_ptr<Connection> connection) {
     std::string input_string = input;
@@ -22,7 +25,6 @@ void PlayingState::processInput(const std::string &input, std::shared_ptr<Connec
     command = Utils::FindMatch(m_cmd_vect, command);
     if (m_cmd_map.find(command) != m_cmd_map.end()) {
         m_cmd_map[command](input_string, connection, game_data);
-        connection->SetPrompt(GetPrompt(connection));
     }
     else
         Sender::Send("Unrecognized command!\n", connection);
@@ -48,7 +50,7 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
     player->SetID(connection->GetID());
     ss << "Welcome to SkelMUD, " << connection->GetCharacterName() << "!" << Format::NL;
     Sender::Send(ss.str(), connection);
-    connection->SetPrompt(GetPrompt(connection));
+    CleanPrompt(*connection);
     connection->SetLoggedIn(true);
 //    player->SetVisible(true);
     CmdLook("", connection, game_data);
@@ -58,11 +60,13 @@ void PlayingState::init(std::shared_ptr<Connection> connection) {
     Sender::SendAll(ss.str(), game_data->GetLoggedInConnections(), connection->GetSocket());
 }
 
-std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
+std::string PlayingState::GetPrompt(Connection connection) {
+    auto player = connection.GetPlayer();
     std::stringstream ss;
-    ss << Format::YELLOW << "<" + Format::BLUE << connection->GetCharacterName() << Format::YELLOW << "> ";
-    ss << Format::RED << "<" << connection->GetHealth() << "> \n";
-    auto player = connection->GetPlayer();
+    // ss << Format::YELLOW << "<" + Format::BLUE << connection.GetCharacterName() << Format::YELLOW << "> ";
+    ss << Format::RED << "<HP: " << player->GetHP() << "/" << player->GetMaxHP() << "> ";
+    ss << Format::BLUE << "<SP: " << player->GetSP() << "/" << player->GetMaxSP() << "> ";
+    ss << Format::YELLOW << "<Stam: " << player->GetStamina() << "/" << player->GetMaxStamina() << "> " << Format::NL;
     if (player->IsInShip()) {
         auto ship = player->GetShip();
         if (ship->IsInOrbit()) {
@@ -78,9 +82,21 @@ std::string PlayingState::GetPrompt(std::shared_ptr<Connection> connection) {
     return ss.str();
 }
 
+void PlayingState::BeginCombat(std::shared_ptr<Player> player,
+                               std::shared_ptr<Player> target) {
+    player->BeginFighting(target);
+    if(!target->IsFighting()) {
+        target->BeginFighting(player);
+    }
+    player->AddAttacker(target);
+    target->AddAttacker(player);
+}
+
 void PlayingState::CmdHelp(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
-    Sender::Send("'chat' to chat\n'tell <character>' to direct tell\n'online' to see who is online\n", connection);
+    std::stringstream ss;
+    ss << "'chat' to chat\n'tell <character>' to direct tell\n'online' to see who is online\n";
+    Sender::Send(ss.str(), connection);
 }
 
 void PlayingState::CmdTell(const std::string &input, std::shared_ptr<Connection> connection,
@@ -156,13 +172,14 @@ void PlayingState::CmdLook(const std::string &input, std::shared_ptr<Connection>
     for (auto other_player: other_players) {
         ss << Format::BOLD << Format::BLUE << other_player << " is here." << Format::RESET << Format::NL;
     }
-    for (auto npc : room->GetNPCs()) {
-        ss << npc << " (NPC) is here." << Format::RESET << Format::NL;
+    for (auto npc_str : room->GetNPCs()) {
+        auto npc = game_data->GetNPC(npc_str);
+        ss << npc->GetName() << " (NPC) is here." << Format::RESET << Format::NL;
     }
     if(room->GetItems().size() > 0) {
         ss << Format::MAGENTA << "Items:" << Format::NL;
         for (auto item : room->GetItems()) {
-            ss << item.first << Format::NL;
+            ss << item.first << ": " << item.second << Format::NL;
         }
         ss << Format::RESET;
     }
@@ -215,6 +232,10 @@ void PlayingState::CmdDown(const std::string &input, std::shared_ptr<Connection>
 void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
                         Direction direction) {
     auto player = connection->GetPlayer();
+    if(player->IsFighting()) {
+        if(!AttemptEscape(player))
+            return;
+    }
     auto area = player->GetLocation();
     auto departed_room = player->GetRoom();
     std::string arrive_string = "";
@@ -268,6 +289,7 @@ void PlayingState::Move(std::shared_ptr<Connection> connection, std::shared_ptr<
             Sender::SendToMultiple(arrived_ss.str(), game_data->GetLoggedInConnections(),
                                    new_room->GetVisiblePlayers(connection->GetID()));
         }
+        player->RegenStam(-2);
         CmdLook("", connection, game_data);
     }
     else
@@ -306,10 +328,10 @@ void PlayingState::CmdGoto(const std::string &input, std::shared_ptr<Connection>
     std::string room_number_string = Tokenizer::GetFirstToken(input_string);
     int newroom = 0;
     if (Utils::IsNumber(room_number_string)) {
-        newroom = std::atoi(room_number_string.c_str());
+        newroom = std::stoi(room_number_string);
     }
-
     auto player = connection->GetPlayer();
+    Escape(player);
     auto planet = player->GetPlanet();
     if (planet->ChangeRoom(player->GetRoomID(), newroom, player)) {
         CmdLook("", connection, game_data);
@@ -318,7 +340,6 @@ void PlayingState::CmdGoto(const std::string &input, std::shared_ptr<Connection>
         Sender::Send("Room does not exist!\n", connection);
     }
 }
-
 
 void PlayingState::CmdOpen(const std::string &input, std::shared_ptr<Connection> connection,
                            std::shared_ptr<GameData> game_data) {
@@ -432,9 +453,12 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
                             std::shared_ptr<GameData> game_data) {
     std::string data = input;
     auto player = connection->GetPlayer();
+    if(player->IsFighting()) {
+        if(!AttemptEscape(player))
+            return;
+    }
     auto room = player->GetRoom();
     bool found = false;
-//    std::string ship_name = Tokenizer::GetFirstToken(data);
     auto ships = room->GetShips();
     auto vals = Utils::ExtractMapValues(ships);
     std::vector<std::string> ship_names;
@@ -455,10 +479,8 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
                 auto ship_room = ship.second->GetRoom(0);
                 ship.second->AddPlayer(player->GetID());
                 ship_room->AddPlayer(player);
-                //player->SetShipID(ship.second->GetID());
                 player->SetShip(ship.second);
                 player->SetInShip(true);
-                //player->SetRoomID(0);
                 player->SetRoom(ship_room);
                 std::stringstream enter_ss;
                 enter_ss << player->GetPlayerName() << " entered the ship\n";
@@ -480,7 +502,10 @@ void PlayingState::CmdEnter(const std::string &input, std::shared_ptr<Connection
 void PlayingState::CmdLeave(const std::string &input, std::shared_ptr<Connection> connection,
                             std::shared_ptr<GameData> game_data) {
     auto player = connection->GetPlayer();
-
+    if(player->IsFighting()) {
+        if(!AttemptEscape(player))
+            return;
+    }
     if (player->IsInShip()) {
         auto ship = player->GetShip();
         if (player->GetRoomID() == 0) {
@@ -774,9 +799,22 @@ void PlayingState::CmdInventory(const std::string &input, std::shared_ptr<Connec
                                 std::shared_ptr<GameData> game_data) {
     auto player = connection->GetPlayer();
     std::stringstream ss;
-    ss << "Inventory:" << Format::NL;
+    ss << Format::RED << Format::BOLD << "Wielding:" << Format::NORMAL << Format::NL;
+    auto main_hand = player->GetMainHand();
+    auto off_hand = player->GetOffHand();
+    ss << "Main Hand: ";
+    if(main_hand != nullptr)
+        ss << main_hand->GetItemName() << Format::NL;
+    else
+        ss << "None" << Format::NL;
+    ss << "Off Hand: ";
+    if(off_hand != nullptr)
+        ss << off_hand->GetItemName() << Format::NL;
+    else
+        ss << "None" << Format::NL;
+    ss << Format::NL << Format::CYAN << Format::BOLD << "Inventory:" << Format::NORMAL << Format::NL;
     for(auto item : player->GetItems()) {
-        ss << item.first << Format::NL;
+        ss << item.first << ": " << item.second << Format::NL;
     }
     Sender::Send(ss.str(), connection);
 }
@@ -831,17 +869,371 @@ void PlayingState::CmdStats(const std::string &input, std::shared_ptr<Connection
                             std::shared_ptr<GameData> game_data) {
     auto player = connection->GetPlayer();
     std::string p_name = player->GetPlayerName();
-    std::string p_race = player->GetPlayerRace();
+    std::string p_race = player->GetPlayerRaceStr();
     std::string p_class = player->GetPlayerClass();
     std::stringstream ss;
     ss << p_name << " the " << p_race << " " << p_class << Format::NL;
+    ss << "Credits       : " << player->GetCredits() << Format::NL;
+    ss << "Strength      : " << player->GetNetStrength() << Format::NL;
+    ss << "Endurance     : " << player->GetNetEndurance() << Format::NL;
+    ss << "Intelligence  : " << player->GetNetIntelligence() << Format::NL;
+    ss << "Dexterity     : " << player->GetNetDexterity() << Format::NL;
+    ss << "Skill         : " << player->GetNetSkill() << Format::NL;
+    ss << "Points remaining: " << player->GetAttributePoints() << Format::NL;
     Sender::Send(ss.str(), connection);
 }
 
+
+void PlayingState::CmdAttack(const std::string &input, std::shared_ptr<Connection> connection,
+                             std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    auto players = room->GetVisiblePlayerNames(player->GetID());
+    auto match = Utils::FindMatch(players, input);
+    if(std::find(players.begin(), players.end(), match) != players.end()) {
+        auto target = game_data->GetPlayer(match);
+        std::stringstream sst;
+        sst << Format::RED << "Attacked by " << player->GetName() << "!" << Format::NL;
+        Sender::Send(sst.str(), game_data->GetConnection(match));
+        std::stringstream ss;
+        ss << Format::YELLOW << "You attack " << match << "!" << Format::NL;
+        Sender::Send(ss.str(), connection);
+        BeginCombat(player, target);
+    }
+    else {
+        std::stringstream ss;
+        ss << "No " << input << "here to attack" << Format::NL;
+        Sender::Send(ss.str(), connection);
+    }
+}
+
+void PlayingState::CmdUse(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    Use(input, connection, game_data, NONE);
+}
+
+void PlayingState::CmdEat(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    Use(input, connection, game_data, EAT);
+}
+
+void PlayingState::CmdDrink(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    Use(input, connection, game_data, DRINK);
+}
+
+void PlayingState::CmdWield(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto items = Utils::ExtractMapKeys(player->GetItems());
+    std::string match = Utils::FindMatch(items, input);
+    auto item = game_data->GetItem(match);
+    std::stringstream ss;
+    if(item == nullptr) {
+        ss << "You do not carry that item!" << Format::NL;
+        player->Send(ss.str());
+        return;
+    }
+    auto mixin = item->GetMixin("Wieldable");
+    if(mixin == nullptr) {
+        ss << item->GetItemName() << " can not be wielded!" << Format::NL;
+        player->Send(ss.str());
+        return;
+    }
+    auto wieldable = std::dynamic_pointer_cast<Wieldable>(mixin);
+    auto hand = wieldable->GetHandType();
+    if(hand == MAIN_HAND) {
+        auto main = player->GetMainHand();
+        std::stringstream ss;
+        if (main != nullptr) {
+            player->AddItem(main->GetItemName());
+            ss << "Removed " << main->GetItemName() << Format::NL;
+        }
+        player->SetMainHand(item);
+        player->RemoveItem(item->GetItemName());
+        ss << "Wielding " << item->GetItemName() << Format::NL;
+        player->Send(ss.str());
+    }
+    else if(hand == OFF_HAND) {
+        auto off = player->GetOffHand();
+        auto main = player->GetMainHand();
+        if(off != nullptr) {
+            player->AddItem(off->GetItemName());
+            ss << "Removed " << off->GetItemName() << Format::NL;
+        }
+        else if(main != nullptr) {
+            auto main_hand = std::dynamic_pointer_cast<Wieldable>(main->GetMixin("Wieldable"));
+            if (main_hand->GetHandType() == TWO_HAND) {
+                ss << "Remove two handed weapon before equipping!" << Format::NL;
+                player->Send(ss.str());
+                return;
+            }
+        }
+        player->SetOffHand(item);
+        player->RemoveItem(item->GetItemName());
+        ss << "Wielding " << item->GetItemName() << Format::NL;
+    }
+    else if(hand == EITHER_HAND) {
+        auto main = player->GetMainHand();
+        auto off = player->GetOffHand();
+        if(main != nullptr) {
+            auto main_hand = std::dynamic_pointer_cast<Wieldable>(main->GetMixin("Wieldable"));
+            if(off == nullptr and main_hand->GetHandType() != TWO_HAND) {
+                player->SetOffHand(item);
+                player->RemoveItem(item->GetItemName());
+                ss << "Wielding " << item->GetItemName() << " in off hand" << Format::NL;
+            }
+            else {
+                player->SetMainHand(item);
+                player->RemoveItem(item->GetItemName());
+                player->AddItem(main->GetItemName());
+                ss << "Unwielded " << main->GetItemName() << Format::NL;
+                ss << "Wielding " << item->GetItemName() << " in main hand" << Format::NL;
+            }
+        }
+        else {
+            player->SetMainHand(item);
+            player->RemoveItem(item->GetItemName());
+            ss << "Wielding " << item->GetItemName() << " in main hand" << Format::NL;
+        }
+    }
+    else if(hand == TWO_HAND) {
+        auto main = player->GetMainHand();
+        auto off = player->GetOffHand();
+        if(main != nullptr) {
+            player->AddItem(main->GetItemName());
+            ss << "Unwielded " << main->GetItemName() << Format::NL;
+        }
+        if(off != nullptr) {
+            player->AddItem(off->GetItemName());
+            player->SetOffHand(nullptr);
+            ss << "Unwielded " << off->GetItemName() << Format::NL;
+        }
+        player->SetMainHand(item);
+        player->RemoveItem(item->GetItemName());
+        ss << "Wielding " << item->GetItemName() << " in main hand" << Format::NL;
+    }
+    player->Send(ss.str());
+}
+
+void PlayingState::CmdUnWield(const std::string &input, std::shared_ptr<Connection> connection,
+                              std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto match = Utils::FindMatch({"main", "off"}, input);
+    std::stringstream ss;
+    if(match == "main") {
+        auto main = player->GetMainHand();
+        if (main != nullptr) {
+            player->SetMainHand(nullptr);
+            player->AddItem(main);
+            ss << "Unwielded " << main->GetItemName() << Format::NL;
+        } else {
+            ss << "Nothing to unwield" << Format::NL;
+        }
+    }
+    else if(match == "off") {
+        auto off = player->GetOffHand();
+        if(off != nullptr) {
+            player->SetOffHand(nullptr);
+            player->AddItem(off);
+            ss << "Unwielded " << off->GetItemName() << Format::NL;
+        } else {
+            ss << "Nothing to unwield" << Format::NL;
+        }
+    }
+    else {
+        ss << "Please indicate <main> or <off> hand" << Format::NL;
+    }
+    player->Send(ss.str());
+}
+
+void PlayingState::CmdAdvancedPrompt(const std::string &input, std::shared_ptr<Connection> connection,
+                                    std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    std::stringstream ss;
+    ss << "Advanced Prompt ";
+    if(input == "off") {
+        connection->AdvancedPrompt(false);
+        ss << "off" << Format::NL;
+        player->Send(ss.str());
+    } else {
+        connection->AdvancedPrompt(true);
+        ss << "on" << Format::NL;
+        player->Send(ss.str());
+    }
+    connection->AdvancedPrompt(input != "off");
+}
+
+void PlayingState::CmdStore(const std::string &input, std::shared_ptr<Connection> connection,
+                            std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    for(auto npc_str: room->GetNPCs()) {
+        auto npc = game_data->GetNPC(npc_str);
+        if(npc->IsShopKeeper()) {
+            std::stringstream ss;
+            ss << npc->GetName() <<"'s wares" << Format::NL;
+            auto sk = std::dynamic_pointer_cast<ShopKeeper>(npc->GetMixin("Shopkeeper"));
+            for(auto item : sk->GetItems()) {
+                ss << item.first << " Quantity: " << item.second << " Price: ";
+                ss << sk->GetBuyCost(game_data->GetItem(item.first)->GetValue()) << Format::NL;
+            }
+            Sender::Send(ss.str(), connection);
+        } else {
+            Sender::Send("No Shopkeeper NPCs here!\r\n", connection);
+        }
+    }
+}
+
+void PlayingState::CmdBuy(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    for(auto const &npc_str: room->GetNPCs()) {
+        auto npc = game_data->GetNPC(npc_str);
+        if(npc->IsShopKeeper()) {
+            std::stringstream ss;
+            auto sk = std::dynamic_pointer_cast<ShopKeeper>(npc->GetMixin("Shopkeeper"));
+            auto items = Utils::ExtractMapKeys(sk->GetItems());
+            std::string match = Utils::FindMatch(items, input);
+            // check if enough credits
+            int price = sk->GetBuyCost(game_data->GetItem(match)->GetValue());
+            if(price > player->GetCredits())
+            {
+                ss << "You do not have enough credits to buy " << match << "!" << Format::NL;
+            }
+            else {
+                sk->RemoveItem(match);
+                player->AddItem(match);
+                player->RemoveCredits(price);
+                ss << "You bought " << match << " for " << price << " credits." << Format::NL;
+            }
+            Sender::Send(ss.str(), connection);
+        } else {
+            Sender::Send("No Shopkeeper NPCs here!\r\n", connection);
+        }
+    }
+}
+
+void PlayingState::CmdSell(const std::string &input, std::shared_ptr<Connection> connection,
+                           std::shared_ptr<GameData> game_data) {
+    auto player = connection->GetPlayer();
+    auto room = player->GetRoom();
+    for(auto const &npc_str: room->GetNPCs()) {
+        auto npc = game_data->GetNPC(npc_str);
+        if(npc->IsShopKeeper()) {
+            std::stringstream ss;
+            auto sk = std::dynamic_pointer_cast<ShopKeeper>(npc->GetMixin("Shopkeeper"));
+            auto items = Utils::ExtractMapKeys(player->GetItems());
+            std::string match = Utils::FindMatch(items, input);
+            int price = sk->GetSellCost(game_data->GetItem(match)->GetValue());
+            sk->AddItem(match);
+            player->RemoveItem(match);
+            player->AddCredits(price);
+            ss << "You sold " << match << " for " << price << " credits." << Format::NL;
+            Sender::Send(ss.str(), connection);
+        } else {
+            Sender::Send("No Shopkeeper NPCs here!\r\n", connection);
+        }
+    }
+}
+
+void PlayingState::Use(const std::string &input, const std::shared_ptr<Connection> &connection,
+                       const std::shared_ptr<GameData> &game_data, Consume use_type) {
+    auto player = connection->GetPlayer();
+    auto items = player->GetItems();
+    auto keys = Utils::ExtractMapKeys(items);
+    auto match = Utils::FindMatch(keys, input);
+    auto item = game_data->GetItem(match);
+    if(item != nullptr) {
+        std::stringstream ss;
+        if(item->HasMixin("Consumable")) {
+            auto mixin = item->GetMixin("Consumable");
+            auto consumable = std::dynamic_pointer_cast<Consumable>(mixin);
+            if(use_type == EAT) {
+                std::string eat = consumable->GetEat();
+                if(eat.empty()) {
+                    ss << eat << Format::NL;
+                    player->Send(ss.str());
+                }
+                else {
+                    ss << "You can't eat the " << item->GetItemName() << "!" << Format::NL;
+                    player->Send(ss.str());
+                    return;
+                }
+            }
+            else if(use_type == DRINK) {
+                std::string drink = consumable->GetDrink();
+                if(drink.empty()) {
+                    ss << drink << Format::NL;
+                    player->Send(ss.str());
+                }
+                else {
+                    ss << "You can't drink the " << item->GetItemName() << "!" << Format::NL;
+                    player->Send(ss.str());
+                    return;
+                }
+            }
+            else {
+                ss << "You use the " << item->GetItemName() << "." << Format::NL;
+                player->Send(ss.str());
+            }
+            UseConsumable(consumable, player);
+            player->RemoveItem(match);
+        }
+        else {
+            ss << "You can't ";
+            if(use_type == EAT)
+                ss << "eat";
+            else if(use_type == DRINK)
+                ss << "drink";
+            else
+                ss << "use";
+            ss << " the " << item->GetItemName() << "!" << Format::NL;
+            player->Send(ss.str());
+        }
+    }
+}
+
+void PlayingState::UseConsumable(const std::shared_ptr<Consumable> &consumable, const std::shared_ptr<Player> &player) {
+    int hp = consumable->GetHP();
+    if(hp != 0) {
+        player->Heal(hp);
+    }
+}
+
+void PlayingState::Escape(std::shared_ptr<Player> player) {
+    auto target = player->GetTarget();
+    player->StopFighting();
+    for(auto const &attacker: player->GetAttackers()) {
+        attacker->StopFighting();
+        attacker->RemoveAttacker(player);
+        if(attacker->IsAttacked()) {
+            attacker->BeginFighting(attacker->GetAttackers()[0]);
+        }
+    }
+    player->RemoveAttacker(target);
+}
+
+bool PlayingState::AttemptEscape(std::shared_ptr<Player> player) {
+    // TODO: implement real attempt to run
+    auto attackers = player->GetAttackers();
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<long> dist(1, 10 + attackers.size());
+    if (dist(mt) > 8 + attackers.size()) {
+        auto target = player->GetTarget();
+        player->Send("Escaped!\n");
+        if (target != nullptr)
+            target->Send(player->GetName() + " escaped!\n");
+        Escape(player);
+    } else {
+        player->Send("Failed to escape!\n");
+        return false;
+    }
+    return true;
+}
+
 void PlayingState::BuildCommandVector() {
-//    for(auto const& item: m_cmd_map) {
-//        m_cmd_vect.push_back(item.first);
-//    }
-//    std::sort(m_cmd_vect.begin(), m_cmd_vect.end());
     m_cmd_vect = Utils::ExtractMapKeys(m_cmd_map);
 }

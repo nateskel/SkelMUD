@@ -11,7 +11,7 @@ void Sender::SendAll(std::string data, std::map<int, std::shared_ptr<Connection>
     for(auto connection_entry : connection_map)
     {
         connection_entry.second->AddOutput((data));
-        connection_entry.second->TickNow();
+        //connection_entry.second->TickNow();
     }
 }
 
@@ -23,7 +23,7 @@ void Sender::SendAll(std::string data, std::map<int, std::shared_ptr<Connection>
     {
         if(connection_entry.first != exclude)
             connection_entry.second->AddOutput((data));
-            connection_entry.second->TickNow();
+            //connection_entry.second->TickNow();
             //connection_entry.second->AddOutput(data + connection_entry.second->GetPrompt());
     }
 }

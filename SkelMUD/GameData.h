@@ -48,7 +48,9 @@ public:
     Account GetAccount(std::string username);
     void AddCharacter(std::string username, std::shared_ptr<Player> character);
     std::shared_ptr<Player> GetPlayer(std::string name);
+    std::map<std::string, std::shared_ptr<Player>> GetPlayers();
     Races GetRaces();
+    std::shared_ptr<Race> GetRace(std::string race_name);
     CharacterClasses GetClasses();
     void AddAccount(Account account);
     void SaveAccounts(std::string filename);
@@ -63,6 +65,8 @@ public:
     std::shared_ptr<Area> GetArea(int ID, bool is_ship);
     std::shared_ptr<Room> GetRoom(int AreaID, int RoomID, bool is_ship);
     std::shared_ptr<Planet> GetPlanet(std::string name);
+    std::shared_ptr<Item> GetItem(std::string name);
+    std::shared_ptr<NPC> GetNPC(std::string name);
     Planets& GetPlanets();
     Ships& GetShips();
     Configuration& GetConfiguration();
@@ -70,6 +74,7 @@ public:
 private:
     void PopulateShips();
     void PopulateNPCs();
+    void PopulateRaces();
     std::map<int, std::shared_ptr<Connection>> m_connections;
     Accounts m_accounts;
     Races m_races;

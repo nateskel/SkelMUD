@@ -1,0 +1,6 @@
+[Pixel]
+[FullName]Pixel The Cat[/FullName]
+[ShopKeeper]True[/ShopKeeper]
+[Planet]0[/Planet]
+[Room]6[/Room]
+[/Pixel]

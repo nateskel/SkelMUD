@@ -8,6 +8,10 @@
 
 #include <vector>
 #include "GameState.h"
+#include "../Player.h"
+#include "../Connection.h"
+#include "../Items/Item.h"
+#include "../Items/Consumable.h"
 
 class Room;
 
@@ -17,9 +21,13 @@ class PlayingState : public GameState {
 public:
     enum Direction {
         NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST, UP, DOWN
-    } direction;
+    };
 
-    PlayingState(std::shared_ptr<GameData> data) : GameState(data) {
+    enum Consume {
+        EAT, DRINK, NONE
+    };
+
+    explicit PlayingState(std::shared_ptr<GameData> data) : GameState(data) {
         m_cmd_map["help"] = &CmdHelp;
         m_cmd_map["tell"] = &CmdTell;
         m_cmd_map["chat"] = &CmdChat;
@@ -59,17 +67,28 @@ public:
         m_cmd_map["get"] = &CmdGet;
         m_cmd_map["drop"] = &CmdDrop;
         m_cmd_map["stats"] = &CmdStats;
-
+        m_cmd_map["attack"] = &CmdAttack;
+        m_cmd_map["use"] = &CmdUse;
+        m_cmd_map["eat"] = &CmdEat;
+        m_cmd_map["drink"] = &CmdDrink;
+        m_cmd_map["wield"] = &CmdWield;
+        m_cmd_map["unwield"] = &CmdUnWield;
+        m_cmd_map["advancedprompt"] = &CmdAdvancedPrompt;
+        m_cmd_map["store"] = &CmdStore;
+        m_cmd_map["buy"] = &CmdBuy;
+        m_cmd_map["sell"] = &CmdSell;
         BuildCommandVector();
     }
 
-    virtual void init(std::shared_ptr<Connection> connection) override;
+    void init(std::shared_ptr<Connection> connection) override;
 
-    virtual void processInput(const std::string &input, std::shared_ptr<Connection> connection) override;
+    void processInput(const std::string &input, std::shared_ptr<Connection> connection) override;
 
-    virtual void Shutdown(std::shared_ptr<Connection> connection) override;
+    void Shutdown(std::shared_ptr<Connection> connection) override;
 
-    virtual std::string GetPrompt(std::shared_ptr<Connection> connection) override;
+    std::string GetPrompt(Connection connection) override;
+
+    static void BeginCombat(std::shared_ptr<Player> player, std::shared_ptr<Player> target);
 
     static void CmdHelp(const std::string &input, std::shared_ptr<Connection> connection,
                         std::shared_ptr<GameData> game_data);
@@ -164,6 +183,39 @@ public:
     static void CmdStats(const std::string &input, std::shared_ptr<Connection> connection,
                         std::shared_ptr<GameData> game_data);
 
+    static void CmdAttack(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdUse(const std::string &input, std::shared_ptr<Connection> connection,
+                          std::shared_ptr<GameData> game_data);
+
+    static void CmdEat(const std::string &input, std::shared_ptr<Connection> connection,
+                       std::shared_ptr<GameData> game_data);
+
+    static void CmdDrink(const std::string &input, std::shared_ptr<Connection> connection,
+                       std::shared_ptr<GameData> game_data);
+
+    static void CmdWield(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdUnWield(const std::string &input, std::shared_ptr<Connection> connection,
+                                    std::shared_ptr<GameData> game_data);
+
+    static void Use(const std::string &input, const std::shared_ptr<Connection> &connection,
+                    const std::shared_ptr<GameData> &game_data, Consume use_type);
+
+    static void CmdAdvancedPrompt(const std::string &input, std::shared_ptr<Connection> connection,
+                                     std::shared_ptr<GameData> game_data);
+
+    static void CmdStore(const std::string &input, std::shared_ptr<Connection> connection,
+                                  std::shared_ptr<GameData> game_data);
+
+    static void CmdBuy(const std::string &input, std::shared_ptr<Connection> connection,
+                         std::shared_ptr<GameData> game_data);
+
+    static void CmdSell(const std::string &input, std::shared_ptr<Connection> connection,
+                        std::shared_ptr<GameData> game_data);
+
 protected:
     std::map<std::string, void (*)(const std::string &, std::shared_ptr<Connection>,
                                    std::shared_ptr<GameData>)> m_cmd_map;
@@ -181,6 +233,12 @@ protected:
     static std::string GetValidDirections(Room &room);
 
     static void ChangeSpeed(double speed, std::shared_ptr<Ship> &ship);
+
+    static void UseConsumable(const std::shared_ptr<Consumable> &consumable, const std::shared_ptr<Player> &player);
+
+    static void Escape(std::shared_ptr<Player> player);
+
+    static bool AttemptEscape(std::shared_ptr<Player> player);
 };
 
 

@@ -2,6 +2,8 @@
 #include "States/PlayingState.h"
 #include "Sender.h"
 #include "States/StateFactory.h"
+#include "Format.h"
+#include "Items/Wieldable.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -10,6 +12,8 @@
 #include <sstream>
 #include <unistd.h>
 #include <mutex>
+#include <random>
+#include <math.h>
 
 #endif
 
@@ -18,7 +22,8 @@ Game::Game() {
     Logger::Debug("Setting up GameData");
     m_game_data = std::make_shared<GameData>();
     connection_id = 0;
-    elapsed = std::time(nullptr);
+    main_elapsed = std::time(nullptr);
+    regen_elapsed = std::time(nullptr);
     Logger::Debug("Initializing States");
 }
 
@@ -28,20 +33,22 @@ Game::~Game() {
 
 }
 
+void Game::Start(int port) {
+    m_game_data->GetConfiguration().SetPort(port);
+    Start();
+}
+
 void Game::Start() {
     std::thread listener(&Game::listenerThread, this);
     listener.detach();
     std::list<int> disconnected;
+    Logger::Info("Running\n");
     while(isRunning) {
         std::map<int, std::shared_ptr<Connection>> connection_map = m_game_data->GetAllConnections();
         for(auto connection_map_entry : connection_map)
         {
             std::lock_guard<std::mutex> lock(Game::game_mutex);
             std::shared_ptr<Connection> connection = connection_map_entry.second;
-            if(std::time(nullptr) - elapsed >= 1) {
-                std::shared_ptr<GameState> state = connection->GetState();
-                connection->SetPrompt(state->GetPrompt(connection));
-            }
             if(!connection->IsConnected())
             {
                 if(connection->IsLoggedIn()) {
@@ -61,6 +68,11 @@ void Game::Start() {
             }
             std::string received = connection->GetNextReceived();
             Utils::RemoveEndline(received);
+            if(connection->IsLoggedIn()) {
+                std::string data = connection->GetPlayer()->GetCommData();
+                if(data != "")
+                    Sender::Send(data, connection);
+            }
             connection->FlushOutput();
             if(received == "")
                 continue;
@@ -74,12 +86,97 @@ void Game::Start() {
                 connection->ResetStateChanged();
             }
         }
-        if(std::time(nullptr) - elapsed >= 1) {
+        if(std::time(nullptr) - main_elapsed >= 3) {
             ProcessShips();
-            elapsed = std::time(nullptr);
+            ProcessCombat();
+            main_elapsed = std::time(nullptr);
+        }
+        if(std::time(nullptr) - regen_elapsed >= 5) {
+            ProcessRegen();
+            regen_elapsed = std::time(nullptr);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+}
+
+void Game::ProcessRegen() {
+    for(auto item: m_game_data->GetPlayers()) {
+        auto player = item.second;
+        player->Regen(player->IsFighting());
+    }
+}
+
+void Game::ProcessCombat() {
+    for(auto item: m_game_data->GetPlayers()) {
+        auto player = item.second;
+        if(player->IsFighting()) {
+            auto target = player->GetTarget();
+            std::stringstream ss;
+            std::stringstream ts;
+            auto main_hand = player->GetMainHand();
+            auto off_hand = player->GetOffHand();
+            std::random_device rd;
+            std::mt19937 mt(rd());
+            std::uniform_int_distribution<int> crit_dist(1, 10);
+            if(main_hand != nullptr) {
+                bool crit = crit_dist(mt) > 9;
+                auto weapon = std::dynamic_pointer_cast<Wieldable>(main_hand->GetMixin("Wieldable"));
+                std::uniform_int_distribution<int> dist(weapon->GetMinDamage(), weapon->GetMaxDamage());
+                int damage = dist(mt);
+                auto weapon_scale = weapon->GetScale();
+                damage = int(round(damage * GetScaledModifier(player, weapon_scale)));
+                std::string damage_text;
+                std::string damage_text_other;
+                if(!crit) {
+                    damage_text = weapon->GetNormalHit();
+                    damage_text_other = weapon->GetNormalHitOther();
+                }
+                else {
+                    damage_text = weapon->GetCriticalHit();
+                    damage_text_other = weapon->GetCriticalHitOther();
+                    damage *= 3;
+                }
+                ss << "You " << damage_text << " " << target->GetName();
+                ss << " for " << damage << " damage!" << Format::NL;
+                ts << player->GetName() << " " << damage_text_other;
+                ts << " you for " << damage << " damage!" <<Format::NL;
+                target->Damage(damage);
+            }
+            if(off_hand != nullptr) {
+                bool crit = crit_dist(mt) > 9;
+                auto weapon = std::dynamic_pointer_cast<Wieldable>(off_hand->GetMixin("Wieldable"));
+                std::uniform_int_distribution<int> dist(weapon->GetMinDamage(), weapon->GetMaxDamage());
+                int damage = dist(mt);
+                std::string damage_text;
+                std::string damage_text_other;
+                if(!crit) {
+                    damage_text = weapon->GetNormalHit();
+                    damage_text_other = weapon->GetNormalHitOther();
+                }
+                else {
+                    damage_text = weapon->GetCriticalHit();
+                    damage_text_other = weapon->GetCriticalHitOther();
+                    damage *= 3;
+                }
+                ss << "You " << damage_text << " " << target->GetName();
+                ss << " for " << damage << " damage!" << Format::NL;
+                ts << player->GetName() << " " << damage_text_other;
+                ts << " you for " << damage << " damage!" <<Format::NL;
+                target->Damage(damage);
+            }
+            if(main_hand == nullptr && off_hand == nullptr) {
+                ss << "You punch " << target->GetName() << " for 1 damage!" << Format::NL;
+                ts << player->GetName() << " punches you for 1 damage!" << Format::NL;
+                target->Damage(1);
+            }
+            player->Send(ss.str());
+            target->Send(ts.str());
+        }
+    }
+}
+
+void Game::ProcessSkill(std::shared_ptr<Skill> skill) {
+
 }
 
 void Game::ProcessShips() {
@@ -115,7 +212,6 @@ void Game::ProcessShips() {
                                            ship.second->GetPlayerIDs());
                     ship.second->SetVelocity(0, 0, 0);
                 }
-                //ship.second->SetCoordinates(ship.second->GetDestination());
             }
         }
     }
@@ -129,9 +225,7 @@ void Game::listenerThread() {
         auto connection = std::make_shared<Connection>(dataSocket);
         connection->SetState(GameStates::LOGIN, m_game_data);
         connection->GetState()->init(connection);
-//        state_map[USERNAME]->init(connection);
         connection->ResetStateChanged();
-        // Sender::Send(connection->GetPrompt(), connection);
         std::lock_guard<std::mutex> guard(Game::game_mutex);
         // TODO: connection_id temporary for debugging
         // TODO: eventually connection_id could increment beyond the size of int
@@ -142,9 +236,24 @@ void Game::listenerThread() {
     }
 }
 
-//void Game::initStates() {
-//    state_map[USERNAME] = std::make_shared<LoginState>(m_game_data);
-//    state_map[PLAYING] = std::make_shared<PlayingState>(m_game_data);
-//    state_map[CHARACTERCREATION] = std::make_shared<CreateCharacterState>(m_game_data);
-//    state_map[BUILDING] = std::make_shared<BuildingState>(m_game_data);
-//}
+float Game::GetScaledModifier(std::shared_ptr<Player> player, ScaleAttribute scaled) {
+    float result = 0;
+    switch(scaled) {
+        case STR:
+            result = player->GetNetStrength() / 10.0f;
+            break;
+        case DEX:
+            result = player->GetNetDexterity() / 10.0f;
+            break;
+        case END:
+            result = player->GetNetEndurance() / 10.0f;
+            break;
+        case INT:
+            result = player->GetNetIntelligence() / 10.0f;
+            break;
+        case SKILL:
+            result = player->GetNetSkill() / 10.0f;
+            break;
+    }
+    return result;
+}

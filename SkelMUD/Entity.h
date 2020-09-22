@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <vector>
 
 class Planet;
 class Ship;
@@ -81,6 +82,36 @@ public:
 
     int GetMaxStamina();
 
+    void BeginFighting(std::shared_ptr<Entity> target);
+
+    void AddAttacker(std::shared_ptr<Entity> attacker);
+
+    std::vector<std::shared_ptr<Entity>> GetAttackers();
+
+    void RemoveAttacker(std::shared_ptr<Entity> attacker);
+
+    void RemoveAllAttackers();
+
+    void StopFighting();
+
+    bool IsFighting();
+
+    bool IsAttacked();
+
+    std::shared_ptr<Entity> GetTarget();
+
+    bool Damage(int amount);
+
+    void Heal(int amount);
+
+    void RegenSP(int amount);
+
+    void RegenStam(int amount);
+
+    void Regen(bool fighting);
+
+    virtual void Send(std::string data);
+
 protected:
     std::string m_name;
     bool m_in_ship;
@@ -96,6 +127,10 @@ protected:
     int m_sp;
     int m_max_stamina;
     int m_stamina;
+    int m_level;
+    int m_xp;
+    std::shared_ptr<Entity> m_target;
+    std::vector<std::shared_ptr<Entity>> m_attackers;
 //    std::map<int, Item> inventory;
 
 private:

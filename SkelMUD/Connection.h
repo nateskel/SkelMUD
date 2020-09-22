@@ -26,9 +26,9 @@ private:
     DataSocket dataSocket;
     bool is_connected;
     bool state_changed;
+    bool m_advanced_prompt;
     int id;
     std::string m_send_buffer;
-//    std::string state;
     std::shared_ptr<GameState> m_state;
     std::list<std::string> m_receive_buffer;
     std::string owner_ip;
@@ -40,10 +40,9 @@ private:
     std::string character_name;
     int prompt_tick;
     std::string m_prompt;
-    bool m_dirty_prompt;
     bool logged_in;
-    int health;
     std::shared_ptr<Player> m_player;
+    int offset;
 
 public:
     Connection();
@@ -70,12 +69,9 @@ public:
     void SetUsername(std::string username);
     void SetPassword(std::string password);
     std::string GetPrompt();
-    void SetPrompt(std::string prompt);
-    void TickNow();
     bool IsPromptTick();
     void SetLoggedIn(bool logged);
     bool IsLoggedIn();
-    int GetHealth();
     const std::string &GetCharacterRace() const;
     void SetCharacterRace(const std::string &character_race);
     const std::string &GetCharacterClass() const;
@@ -84,6 +80,7 @@ public:
     void SetCharacterName(const std::string &character_name);
     void SetPlayer(std::shared_ptr<Player> player);
     std::shared_ptr<Player> GetPlayer();
+    void AdvancedPrompt(bool state);
 };
 
 #endif //SKELMUD_CONNECTION_H

@@ -7,6 +7,7 @@
 
 #include "GameState.h"
 #include "PlayingState.h"
+#include "../Connection.h"
 
 class BuildingState : public PlayingState {
 private:
@@ -26,7 +27,7 @@ public:
     }
 
     virtual void init(std::shared_ptr<Connection> connection) override;
-    virtual std::string GetPrompt(std::shared_ptr<Connection> connection) override;
+    virtual std::string GetPrompt(Connection connection) override;
     static void CmdBuildRoom(const std::string& input, std::shared_ptr<Connection> connection,
                              std::shared_ptr<GameData> game_data);
     static void CmdDeleteRoom(const std::string& input, std::shared_ptr<Connection> connection,

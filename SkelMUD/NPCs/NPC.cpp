@@ -6,14 +6,12 @@
 
 NPC::NPC() : Entity() {
     m_name = "";
-    m_is_shopkeeper = false;
 };
 
-NPC::NPC(std::string name, bool is_shopkeeper) {
+NPC::NPC(std::string name) {
     m_name = name;
-    m_is_shopkeeper = is_shopkeeper;
 }
 
 bool NPC::IsShopKeeper() {
-    return m_is_shopkeeper;
+    return HasMixin("Shopkeeper");
 }

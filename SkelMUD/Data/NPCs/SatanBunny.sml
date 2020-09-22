@@ -5,6 +5,6 @@
 [Room]3[/Room]
 [ForSale]
 [Apple]10[/Apple]
-[PewPew]1000[/PewPew]
+[Pew Pew]1000[/Pew Pew]
 [/ForSale]
 [/SatanBunny]

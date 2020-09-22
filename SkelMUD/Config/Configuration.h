@@ -13,6 +13,7 @@ private:
     int m_port;
     std::string m_data_directory;
 public:
+    Configuration();
     void LoadConfig(std::string filename);
     void LoadConfig();
     int GetPort();

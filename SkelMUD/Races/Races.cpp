@@ -18,21 +18,21 @@ void Races::LoadRaces(std::string filename) {
         std::string base_intelligence = child_node->GetAttribute("Intelligence");
         std::string base_dexterity = child_node->GetAttribute("Dexterity");
         std::string base_skill = child_node->GetAttribute("Skill");
-        AddRace(Race(race_name, base_strength, base_endurance, base_intelligence, base_dexterity, base_skill));
+        AddRace(std::make_shared<Race>(race_name, base_strength, base_endurance, base_intelligence, base_dexterity, base_skill));
     }
 }
 
-void Races::AddRace(Race race) {
-    m_race_map[race.getRace_name()] = race;
+void Races::AddRace(std::shared_ptr<Race> race) {
+    m_race_map[race->getRace_name()] = race;
 }
 
-std::map<std::string, Race> Races::GetRaces() {
+std::map<std::string, std::shared_ptr<Race>> Races::GetRaces() {
     return m_race_map;
 }
 
-std::map<int, Race> Races::EnumerateRaces() {
+std::map<int, std::shared_ptr<Race>> Races::EnumerateRaces() {
     auto races = GetRaces();
-    std::map<int, Race> race_map;
+    std::map<int, std::shared_ptr<Race>> race_map;
     int count = 0;
     for(auto race : races) {
         count++;

@@ -3,7 +3,6 @@
 //
 
 #include "NPCs.h"
-#include "../Skexml/Node.h"
 #include "../Skexml/SkexmlParser.h"
 #include "../Utils.h"
 
@@ -11,11 +10,19 @@ void NPCs::LoadNPCs(std::string filename) {
     std::vector<std::string> files = Utils::GetFilenames(filename);
     for(auto file: files) {
         std::shared_ptr<Node> npc_node = SkexmlParser::Parse(file);
-        std::string npc_name = npc_node->GetName();
+        std::string npc_name;
+        npc_name = npc_node->GetAttribute("FullName");
+        if(npc_name == "")
+            npc_name = npc_node->GetName();
         bool is_shopkeeper = npc_node->GetAttribute("ShopKeeper") == "True";
-        int room_id = atoi(npc_node->GetAttribute("Room").c_str());
-        int location_id = atoi(npc_node->GetAttribute("Planet").c_str());
-        auto npc = std::make_shared<NPC>(npc_name, is_shopkeeper);
+        int room_id = std::stoi(npc_node->GetAttribute("Room").c_str());
+        int location_id = std::stoi(npc_node->GetAttribute("Planet").c_str());
+        auto npc = std::make_shared<NPC>(npc_name);
+        auto sk_node = npc_node->GetChild("ForSale");
+        if(sk_node != nullptr) {
+            auto shopkeeper = CreateShopKeeper(sk_node);
+            npc->AddMixin("Shopkeeper", std::make_shared<ShopKeeper>(shopkeeper));
+        }
         npc->SetInShip(false);
         npc->SetRoomID(room_id);
         npc->SetLocationID(location_id);
@@ -53,4 +60,12 @@ std::map<int, std::shared_ptr<NPC>> NPCs::EnumerateNPCs() {
         npc_map[count] = npc.second;
     }
     return npc_map;
+}
+
+ShopKeeper NPCs::CreateShopKeeper(std::shared_ptr<Node> sk_node) {
+    ShopKeeper sk = ShopKeeper();
+    for(auto item : sk_node->GetAttributes()) {
+        sk.AddItem(item.first, stoi(item.second));
+    }
+    return sk;
 };

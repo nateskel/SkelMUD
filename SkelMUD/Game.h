@@ -9,6 +9,8 @@
 #include "Logger.h"
 #include "States/GameState.h"
 #include "GameData.h"
+#include "Items/Wieldable.h"
+#include "Skills/Skill.h"
 #include <map>
 #include <mutex>
 
@@ -21,6 +23,7 @@ public:
     Game();
     ~Game();
     void Start();
+    void Start(int port);
 
     const std::string LOGIN = "Login";
     const std::string USERNAME = "Username";
@@ -34,11 +37,16 @@ private:
     bool isRunning;
     int port;
     int connection_id;
-    double elapsed;
+    double main_elapsed;
+    double regen_elapsed;
     static std::mutex game_mutex;
     void listenerThread();
 //    void initStates();
     void ProcessShips();
+    void ProcessCombat();
+    void ProcessSkill(std::shared_ptr<Skill> skill);
+    void ProcessRegen();
+    float GetScaledModifier(std::shared_ptr<Player> player, ScaleAttribute scaled);
 };
 
 #endif // GAME_H

@@ -25,9 +25,10 @@ void Connection::Run() {
     ss << "Incoming connection from " << owner_ip;
     Logger::Debug(ss.str());
     connThread.detach();
-    health = 100;
     prompt_tick = 0;
     logged_in = false;
+    offset = 0;
+    m_advanced_prompt = false;
 }
 
 void Connection::connectionThread() {
@@ -60,21 +61,27 @@ void Connection::AddOutput(std::string output) {
 void Connection::FlushOutput() {
     if (m_send_buffer == "")
         return;
-    m_dirty_prompt = false;
-    m_send_buffer.append(GetPrompt() + Format::RESET);
-    std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
-    output.push_back('\0');
-    int sent = dataSocket.Send(&output[0]);
-    if (sent == -1) {
-        is_connected = false;
-    }
-    m_send_buffer.clear();
-//    prompt_tick = MAX_TICK + 1;
+    offset += 1;
+    UpdatePrompt();
 }
 
 void Connection::UpdatePrompt() {
-    m_dirty_prompt = false;
-    m_send_buffer.append(GetPrompt() + Format::RESET);
+    long size = 0;
+    size = Tokenizer::CountLines(GetState()->GetLastPrompt());
+    m_state->CleanPrompt(*this);
+    prompt_tick = 0;
+    auto prompt = GetState()->GetPrompt(*this);
+    if(m_advanced_prompt) {
+        for (int i = 0; i < size; ++i) {
+            m_send_buffer.insert(0, Format::UP + Format::ERASE);
+        }
+        m_send_buffer.insert(0, Format::SAVE + Format::FRONT_LINE);
+        m_send_buffer.append(prompt + Format::RESTORE + Format::RESET);
+    }
+    else {
+        m_send_buffer.append(prompt + Format::RESET);
+    }
+    //offset = Tokenizer::CountLines(m_send_buffer);
     std::vector<char> output(m_send_buffer.begin(), m_send_buffer.end());
     output.push_back('\0');
     int sent = dataSocket.Send(&output[0]);
@@ -164,16 +171,17 @@ void Connection::ResetStateChanged() {
 }
 
 std::string Connection::GetPrompt() {
-    return m_prompt;
+    return "";
+    //return m_prompt;
 }
 
 bool Connection::IsPromptTick() {
-    if(!m_dirty_prompt)
+    if(!m_state->IsDirty(*this))
         return false;
     if(prompt_tick > MAX_TICK)
     {
         prompt_tick = 0;
-        m_dirty_prompt = false;
+        m_state->CleanPrompt(*this);
         return true;
     }
     else
@@ -189,26 +197,6 @@ void Connection::SetLoggedIn(bool logged) {
 
 bool Connection::IsLoggedIn() {
     return logged_in;
-}
-
-void Connection::SetPrompt(std::string prompt) {
-    if (m_prompt != prompt) {
-        m_prompt = prompt;
-        m_dirty_prompt = true;
-    }
-}
-
-int Connection::GetHealth() {
-    if(health > 0) {}
-        //--health;
-    else
-        health = 100;
-    return health;
-}
-
-void Connection::TickNow() {
-    m_dirty_prompt = true;
-    prompt_tick = MAX_TICK + 1;
 }
 
 const std::string &Connection::GetCharacterRace() const {
@@ -241,4 +229,8 @@ void Connection::SetPlayer(std::shared_ptr<Player> player) {
 
 std::shared_ptr<Player> Connection::GetPlayer() {
     return m_player;
+}
+
+void Connection::AdvancedPrompt(bool state) {
+    m_advanced_prompt = state;
 }

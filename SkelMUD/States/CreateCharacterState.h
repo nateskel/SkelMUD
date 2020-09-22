@@ -13,6 +13,13 @@
 
 class CreateCharacterState : public GameState {
 private:
+    int INIT_ATTRIBUTE_POINTS = 9;
+    int m_att_points = INIT_ATTRIBUTE_POINTS;
+    int m_str = 1;
+    int m_end = 1;
+    int m_int = 1;
+    int m_dex = 1;
+    int m_skill = 1;
     enum char_creation_states {
         SELECT_CHARACTER,
         CHOOSE_RACE,
@@ -22,7 +29,7 @@ private:
         CONFIRM_CHARACTER
     };
     std::map<int, int> m_state_map;
-    std::map<int, Race> m_race_map;
+    std::map<int, std::shared_ptr<Race>> m_race_map;
     std::map<int, CharacterClass> m_class_map;
     void processSelectCharacter(const std::string &input, std::shared_ptr<Connection> connection);
     void processChooseRace(const std::string &input, std::shared_ptr<Connection> connection);
@@ -30,7 +37,7 @@ private:
     void processNameCharacter(const std::string &input, std::shared_ptr<Connection> connection);
     void processRollStats(const std::string &input, std::shared_ptr<Connection> connection);
     void processConfirmCharacter(const std::string &input, std::shared_ptr<Connection> connection);
-    std::string rollStats();
+    std::string ShowStats();
 
 public:
     CreateCharacterState(std::shared_ptr<GameData> data) : GameState(data) {
@@ -42,7 +49,7 @@ public:
 
     virtual void init(std::shared_ptr<Connection> connection) override;
 
-    virtual std::string GetPrompt(std::shared_ptr<Connection> connection) override;
+    virtual std::string GetPrompt(Connection connection) override;
 
     virtual void Shutdown(std::shared_ptr<Connection> connection) override;
 };

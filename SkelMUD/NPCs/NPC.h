@@ -7,15 +7,16 @@
 
 
 #include "../Entity.h"
+#include "../Mixin.h"
 #include <string>
 
-class NPC : public Entity {
+class NPC : public Entity, public MixinContainer {
 public:
     NPC();
-    NPC(std::string name, bool is_shopkeeper);
+    NPC(std::string name);
     bool IsShopKeeper();
+
 private:
-    bool m_is_shopkeeper;
 };
 
 
