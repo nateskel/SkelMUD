@@ -5,6 +5,7 @@
 #ifndef SKELMUD_RACE_H
 #define SKELMUD_RACE_H
 
+#include <string>
 #include <map>
 
 class Race {
