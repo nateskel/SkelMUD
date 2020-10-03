@@ -5,6 +5,7 @@
 #ifndef SKELMUD_MIXIN_H
 #define SKELMUD_MIXIN_H
 
+#include <string>
 #include <memory>
 #include <map>
 
