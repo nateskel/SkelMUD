@@ -5,6 +5,7 @@
 #ifndef SKELMUD_CHARACTERCLASS_H
 #define SKELMUD_CHARACTERCLASS_H
 
+#include <string>
 #include <map>
 
 class CharacterClass {

@@ -6,6 +6,7 @@
 #define SKELMUD_GAMESTATE_H
 
 
+#include <string>
 #include <map>
 #include <memory>
 
