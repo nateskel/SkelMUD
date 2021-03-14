@@ -2,7 +2,6 @@
 // Created by nate on 3/19/17.
 //
 
-#include <sstream>
 #include "Room.h"
 #include "../Ships/Ship.h"
 #include "../Logger.h"
@@ -12,48 +11,50 @@ Room::Room() {
     m_id = 0;
     m_long_description = "Basic Room <Long>";
     m_short_description = "Basic Room <Short>";
-    m_north = -1;
-    m_south = -1;
-    m_east = -1;
-    m_west = -1;
-    m_northeast = -1;
-    m_northwest = -1;
-    m_southeast = -1;
-    m_southwest = -1;
-    m_up = -1;
-    m_down = -1;
+    for(int& m_direction : m_directions) {
+        m_direction = -1;
+    }
     m_landing_level = NONE;
     m_is_cockpit = false;
 }
 
-Room::Room(std::string long_desc, std::string short_desc, int n, int s, int e, int w, int ne, int nw, int se,
-           int sw, int u, int d) {
+Room::Room(const std::string &long_desc, const std::string &short_desc, int n, int s, int e, int w, int ne, int nw,
+           int se, int sw, int u, int d) {
     m_id = 0;
     m_long_description = long_desc;
     m_short_description = short_desc;
-    m_north = n;
-    m_south = s;
-    m_east = e;
-    m_west = w;
-    m_northeast = ne;
-    m_northwest = nw;
-    m_southeast = se;
-    m_southwest = sw;
-    m_up = u;
-    m_down = d;
+    m_directions[NORTH] = n;
+    m_directions[SOUTH] = s;
+    m_directions[EAST] = e;
+    m_directions[WEST] = w;
+    m_directions[NORTHEAST] = ne;
+    m_directions[NORTHWEST] = nw;
+    m_directions[SOUTHEAST] = se;
+    m_directions[SOUTHWEST] = sw;
+    m_directions[UP] = u;
+    m_directions[DOWN] = d;
     m_landing_level = NONE;
     m_is_cockpit = false;
 }
 
-Room::~Room() {
-
+Room::Room(const std::string &long_desc, const std::string &short_desc, const int *directions) {
+    m_id = 0;
+    m_long_description = long_desc;
+    m_short_description = short_desc;
+    for(int i = 0; i < NUMBER_OF_DIRECTIONS; ++i) {
+        m_directions[i] = directions[i];
+    }
+    m_landing_level = NONE;
+    m_is_cockpit = false;
 }
+
+Room::~Room() = default;
 
 void Room::SetIsCockpit(bool is_cockpit) {
     m_is_cockpit = is_cockpit;
 }
 
-bool Room::IsCockpit() {
+bool Room::IsCockpit() const {
     return m_is_cockpit;
 }
 
@@ -61,7 +62,7 @@ void Room::AddShipID(int ship_id) {
     m_ship_ids.push_back(ship_id);
 }
 
-void Room::AddShip(std::shared_ptr<Ship> ship) {
+void Room::AddShip(const std::shared_ptr<Ship>& ship) {
     int id = ship->GetID();
     AddShipID(id);
     m_ships[id] = ship;
@@ -92,18 +93,18 @@ void Room::RemoveShip(int id) {
     m_ships.erase(id);
 }
 
-void Room::AddPlayer(std::shared_ptr<Player> player) {
+void Room::AddPlayer(const std::shared_ptr<Player>& player) {
     m_player_map[player->GetID()] = player;
 }
 
-void Room::AddNPC(std::shared_ptr<NPC> npc) {
+void Room::AddNPC(const std::shared_ptr<NPC>& npc) {
     m_npc_map[npc->GetName()] = npc;
 }
 
 std::vector<std::string> Room::GetNPCs() {
     std::vector<std::string> output;
-    for (std::map<std::string, std::shared_ptr<NPC>>::iterator it = m_npc_map.begin(); it != m_npc_map.end(); it++) {
-        output.push_back(it->first);
+    for (auto & it : m_npc_map) {
+        output.push_back(it.first);
     }
     return output;
 }
@@ -118,62 +119,62 @@ void Room::RemovePlayer(int id) {
 
 std::vector<int> Room::GetVisiblePlayers() {
     std::vector<int> output;
-    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
-        if(it->second->IsVisible())
-            output.push_back(it->first);
+    for (auto & it : m_player_map) {
+        if(it.second->IsVisible())
+            output.push_back(it.first);
     }
     return output;
 }
 
 std::vector<int> Room::GetVisiblePlayers(int exclude) {
     std::vector<int> output;
-    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
-        if (it->first != exclude and it->second->IsVisible())
-            output.push_back(it->first);
+    for (auto & it : m_player_map) {
+        if (it.first != exclude and it.second->IsVisible())
+            output.push_back(it.first);
     }
     return output;
 }
 
 std::vector<int> Room::GetPlayers() {
     std::vector<int> output;
-    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
-        output.push_back(it->first);
+    for (auto & it : m_player_map) {
+        output.push_back(it.first);
     }
     return output;
 }
 
 std::vector<int> Room::GetPlayers(int exclude) {
     std::vector<int> output;
-    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
-        if (it->first != exclude)
-            output.push_back(it->first);
+    for (auto & it : m_player_map) {
+        if (it.first != exclude)
+            output.push_back(it.first);
     }
     return output;
 }
 
 std::vector<std::string> Room::GetVisiblePlayerNames(int exclude) {
     std::vector<std::string> output;
-    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
-        if (it->first != exclude and it->second->IsVisible())
-            output.push_back(it->second->GetPlayerName());
+    for (auto & it : m_player_map) {
+        if (it.first != exclude and it.second->IsVisible())
+            output.push_back(it.second->GetPlayerName());
     }
     return output;
 }
 
-std::vector<std::string> Room::GetVisiblePlayerNames(std::string exclude_name) {
+std::vector<std::string> Room::GetVisiblePlayerNames(const std::string& exclude_name) {
     std::vector<std::string> output;
-    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
-        if (it->second->GetPlayerName() != exclude_name and it->second->IsVisible())
-            output.push_back(it->second->GetPlayerName());
+    for (auto & it : m_player_map) {
+        if (it.second->GetPlayerName() != exclude_name and it.second->IsVisible())
+            output.push_back(it.second->GetPlayerName());
     }
     return output;
 }
 
 std::vector<std::string> Room::GetPlayerNames(int exclude) {
     std::vector<std::string> output;
-    for (std::map<int, std::shared_ptr<Player>>::iterator it = m_player_map.begin(); it != m_player_map.end(); it++) {
-        if (it->first != exclude)
-            output.push_back(it->second->GetPlayerName());
+    for (auto & it : m_player_map) {
+        if (it.first != exclude)
+            output.push_back(it.second->GetPlayerName());
     }
     return output;
 }
@@ -186,89 +187,91 @@ std::string Room::GetShortDescription() {
     return m_short_description;
 }
 
+int Room::GetDirection(Room::Directions direction) {
+    return m_directions[direction];
+}
+
 int Room::GetNorth() {
-    return m_north;
+    return GetDirection(NORTH);
 }
 
 int Room::GetSouth() {
-    return m_south;
+    return GetDirection(SOUTH);
 }
 
 int Room::GetEast() {
-    return m_east;
+    return GetDirection(EAST);
 }
 
 int Room::GetWest() {
-    return m_west;
+    return GetDirection(WEST);
 }
 
 int Room::GetNorthWest() {
-    return m_northwest;
+    return GetDirection(NORTHWEST);
 }
 
 int Room::GetNorthEast() {
-    return m_northeast;
+    return GetDirection(NORTHEAST);
 }
 
 int Room::GetSouthWest() {
-    return m_southwest;
+    return GetDirection(SOUTHWEST);
 }
 
 int Room::GetSouthEast() {
-    return m_southeast;
+    return GetDirection(SOUTHEAST);
 }
 
 int Room::GetUp() {
-    return m_up;
+    return GetDirection(UP);
 }
 
 int Room::GetDown() {
-    return m_down;
+    return GetDirection(DOWN);
 }
 
-
 void Room::SetNorth(int north) {
-    m_north = north;
+    m_directions[NORTH] = north;
 }
 
 void Room::SetSouth(int south) {
-    m_south = south;
+    m_directions[SOUTH] = south;
 }
 
 void Room::SetEast(int east) {
-    m_east = east;
+    m_directions[EAST] = east;
 }
 
 void Room::SetWest(int west) {
-    m_west = west;
+    m_directions[WEST] = west;
 }
 
 void Room::SetNortheast(int ne) {
-    m_northeast = ne;
+    m_directions[NORTHEAST] = ne;
 }
 
 void Room::SetNorthwest(int nw) {
-    m_northwest = nw;
+    m_directions[NORTHWEST] = nw;
 }
 
 void Room::SetSoutheast(int se) {
-    m_southeast = se;
+    m_directions[SOUTHEAST] = se;
 }
 
 void Room::SetSouthwest(int sw) {
-    m_southwest = sw;
+    m_directions[SOUTHWEST] = sw;
 }
 
 void Room::SetUp(int up) {
-    m_up = up;
+    m_directions[UP] = up;
 }
 
 void Room::SetDown(int down) {
-    m_down = down;
+    m_directions[DOWN] = down;
 }
 
-
-int Room::GetID() {
+int Room::GetID() const {
     return m_id;
 }
 
@@ -277,11 +280,11 @@ void Room::SetID(int id) {
 }
 
 
-void Room::SetLongDesc(std::string long_desc) {
+void Room::SetLongDesc(const std::string &long_desc) {
     m_long_description = long_desc;
 }
 
-void Room::SetShortDesc(std::string short_desc) {
+void Room::SetShortDesc(const std::string &short_desc) {
     m_short_description = short_desc;
 }
 
@@ -297,7 +300,7 @@ bool Room::IsLandable() {
     return m_landing_level != LandingLevel::NONE;
 }
 
-void Room::AddItem(std::string item) {
+void Room::AddItem(const std::string& item) {
     if(m_items.find(item) == m_items.end()) {
         m_items[item] = 1;
     }
@@ -306,7 +309,7 @@ void Room::AddItem(std::string item) {
     }
 }
 
-void Room::RemoveItem(std::string item) {
+void Room::RemoveItem(const std::string& item) {
     if(m_items.find(item) != m_items.end()) {
         m_items[item]--;
         if(m_items[item] == 0) {

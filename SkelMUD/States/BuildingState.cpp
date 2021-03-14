@@ -16,6 +16,7 @@
 void BuildingState::init(std::shared_ptr<Connection> connection) {
     Sender::Send("Build Mode\r\n", connection);
     CleanPrompt(*connection);
+    connection->SetBuilding(true);
     //connection->SetPrompt(GetPrompt(*connection));
 //    auto player = connection->GetPlayer();
 //    player->SetVisible(false);
@@ -103,7 +104,7 @@ void BuildingState::CmdLink(const std::string &input, std::shared_ptr<Connection
     direction_string = Tokenizer::LowerCase(direction_string);
     std::string destination_id_string = Tokenizer::GetFirstToken(input_string);
     std::string single_string = Tokenizer::GetFirstToken(input_string);
-    int destination_id = std::atoi(destination_id_string.c_str());
+    int destination_id = std::stoi(destination_id_string);
 
     // don't process if destination doesn't exist
     if(destination_id >= planet->GetRooms().size())

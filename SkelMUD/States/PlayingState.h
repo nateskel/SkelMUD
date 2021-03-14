@@ -6,12 +6,14 @@
 #define SKELMUD_PLAYINGSTATE_H
 
 
+#include <utility>
 #include <vector>
 #include "GameState.h"
 #include "../Player.h"
 #include "../Connection.h"
 #include "../Items/Item.h"
 #include "../Items/Consumable.h"
+#include "CreateCharacterState.h"
 
 class Room;
 
@@ -27,7 +29,32 @@ public:
         EAT, DRINK, NONE
     };
 
-    explicit PlayingState(std::shared_ptr<GameData> data) : GameState(data) {
+//    static std::map<Room::Directions, std::string> arrive_string_map =
+//            {{Room::NORTH, "the south"},
+//             {Room::SOUTH, "the north"},
+//             {Room::EAST, "the west"},
+//             {Room::WEST, "the east"},
+//             {Room::UP, "above"},
+//             {Room::DOWN, "below"}
+//             };
+//    std::map<Room::Directions, std::string> arrive_string_map
+//    std::map<Room::Directions, std::string> depart_string_map;
+//    arrive_string_map[Room::NORTH] = "the south";
+//    arrive_string_map[Room::SOUTH] = "the north";
+//    arrive_string_map[Room::EAST] = "the west";
+//    arrive_string_map[Room::WEST] = "the east";
+//    arrive_string_map[Room::UP] = "above";
+//    arrive_string_map[Room::DOWN] = "below";
+//
+//    depart_string_map[Room::NORTH] = "to the north";
+//    depart_string_map[Room::SOUTH] = "to the south";
+//    depart_string_map[Room::EAST] = "to the east";
+//    depart_string_map[Room::WEST] = "to the west";
+//    depart_string_map[Room::UP] = "downwards";
+//    depart_string_map[Room::DOWN] = "upwards";
+
+    explicit PlayingState(std::shared_ptr<GameData> data) : GameState(std::move(data)) {
+
         m_cmd_map["help"] = &CmdHelp;
         m_cmd_map["tell"] = &CmdTell;
         m_cmd_map["chat"] = &CmdChat;
@@ -103,7 +130,7 @@ public:
                           std::shared_ptr<GameData> game_data);
 
     static void CmdLook(const std::string &input, std::shared_ptr<Connection> connection,
-                        std::shared_ptr<GameData> game_data);
+                 std::shared_ptr<GameData> game_data);
 
     static void CmdNorth(const std::string &input, std::shared_ptr<Connection> connection,
                          std::shared_ptr<GameData> game_data);
@@ -225,7 +252,7 @@ protected:
     void BuildCommandVector();
 
     static void Move(std::shared_ptr<Connection> connection, std::shared_ptr<GameData> game_data,
-                     Direction direction);
+                     Room::Directions direction);
 
     static bool CheckCockpitCommand(std::shared_ptr<Connection> connection,
                                     std::shared_ptr<GameData> game_data, bool InSpace);

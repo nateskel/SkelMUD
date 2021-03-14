@@ -34,7 +34,7 @@ public:
 
     static std::string FindMatch(std::vector<std::string> list, std::string value);
 
-    template <class T, class T2>
+    template <typename T, typename T2>
     static std::vector<T> ExtractMapKeys(std::map<T, T2> input) {
         std::vector<T> output;
         for (auto const &item: input) {
@@ -43,7 +43,7 @@ public:
         return output;
     }
 
-    template <class T, class T2>
+    template <typename T, typename T2>
     static std::vector<T2> ExtractMapValues(std::map<T, T2> input) {
         std::vector<T2> output;
         for (auto const &item: input) {

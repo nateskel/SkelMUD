@@ -45,7 +45,7 @@ public:
     std::map<int, std::shared_ptr<Connection>> GetConnections(std::vector<int>);
     void EraseConnection(int index);
     Accounts GetAccounts();
-    Account GetAccount(std::string username);
+    Account GetAccount(const std::string& username);
     void AddCharacter(std::string username, std::shared_ptr<Player> character);
     std::shared_ptr<Player> GetPlayer(std::string name);
     std::map<std::string, std::shared_ptr<Player>> GetPlayers();

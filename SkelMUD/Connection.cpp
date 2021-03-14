@@ -4,15 +4,12 @@
 
 #include <thread>
 #include <vector>
-#include <list>
 #include <sstream>
 #include "Connection.h"
 #include "Logger.h"
 #include "Tokenizer.h"
-#include "Sender.h"
 #include "Format.h"
 #include "Player.h"
-#include "States/GameState.h"
 #include "States/StateFactory.h"
 
 #define MAX_TICK 100
@@ -26,7 +23,7 @@ void Connection::Run() {
     Logger::Debug(ss.str());
     connThread.detach();
     prompt_tick = 0;
-    logged_in = false;
+    m_loggedin = false;
     offset = 0;
     m_advanced_prompt = false;
 }
@@ -41,9 +38,9 @@ void Connection::connectionThread() {
         }
         else {
             auto commands = Tokenizer::GetAllTokens(buffer, '\n');
-            for(auto command: commands) {
+            for(const auto &command: commands) {
                 std::string string_data = std::string(command);
-                m_receive_buffer.push_back(string_data);
+                m_receive_buffer.push(string_data);
             }
         }
     }
@@ -54,12 +51,12 @@ void Connection::Send(char* output) {
     dataSocket.Send(output);
 }
 
-void Connection::AddOutput(std::string output) {
+void Connection::AddOutput(const std::string &output) {
     m_send_buffer.append(output);
 }
 
 void Connection::FlushOutput() {
-    if (m_send_buffer == "")
+    if (m_send_buffer.empty())
         return;
     offset += 1;
     UpdatePrompt();
@@ -96,10 +93,10 @@ void Connection::Close() {
 }
 
 std::string Connection::GetNextReceived() {
-    if(m_receive_buffer.size() == 0)
+    if(m_receive_buffer.empty())
         return "";
     std::string output = m_receive_buffer.front();
-    m_receive_buffer.pop_front();
+    m_receive_buffer.pop();
     return output;
 }
 
@@ -109,11 +106,19 @@ SOCKET Connection::GetSocket() {
 
 Connection::Connection() {
     m_state = nullptr;
-    character_class = "";
-    character_race = "";
+    m_character_class = "";
+    m_character_race = "";
+    m_is_building = false;
+    is_connected = false;
+    state_changed = false;
+    m_advanced_prompt = false;
+    id = 0;
+    prompt_tick = 0;
+    m_loggedin = false;
+    offset = 0;
 }
 
-void Connection::SetState(const GameStates &connection_state, std::shared_ptr<GameData> game_data) {
+void Connection::SetState(const GameStates &connection_state, const std::shared_ptr<GameData> &game_data) {
     m_state = StateFactory::GetGameState(connection_state, game_data);
     state_changed = true;
 }
@@ -126,11 +131,11 @@ std::string Connection::GetIP() {
     return owner_ip;
 }
 
-bool Connection::IsConnected() {
+bool Connection::IsConnected() const {
     return is_connected;
 }
 
-int Connection::GetID() {
+int Connection::GetID() const {
     return id;
 }
 
@@ -139,30 +144,22 @@ void Connection::SetID(int connection_id) {
 }
 
 std::string Connection::GetUsername() {
-    return username;
+    return m_username;
 }
 
-std::string Connection::GetPassword() {
-    return password;
+void Connection::SetAccount(const Account &account) {
+    this->m_account = account;
 }
 
-void Connection::SetAccount(Account account) {
-    this->account = account;
-}
-
-void Connection::SetUsername(std::string username) {
-    this->username = username;
-}
-
-void Connection::SetPassword(std::string password) {
-    this->password = password;
+void Connection::SetUsername(const std::string &username) {
+    this->m_username = username;
 }
 
 Account Connection::GetAccount() {
-    return account;
+    return m_account;
 }
 
-bool Connection::IsStateChanged() {
+bool Connection::IsStateChanged() const {
     return state_changed;
 }
 
@@ -192,38 +189,38 @@ bool Connection::IsPromptTick() {
 }
 
 void Connection::SetLoggedIn(bool logged) {
-    logged_in = logged;
+    m_loggedin = logged;
 }
 
-bool Connection::IsLoggedIn() {
-    return logged_in;
+bool Connection::IsLoggedIn() const {
+    return m_loggedin;
 }
 
 const std::string &Connection::GetCharacterRace() const {
-    return character_race;
+    return m_character_race;
 }
 
 void Connection::SetCharacterRace(const std::string &character_race) {
-    Connection::character_race = character_race;
+    m_character_race = character_race;
 }
 
 const std::string &Connection::GetCharacterClass() const {
-    return character_class;
+    return m_character_class;
 }
 
 void Connection::SetCharacterClass(const std::string &character_class) {
-    Connection::character_class = character_class;
+    m_character_class = character_class;
 }
 
 const std::string &Connection::GetCharacterName() const {
-    return character_name;
+    return m_character_name;
 }
 
-void Connection::SetCharacterName(const std::string &character_name) {
-    Connection::character_name = character_name;
+void Connection::SetCharacterName(const std::string& character_name) {
+    Connection::m_character_name = character_name;
 }
 
-void Connection::SetPlayer(std::shared_ptr<Player> player) {
+void Connection::SetPlayer(const std::shared_ptr<Player>& player) {
     m_player = player;
 }
 
@@ -233,4 +230,12 @@ std::shared_ptr<Player> Connection::GetPlayer() {
 
 void Connection::AdvancedPrompt(bool state) {
     m_advanced_prompt = state;
+}
+
+void Connection::SetBuilding(bool building) {
+    m_is_building = building;
+}
+
+bool Connection::IsBuilding() const {
+    return m_is_building;
 }

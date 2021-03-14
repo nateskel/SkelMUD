@@ -78,7 +78,7 @@ GameData::GameData() {
     PopulateNPCs();
     PopulateRaces();
     auto room = GetRoom(0, 1, false);
-    for(auto item : m_items.GetItems()) {
+    for(const auto& item : m_items.GetItems()) {
         room->AddItem(item.first);
         room->AddItem(item.first);
     }
@@ -89,7 +89,7 @@ Accounts GameData::GetAccounts() {
     return m_accounts;
 }
 
-Account GameData::GetAccount(std::string username) {
+Account GameData::GetAccount(const std::string& username) {
     return m_accounts.GetAccount(username);
 }
 

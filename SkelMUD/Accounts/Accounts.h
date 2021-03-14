@@ -22,7 +22,7 @@ public:
     void LoadAccounts(std::string filename);
     void SaveAccounts(std::string filename);
     bool IsAccount(std::string username);
-    Account GetAccount(std::string username);
+    Account GetAccount(const std::string& username);
 };
 
 #endif //SKELMUD_ACCOUNTS_H

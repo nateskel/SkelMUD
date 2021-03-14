@@ -46,7 +46,7 @@ private:
     void ProcessCombat();
     void ProcessSkill(std::shared_ptr<Skill> skill);
     void ProcessRegen();
-    float GetScaledModifier(std::shared_ptr<Player> player, ScaleAttribute scaled);
+    static float GetScaledModifier(const std::shared_ptr<Player> &player, ScaleAttribute scaled);
 };
 
 #endif // GAME_H

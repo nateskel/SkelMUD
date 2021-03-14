@@ -41,7 +41,7 @@ void LoginState::reset(std::shared_ptr<Connection> connection) {
 
 void LoginState::init(std::shared_ptr<Connection> connection) {
     GameState::init(connection);
-    Sender::Send("Welcome to SkelMUD!\r\nPlease enter your username\r\n", connection);
+    Sender::Send("Welcome to SkelMUD!\r\nPlease enter your m_username\r\n", connection);
     CleanPrompt(*connection);
     //connection->SetPrompt(GetPrompt(*connection));
     int connection_id = connection->GetID();
@@ -59,7 +59,7 @@ void LoginState::processPassword(const std::string &input, std::shared_ptr<Conne
         m_state_map.erase(connection_id);
     }
     else {
-        Sender::Send("Bad password\r\n", connection);
+        Sender::Send("Bad m_password\r\n", connection);
         connection->SetUsername("");
         account.SetUsername("");
         // TODO: change to allow for 3 attempts
@@ -70,7 +70,7 @@ void LoginState::processPassword(const std::string &input, std::shared_ptr<Conne
 void LoginState::processNewPassword(const std::string &input, std::shared_ptr<Connection> connection) {
     Account account = connection->GetAccount();
     int connection_id = connection->GetID();
-    //TODO: validate password
+    //TODO: validate m_password
     account.SetUsername(connection->GetUsername());
     account.SetPassword(input);
     game_data->AddAccount(account);
@@ -82,7 +82,7 @@ void LoginState::processNewPassword(const std::string &input, std::shared_ptr<Co
 
 void LoginState::processNewAccount(const std::string &input, std::shared_ptr<Connection> connection) {
     if(input == "y" or input == "Y") {
-        Sender::Send("Enter password for the account\r\n", connection);
+        Sender::Send("Enter m_password for the m_account\r\n", connection);
         m_state_map[connection->GetID()] = NEWPASSWORD;
     }
     else
@@ -100,7 +100,7 @@ void LoginState::processUsername(const std::string &input, std::shared_ptr<Conne
     }
     else
     {
-        Sender::Send("No account found, would you like to make a new one? Y/N\r\n", connection);
+        Sender::Send("No m_account found, would you like to make a new one? Y/N\r\n", connection);
         m_state_map[connection->GetID()] = NEWACCOUNT;
     }
 }

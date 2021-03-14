@@ -1,19 +1,15 @@
 #include "Game.h"
-#include "States/PlayingState.h"
 #include "Sender.h"
 #include "States/StateFactory.h"
 #include "Format.h"
-#include "Items/Wieldable.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
 
 #ifndef _WIN32
-#include <sstream>
-#include <unistd.h>
 #include <mutex>
 #include <random>
-#include <math.h>
+#include <cmath>
 
 #endif
 
@@ -25,6 +21,7 @@ Game::Game() {
     main_elapsed = std::time(nullptr);
     regen_elapsed = std::time(nullptr);
     Logger::Debug("Initializing States");
+    port = 4321;
 }
 
 std::mutex Game::game_mutex;
@@ -124,7 +121,7 @@ void Game::ProcessCombat() {
                 std::uniform_int_distribution<int> dist(weapon->GetMinDamage(), weapon->GetMaxDamage());
                 int damage = dist(mt);
                 auto weapon_scale = weapon->GetScale();
-                damage = int(round(damage * GetScaledModifier(player, weapon_scale)));
+                damage = int(round((float)damage * GetScaledModifier(player, weapon_scale)));
                 std::string damage_text;
                 std::string damage_text_other;
                 if(!crit) {
@@ -137,9 +134,9 @@ void Game::ProcessCombat() {
                     damage *= 3;
                 }
                 ss << "You " << damage_text << " " << target->GetName();
-                ss << " for " << damage << " damage!" << Format::NL;
+                ss << " for " << damage << " damage!" << std::endl;
                 ts << player->GetName() << " " << damage_text_other;
-                ts << " you for " << damage << " damage!" <<Format::NL;
+                ts << " you for " << damage << " damage!" <<std::endl;
                 target->Damage(damage);
             }
             if(off_hand != nullptr) {
@@ -159,14 +156,14 @@ void Game::ProcessCombat() {
                     damage *= 3;
                 }
                 ss << "You " << damage_text << " " << target->GetName();
-                ss << " for " << damage << " damage!" << Format::NL;
+                ss << " for " << damage << " damage!" << std::endl;
                 ts << player->GetName() << " " << damage_text_other;
-                ts << " you for " << damage << " damage!" <<Format::NL;
+                ts << " you for " << damage << " damage!" <<std::endl;
                 target->Damage(damage);
             }
             if(main_hand == nullptr && off_hand == nullptr) {
-                ss << "You punch " << target->GetName() << " for 1 damage!" << Format::NL;
-                ts << player->GetName() << " punches you for 1 damage!" << Format::NL;
+                ss << "You punch " << target->GetName() << " for 1 damage!" << std::endl;
+                ts << player->GetName() << " punches you for 1 damage!" << std::endl;
                 target->Damage(1);
             }
             player->Send(ss.str());
@@ -236,23 +233,23 @@ void Game::listenerThread() {
     }
 }
 
-float Game::GetScaledModifier(std::shared_ptr<Player> player, ScaleAttribute scaled) {
+float Game::GetScaledModifier(const std::shared_ptr<Player> &player, ScaleAttribute scaled) {
     float result = 0;
     switch(scaled) {
         case STR:
-            result = player->GetNetStrength() / 10.0f;
+            result = (float)player->GetNetStrength() / 10.0f;
             break;
         case DEX:
-            result = player->GetNetDexterity() / 10.0f;
+            result = (float)player->GetNetDexterity() / 10.0f;
             break;
         case END:
-            result = player->GetNetEndurance() / 10.0f;
+            result = (float)player->GetNetEndurance() / 10.0f;
             break;
         case INT:
-            result = player->GetNetIntelligence() / 10.0f;
+            result = (float)player->GetNetIntelligence() / 10.0f;
             break;
         case SKILL:
-            result = player->GetNetSkill() / 10.0f;
+            result = (float)player->GetNetSkill() / 10.0f;
             break;
     }
     return result;

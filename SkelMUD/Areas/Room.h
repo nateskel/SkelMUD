@@ -25,20 +25,25 @@ public:
         SUPER_CAPITAL = 5
     };
 
+    enum Directions {
+        NORTH = 0,
+        SOUTH,
+        EAST,
+        WEST,
+        NORTHWEST,
+        NORTHEAST,
+        SOUTHWEST,
+        SOUTHEAST,
+        UP,
+        DOWN,
+        NUMBER_OF_DIRECTIONS
+    };
+
 private:
     int m_id;
     std::string m_long_description;
     std::string m_short_description;
-    int m_north;
-    int m_south;
-    int m_east;
-    int m_west;
-    int m_northwest;
-    int m_northeast;
-    int m_southwest;
-    int m_southeast;
-    int m_up;
-    int m_down;
+    int m_directions[NUMBER_OF_DIRECTIONS];
     LandingLevel m_landing_level;
     std::map<int, std::shared_ptr<Player>> m_player_map;
     std::map<std::string, std::shared_ptr<NPC>> m_npc_map;
@@ -50,8 +55,8 @@ private:
 public:
     Room();
 
-    Room(std::string long_desc,
-         std::string short_desc,
+    Room(const std::string &long_desc,
+         const std::string &short_desc,
          int n,
          int s,
          int e,
@@ -63,9 +68,13 @@ public:
          int u,
          int d);
 
+    Room(const std::string &long_desc,
+         const std::string &short_desc,
+         const int *directions);
+
     ~Room();
 
-    bool IsCockpit();
+    bool IsCockpit() const;
 
     void SetIsCockpit(bool is_cockpit);
 
@@ -75,7 +84,7 @@ public:
 
     void AddShipIDs(std::vector<int> ship_ids);
 
-    void AddShip(std::shared_ptr<Ship> ship);
+    void AddShip(const std::shared_ptr<Ship>& ship);
 
     std::vector<int> GetShipIDs();
 
@@ -83,9 +92,9 @@ public:
 
     void RemovePlayer(int id);
 
-    void AddPlayer(std::shared_ptr<Player> player);
+    void AddPlayer(const std::shared_ptr<Player>& player);
 
-    void AddNPC(std::shared_ptr<NPC> npc);
+    void AddNPC(const std::shared_ptr<NPC>& npc);
 
     std::vector<std::string> GetNPCs();
 
@@ -101,19 +110,21 @@ public:
 
     std::vector<std::string> GetVisiblePlayerNames(int exclude);
 
-    std::vector<std::string> GetVisiblePlayerNames(std::string exclude_name);
+    std::vector<std::string> GetVisiblePlayerNames(const std::string& exclude_name);
 
     std::vector<std::string> GetPlayerNames(int exclude);
 
-    void AddItem(std::string);
+    void AddItem(const std::string&);
 
-    void RemoveItem(std::string);
+    void RemoveItem(const std::string&);
 
     std::map<std::string, int> GetItems();
 
     std::string GetLongDescription();
 
     std::string GetShortDescription();
+
+    int GetDirection(Directions directions);
 
     int GetNorth();
 
@@ -135,7 +146,7 @@ public:
 
     int GetDown();
 
-    int GetID();
+    int GetID() const;
 
     bool IsLandable();
 
@@ -161,9 +172,9 @@ public:
 
     void SetID(int id);
 
-    void SetLongDesc(std::string long_desc);
+    void SetLongDesc(const std::string &long_desc);
 
-    void SetShortDesc(std::string short_desc);
+    void SetShortDesc(const std::string &short_desc);
 
     void SetLandingLevel(LandingLevel landing_level);
 

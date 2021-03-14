@@ -67,7 +67,7 @@ void Accounts::SaveAccounts(std::string filename) {
     std::stringstream ss;
 }
 
-Account Accounts::GetAccount(std::string username) {
+Account Accounts::GetAccount(const std::string& username) {
     auto account = m_accounts.find(username);
     if(account != m_accounts.end())
         return account->second;

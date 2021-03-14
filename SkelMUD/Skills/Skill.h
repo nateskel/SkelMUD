@@ -13,15 +13,6 @@ private:
     int m_level;
     int m_max_level;
 public:
-    enum SKILL_MOD {
-        AOE = 1,
-        DOT = 2,
-        SELF = 4,
-        WEAKEN = 8,
-        BUFF = 16,
-        DAMAGE = 32,
-        HEAL = 64
-    };
 };
 
 

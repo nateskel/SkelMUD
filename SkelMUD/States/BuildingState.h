@@ -14,7 +14,7 @@ private:
     static std::map<std::string, PlayingState::Direction> m_direction_map;
 
 public:
-    BuildingState(std::shared_ptr<GameData> data) : PlayingState(data) {
+    explicit BuildingState(std::shared_ptr<GameData> data) : PlayingState(data) {
         m_cmd_map["createroom"] = &CmdBuildRoom;
         m_cmd_map["linkroom"] = &CmdLink;
         m_cmd_map["getid"] = &CmdGetRoomID;
