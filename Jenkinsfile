@@ -4,8 +4,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'echo "Building..."'
-                sh 'cd /SkelMUD'
-                sh 'make'
+                sh 'build.sh'
             }
         }
     }
